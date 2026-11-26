@@ -29,16 +29,18 @@ __artifacts_v2__ = {
                  "hold only encrypted data and a persistent reference. They carry no service, account or access group, "
                  "so no BeaconStore item could be identified. Records are joined only within one searchpartyd folder. "
                  "Timestamp and Scan Date are the record's timestamp and scanDate dates, in UTC; what each marks is "
-                 "not established. Over the 190 rows of the nine images read they were equal on 145, Timestamp was "
-                 "earlier on 30, and Scan Date held the text $null, shown as no value, on 15. locationSource (as "
+                 "not established. Over the 238 rows of the ten images read they were equal on 146, Timestamp was "
+                 "earlier on 67, and Scan Date held the text $null, shown as no value, on 25. locationSource (as "
                  "stored) held seven distinct integers (1, 2, 3, 4, 7, 8 and 15) and Horizontal Accuracy is "
                  "horizontalAccuracy as stored; the meaning of the first and the unit of the second are not "
                  "established. Beacon Record names the record type whose identifier equals the record's "
-                 "associatedBeacon: OwnedBeacons on 171 rows and SharedBeacons on 19, all 19 on iphone11_ios17. Beacon "
+                 "associatedBeacon: OwnedBeacons on 213 rows and SharedBeacons on 25, 19 on iphone11_ios17 and 6 on "
+                 "hickman_ios15. Beacon "
                  "Name is the name in the BeaconNamingRecord whose associatedBeacon matches, else the name in the "
                  "BeaconAttributes table of the store's ItemSharingKeys.db whose beaconIdentifier matches, as "
-                 "described in Find My Shared Beacons; those 19 rows have no naming record, and all 19 take their name "
-                 "from BeaconAttributes. Where several naming records or several BeaconAttributes rows match, their "
+                 "described in Find My Shared Beacons; those 25 rows have no naming record. The 19 on iphone11_ios17 take "
+                 "their name from BeaconAttributes; the 6 on hickman_ios15, which has no ItemSharingKeys.db, have no "
+                 "name, and the SharedBeacons record's own name text (see Find My Shared Beacons) is not used here. Where several naming records or several BeaconAttributes rows match, their "
                  "distinct names are joined with a comma; no image read had more than one. The record identifier and "
                  "cloudKitMetadata are not reported. SafeLocations records are not read; Find My Safe Locations Cache "
                  "reads the SafeLocations.data cache file. WildModeAssociationRecord records are read by Find My "
@@ -57,6 +59,7 @@ __artifacts_v2__ = {
         "output_types": "all",
         "artifact_icon": "map-pin",
         "sample_data": {
+            "hickman_ios15": "iOS 15.3.1 | 48 rows",
             "abe_ios16": "iOS 16.5 | 32 rows",
             "felix23_ios16": "iOS 16.5 | 0 rows",
             "adams_iphone12mini": "iOS 17.1.1 | 50 rows",
@@ -79,21 +82,21 @@ __artifacts_v2__ = {
         "category": "Locations & Maps",
         "notes": "One row per OwnedBeacons record in com.apple.icloud.searchpartyd, decrypted as described in Find My "
                  "Beacon Estimated Locations, where the images whose records could not be read are listed. Model "
-                 "(model as stored) held a string shaped like a device model identifier on 31 of the 37 rows read "
-                 "(iPhone, iPad, Mac and Watch forms among them) and an empty string on 6. What the field identifies "
+                 "(model as stored) held a string shaped like a device model identifier on 37 of the 45 rows read "
+                 "(iPhone, iPad, Mac, Watch and VMware forms) and an empty string on 8. What the field identifies "
                  "is not established. Pairing Date is pairingDate in UTC; what it marks is not established. Name is "
-                 "the name in the BeaconNamingRecord whose associatedBeacon equals the identifier, empty on the 6 of "
-                 "37 rows with none. BeaconNamingRecord files for 6 beacons that match neither an OwnedBeacons nor a "
-                 "SharedBeacons identifier (2 on abe_ios16, 4 on iphone11_ios17) are not reported. Latest Estimated "
+                 "the name in the BeaconNamingRecord whose associatedBeacon equals the identifier, empty on the 7 of "
+                 "45 rows with none. BeaconNamingRecord files for 10 beacons that match neither an OwnedBeacons nor a "
+                 "SharedBeacons identifier (2 on abe_ios16, 4 on iphone11_ios17, 4 on hickman_ios15) are not reported. Latest Estimated "
                  "Location Timestamp is the latest Timestamp among the beacon's BeaconEstimatedLocation records and "
-                 "Estimated Location Records is their count; 20 of 37 rows had none. Leash Records counts the "
-                 "LeashRecords whose associatedBeacons list the identifier (1 on 23 rows, 0 on 14); what a leash "
-                 "record represents is not established. batteryLevel (as stored) held 0 on 33 rows and 1 on 4, "
-                 "productId (as stored) -1 on 31 and vendorId (as stored) -1 on 31; their meanings are not "
-                 "established. Not reported: isZeus (False on all 37 records), cloudKitMetadata, groupIdentifier "
-                 "(present on 2 records), the naming record's emoji (on 6 of 37) and roleId, and the key material "
-                 "(privateKey, publicKey and sharedSecret on all 37, secureLocationsSharedSecret on 29, "
-                 "secondarySharedSecret on 6).",
+                 "Estimated Location Records is their count; 25 of 45 rows had none. Leash Records counts the "
+                 "LeashRecords whose associatedBeacons list the identifier (1 on 26 rows, 0 on 19); what a leash "
+                 "record represents is not established. batteryLevel (as stored) held 0 on 39 rows and 1 on 6, "
+                 "productId (as stored) -1 on 37 and vendorId (as stored) -1 on 37; their meanings are not "
+                 "established. Not reported: isZeus (False on all 45 records), cloudKitMetadata, groupIdentifier "
+                 "(present on 4 records), the naming record's emoji (on 8 of 45) and roleId, and the key material "
+                 "(privateKey, publicKey and sharedSecret on all 45, secureLocationsSharedSecret on 32, "
+                 "secondarySharedSecret on 8).",
         "paths": (
             '*/mobile/Library/com.apple.icloud.searchpartyd/OwnedBeacons/*.record',
             '*/mobile/Library/com.apple.icloud.searchpartyd/BeaconNamingRecord/*.record',
@@ -103,6 +106,7 @@ __artifacts_v2__ = {
         "output_types": "standard",
         "artifact_icon": "tag",
         "sample_data": {
+            "hickman_ios15": "iOS 15.3.1 | 8 rows",
             "abe_ios16": "iOS 16.5 | 4 rows",
             "felix23_ios16": "iOS 16.5 | 3 rows",
             "adams_iphone12mini": "iOS 17.1.1 | 5 rows",
@@ -124,31 +128,39 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "Locations & Maps",
         "notes": "One row per SharedBeacons record in com.apple.icloud.searchpartyd, decrypted as described in Find My "
-                 "Beacon Estimated Locations. Of the nine images in sample_data, only iphone11_ios17 held "
-                 "SharedBeacons records, so every count here is from that image. Share Date is shareDate in UTC; what "
+                 "Beacon Estimated Locations. Of the ten images in sample_data, iphone11_ios17 (14 records) and "
+                 "hickman_ios15 (5) held SharedBeacons records, so every count here is from those two. Share Date is shareDate in UTC; what "
                  "it marks is not established. Owner Handle is the destination string of the ownerHandle dictionary, "
-                 "present on all 14 rows; the dictionary's type integer (0 on all 14) is not reported. Owner Beacon "
-                 "Identifier is ownerBeaconIdentifier from the record's name dictionary, present on 7 rows; on the "
-                 "other 7 name held an empty string, and no record held a text name. Name and Emoji are the name and "
+                 "present on all 19 rows; the dictionary's type integer (0 on all 19) is not reported. Owner Beacon "
+                 "Identifier is ownerBeaconIdentifier from the record's name dictionary, present on 7 rows, all on "
+                 "iphone11_ios17; name held an empty string on 9 rows and text on 3, so Owner Beacon Identifier is "
+                 "empty on all 5 hickman_ios15 rows. Record Name (as stored) is name where it held text: on those 3 "
+                 "rows, all on hickman_ios15. Record Name (as stored) is empty on the 14 iphone11_ios17 rows, where "
+                 "name held a dictionary (7) or an empty string (7). The SharedBeacons parser of "
+                 "joshuahickman1/Lost_Apples does not extract this key (https://github.com/joshuahickman1/Lost_Apples/blob/9ec8597a4164bd63fa757fe2463597a393934e03/src/shared_beacons_parser.py#L117-L166) and takes the beacon name "
+                 "from BeaconNamingRecord (https://github.com/joshuahickman1/Lost_Apples/blob/9ec8597a4164bd63fa757fe2463597a393934e03/src/shared_beacons_parser.py#L213-L241). The text equaled none of the store's BeaconNamingRecord "
+                 "names, compared without regard to case, and what it names is not established; it is not used as Beacon "
+                 "Name in Find My Beacon Estimated Locations. Name and Emoji are the name and "
                  "emoji of the BeaconAttributes row in the store's ItemSharingKeys.db whose beaconIdentifier matches "
                  "the identifier, compared without regard to case, read in the database's current state. The table's "
                  "schema does not make beaconIdentifier unique; where several rows match, their distinct values are "
-                 "joined with a comma, and no image read had more than one. Name was present on 7 of the 14 rows and "
-                 "Emoji on 2, and ItemSharingKeys.db held BeaconAttributes rows on no other image. ItemSharingKeys.db "
+                 "joined with a comma, and no image read had more than one. Name was present on 7 of the 19 rows and "
+                 "Emoji on 2, all on iphone11_ios17, and ItemSharingKeys.db held BeaconAttributes rows on no other image. "
+                 "On hickman_ios15 Name and Emoji held no value on all 5 rows. ItemSharingKeys.db "
                  "is a SQLite database encrypted as Observations.db is (see Find My Observed Advertisements), with the "
                  "KeyDatabase / searchparty keychain item; that item's data held the key on dexter_ios18, felix_ios17, "
                  "otto_ios17, hill_iphone15pro_ios26 and wilkerson_iphone16_ios26, and its gena attribute on "
-                 "adams_iphone12mini and iphone11_ios17 (abe_ios16 and felix23_ios16 have no ItemSharingKeys.db). A "
+                 "adams_iphone12mini and iphone11_ios17 (hickman_ios15, abe_ios16 and felix23_ios16 have no ItemSharingKeys.db). A "
                  "decrypted copy is written to the Decrypted searchpartyd folder in the report folder. Where "
                  "BeaconAttributes cannot be read, the failure is logged and the beacon rows are reported without its "
                  "names. The BeaconAttributes userIdentifier, roleIdentifier and systemVersion (each present on all 7 "
                  "rows) and serialNumber (null on all 7) are not reported. The table also has a delegationStatus "
                  "column on dexter_ios18, hill_iphone15pro_ios26 and wilkerson_iphone16_ios26, where it held no rows. "
-                 "shareType (as stored) held 1 on 7 rows and 4 on 7; its meaning is not established. Model held an "
-                 "empty string on 4 rows. Latest Estimated Location Timestamp and Estimated Location Records come from "
-                 "the BeaconEstimatedLocation records whose associatedBeacon equals the identifier: 19 records for 3 "
-                 "of the 14 beacons. Not reported: accepted (True on all 14), role (-1 on all 14), groupIdentifier "
-                 "($null on all 14), correlationIdentifier, shareIdentifier, advertisedIndex, cloudKitMetadata and the "
+                 "shareType (as stored) held 1 on 12 rows and 4 on 7; its meaning is not established. On hickman_ios15 shareType held 1 on all 5 rows. Model held an "
+                 "empty string on 5 rows. Latest Estimated Location Timestamp and Estimated Location Records come from "
+                 "the BeaconEstimatedLocation records whose associatedBeacon equals the identifier: 25 records for 4 "
+                 "of the 19 beacons. Not reported: accepted (True on all 19), role (-1 on all 19), groupIdentifier "
+                 "($null on all 19), correlationIdentifier, shareIdentifier, advertisedIndex, cloudKitMetadata and the "
                  "name dictionary's version.",
         "paths": (
             '*/mobile/Library/com.apple.icloud.searchpartyd/SharedBeacons/*.record',
@@ -158,6 +170,7 @@ __artifacts_v2__ = {
         "output_types": "standard",
         "artifact_icon": "share-2",
         "sample_data": {
+            "hickman_ios15": "iOS 15.3.1 | 5 rows",
             "abe_ios16": "iOS 16.5 | 0 rows",
             "felix23_ios16": "iOS 16.5 | 0 rows",
             "adams_iphone12mini": "iOS 17.1.1 | 0 rows",
@@ -180,7 +193,7 @@ __artifacts_v2__ = {
         "category": "Locations & Maps",
         "notes": "One row per WildModeAssociationRecord record in com.apple.icloud.searchpartyd, decrypted as described "
                  "in Find My Beacon Estimated Locations, where the images whose records could not be read are listed. "
-                 "Of the ten images run (the nine listed there and hickman_ios15), only iphone11_ios17 (4 records) and "
+                 "Of the ten images in sample_data, only iphone11_ios17 (4 records) and "
                  "hickman_ios15 (3) held WildModeAssociationRecord records, so every count here is from those 7 "
                  "records; the other eight images held none. "
                  "joshuahickman1/Lost_Apples describes these records as unwanted tracker alerts and their locations as "
@@ -755,7 +768,7 @@ def findMyOwnedBeacons(context):
 @artifact_processor
 def findMySharedBeacons(context):
     data_headers = (('Share Date', 'datetime'), ('Latest Estimated Location Timestamp', 'datetime'), 'Name',
-                    'Emoji', 'Owner Handle', 'Model', 'System Version', 'shareType (as stored)',
+                    'Emoji', 'Record Name (as stored)', 'Owner Handle', 'Model', 'System Version', 'shareType (as stored)',
                     'productId (as stored)', 'vendorId (as stored)',
                     'Estimated Location Records', 'Identifier', 'Owner Beacon Identifier')
     data_list = []
@@ -772,7 +785,7 @@ def findMySharedBeacons(context):
             name = record.get('name')
             owner_beacon = _text(name.get('ownerBeaconIdentifier')) if isinstance(name, dict) else ''
             name_text, emoji = store_attributes.get(identifier.upper(), ('', ''))
-            data_list.append((_date(record.get('shareDate')), newest, name_text, emoji,
+            data_list.append((_date(record.get('shareDate')), newest, name_text, emoji, _text(name),
                               _text(handle.get('destination')), _text(record.get('model')),
                               _text(record.get('systemVersion')), _value(record.get('shareType')),
                               _value(record.get('productId')),

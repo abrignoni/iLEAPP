@@ -182,9 +182,29 @@ class Artifacts(Base):
             _headers, shared, _sources = spd.findMySharedBeacons.__wrapped__(self.context())
             _headers, located, _sources = spd.findMyBeaconEstimatedLocations.__wrapped__(self.context())
         utc = when.replace(tzinfo=timezone.utc)
-        self.assertEqual(shared, [(utc, utc, '', '', 'owner@example.com', 'm', '1', 1, -1, -1, 1,
+        self.assertEqual(shared, [(utc, utc, '', '', '', 'owner@example.com', 'm', '1', 1, -1, -1, 1,
                                    OTHER_BEACON, BEACON)])
         self.assertEqual([row[7] for row in located], ['SharedBeacons'])
+
+    def test_record_name_only_when_it_is_text(self):
+        when = datetime(2026, 1, 2, 3, 4, 5)
+        cases = {BEACON: ('Keys', 'Keys'), OTHER_BEACON: ({'ownerBeaconIdentifier': BEACON}, ''),
+                 '00000000-0000-0000-0000-000000000001': ('', ''),
+                 '00000000-0000-0000-0000-000000000002': ('$null', '')}
+        for identifier, (name, _expected) in cases.items():
+            self.write('a', f'SharedBeacons/{identifier}.record', record_bytes(
+                {'identifier': identifier, 'shareDate': when, 'name': name}))
+        self.write('a', f'BeaconEstimatedLocation/{BEACON}/e.record', record_bytes(
+            {'identifier': 'e', 'associatedBeacon': BEACON, 'timestamp': when, 'scanDate': when}))
+        with self.keys([KEY]):
+            headers, shared, _sources = spd.findMySharedBeacons.__wrapped__(self.context())
+            _headers, located, _sources = spd.findMyBeaconEstimatedLocations.__wrapped__(self.context())
+        self.assertEqual(headers[4], 'Record Name (as stored)')
+        self.assertEqual({row[12]: row[4] for row in shared},
+                         {identifier: expected for identifier, (_name, expected) in cases.items()})
+        self.assertEqual({row[12]: row[2] for row in shared}, dict.fromkeys(cases, ''))
+        # The record's own name is not taken as the beacon's name in the location rows.
+        self.assertEqual([row[6] for row in located], [''])
 
 
 class UnwantedTrackers(Artifacts):
