@@ -21,13 +21,16 @@ __artifacts_v2__ = {
         "description": "Apple ATX texture archives decoded to images when possible",
         "author": "@JamesHabben",
         "creation_date": "2026-06-25",
-        "last_update_date": "2026-08-21",
+        "last_update_date": "2026-11-25",
         "requirements": "astc_decomp_faster, liblzfse",
         "category": "Photos & Media",
         "notes": "ATX files are decoded as texture containers wrapping ASTC image data; that "
                  "layout was derived from observed files and is not vendor-documented. Where each "
                  "file was found is given per row in the Source Path column. Decoding uses "
-                 "observed Apple ATX layouts and a best-effort tile-order heuristic. If an image "
+                 "observed Apple ATX layouts and a best-effort tile-order heuristic. Pixel Format shows "
+                 "the pair stored in the header; a pair the parser does not list is treated as "
+                 "ASTC 4x4 when the header's glInternalFormat word is 0x93B0, and the Status column "
+                 "says so. If an image "
                  "appears scrambled or fails to decode, please open an issue and provide sample "
                  "ATX files when possible.",
         "paths": (

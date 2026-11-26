@@ -60,7 +60,6 @@ from pathlib import Path, PurePosixPath
 import re
 import sqlite3
 
-from PIL import Image
 from scripts.artifacts.applicationStateDB import _get_snapshots
 from scripts.ktx.ios_ktx2png import KTX_reader
 from scripts.ilapfuncs import artifact_processor, check_in_media, lava_get_full_media_info, logfunc, convert_unix_ts_to_utc
@@ -95,7 +94,7 @@ def save_ktx_to_png_if_valid(ktx_path, save_to_path, image_scale=None):
         try:
             if ktx.validate_header(f):
                 data = ktx.get_uncompressed_texture_data(f)
-                dec_img = Image.frombytes('RGBA', (ktx.pixelWidth, ktx.pixelHeight), data, 'astc', (4, 4, False))
+                dec_img = ktx.to_image(data)
                 # either all black or all white https://stackoverflow.com/questions/14041562/python-pil-detect-if-an-image-is-completely-black-or-white
                 # if sum(dec_img.convert("L").getextrema()) in (0, 2):
                 #     logfunc('Skipping image as it is blank')

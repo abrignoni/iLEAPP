@@ -5,7 +5,7 @@ __artifacts_v2__ = {
                        "and times shown are from file modified timestamps",
         "author": "@maala-nfi, @AlexisBrignoni",
         "creation_date": "2026-06-18",
-        "last_update_date": "2026-11-06",
+        "last_update_date": "2026-11-25",
         "requirements": "none",
         "category": "Installed Apps",
         "notes": "Each .snapshot file under com.apple.chrono/snapshot-cache that decodes as a KTX "
@@ -45,7 +45,6 @@ __artifacts_v2__ = {
 
 from pathlib import Path, PurePosixPath
 
-from PIL import Image
 from scripts.ktx.ios_ktx2png import KTX_reader
 from scripts.ilapfuncs import artifact_processor, check_in_media, lava_get_full_media_info, logfunc, convert_unix_ts_to_utc
 
@@ -58,8 +57,7 @@ def save_ktx_to_png_if_valid(ktx_path, save_to_path):
         try:
             if ktx.validate_header(f):
                 data = ktx.get_uncompressed_texture_data(f)
-                dec_img = Image.frombytes(
-                    'RGBA', (ktx.pixelWidth, ktx.pixelHeight), data, 'astc', (4, 4, False))
+                dec_img = ktx.to_image(data)
 
                 dec_img.save(save_to_path, "PNG", compress_type=3)
 

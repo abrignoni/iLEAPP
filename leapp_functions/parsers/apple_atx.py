@@ -32,6 +32,9 @@ ASTC_UPPER_TAG = b"ASTC"
 LZFS_TAG = b"LZFS"
 ASTC_4X4_FORMAT = (3, 5)
 INFERRED_ASTC_4X4_FORMATS = {(1, 1), (3, 1)}
+# HEAD word 4, which scripts/ktx/ios_ktx2png.py reads as glInternalFormat. 0x93B0 is the
+# Khronos GL_COMPRESSED_RGBA_ASTC_4x4_KHR value.
+GL_COMPRESSED_RGBA_ASTC_4X4 = 0x93B0
 ASTC_BLOCK_BYTES = 16
 ASTC_BLOCK_WIDTH = 4
 ASTC_BLOCK_HEIGHT = 4
@@ -62,6 +65,7 @@ class AtxHeader:
     texture_uuid: str
     pixel_format_a: int
     pixel_format_b: int
+    gl_internal_format: int = 0
 
     @property
     def pixel_format(self) -> str:
@@ -204,6 +208,7 @@ def _parse_header(reader: _Reader, chunks: tuple[AtxChunk, ...], warnings: list[
         texture_uuid=texture_uuid,
         pixel_format_a=struct.unpack_from("<I", payload, 0x4C)[0],
         pixel_format_b=struct.unpack_from("<I", payload, 0x50)[0],
+        gl_internal_format=struct.unpack_from("<I", payload, 0x10)[0],
     )
 
 
@@ -240,8 +245,11 @@ def _decode_image(header: AtxHeader, payload: TexturePayload, warnings: list[str
         warnings.append(f"Unexpected ATX mipmap count {header.mipmap_count}; attempting first image decode")
     pixel_format = (header.pixel_format_a, header.pixel_format_b)
     if pixel_format not in {ASTC_4X4_FORMAT, *INFERRED_ASTC_4X4_FORMATS}:
-        raise ValueError(f"unsupported ATX pixel format {header.pixel_format}")
-    if pixel_format in INFERRED_ASTC_4X4_FORMATS:
+        if header.gl_internal_format != GL_COMPRESSED_RGBA_ASTC_4X4:
+            raise ValueError(f"unsupported ATX pixel format {header.pixel_format}")
+        warnings.append(f"ATX pixel format {pixel_format} not listed. Treated as ASTC 4x4 because "
+                        f"glInternalFormat is 0x{GL_COMPRESSED_RGBA_ASTC_4X4:X}")
+    elif pixel_format in INFERRED_ASTC_4X4_FORMATS:
         warnings.append(f"ATX pixel format {pixel_format} inferred as ASTC 4x4")
 
     if payload.compressed:
