@@ -24,7 +24,7 @@ NO_ANSWER = Detected("", "No answer", problem="Its drive does not answer: it may
 LOOKING = Detected("", "Looking at the source", note="Waiting for its drive to answer.")
 
 LABELS = {"fs": "Folder of extracted files", "tar": "tar archive", "gz": "tar.gz archive",
-          "zip": "zip archive", "raw": "Raw disk image"}
+          "zip": "zip archive", "raw": "Raw disk image", "iva": "Berla iVe export"}
 SUPPORTED = frozenset(leapp.input_types)
 
 # The archives known by their first bytes, and the input type that reads each of them
@@ -59,7 +59,7 @@ def detect(paths, supported=SUPPORTED, single_file=False):
         return detect_image(path)
     if os.path.isdir(path):
         return detect_folder(path, supported)
-    return detect_single_file(path) if single_file and "file" in supported else detect_file(path)
+    return detect_one_file(path, supported, single_file)
 
 
 def detect_images(paths):
@@ -226,6 +226,18 @@ def decrypt_itunes_backup(directory, passcode):
     return (classes, manifest_db_key), "Decryption successful"
 
 
+def detect_export(path, supported):
+    """ A Berla iVe export, a zip that holds another: only VLEAPP reads them. """
+    if "iva" not in supported:
+        return Detected("", LABELS["iva"], problem=f"VLEAPP reads Berla iVe exports, {leapp.name} does not.")
+    try:
+        zipped = guess_mime(path) == "application/zip"
+    except OSError as error:
+        return unreadable(error)
+    note = "" if zipped else "Its content does not look like a zip archive, which an export is."
+    return Detected("iva", LABELS["iva"], note)
+
+
 def kind_by_name(path):
     """ The input type that the extension of a file stands for, or None. """
     name = os.path.basename(path).lower()
@@ -240,6 +252,15 @@ def kind_by_name(path):
     if suffix in RAW_IMAGE_SUFFIXES or (suffix.isascii() and suffix.isdigit()):
         return "raw"
     return None
+
+
+def detect_one_file(path, supported, single_file):
+    """ A file read as it is (-t file), a Berla iVe export, or else an archive or a disk image. """
+    if single_file and "file" in supported:
+        return detect_single_file(path)
+    if path.lower().endswith(".iva"):
+        return detect_export(path, supported)
+    return detect_file(path)
 
 
 def detect_file(path):

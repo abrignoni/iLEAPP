@@ -39,6 +39,16 @@ RUN_OVER = {
 BUTTON_DROP = 4
 
 
+def artifacts_subtitle(artifacts):
+    """ "1208 of 1210 artifacts selected · 2 slow or large ones are unselected by default" """
+    subtitle = f"{len(artifacts.selected)} of {len(artifacts.listed)} artifacts selected"
+    left_out = sum(not artifact.default for artifact in artifacts.listed)
+    if left_out:
+        ones = "one is" if left_out == 1 else "ones are"
+        subtitle += f" · {left_out} slow or large {ones} unselected by default"
+    return subtitle
+
+
 class BarTexts(tk.Frame):
     """ On the left of the buttons: a title, and under it a subtitle or the progress of the run. """
 
@@ -104,11 +114,7 @@ class StatusBar(tk.Frame):
         elif state.step == "results":
             title = RUN_OVER["done"][0]
         if state.step == "artifacts":
-            artifacts = state.artifacts
-            subtitle = f"{len(artifacts.selected)} of {len(artifacts.listed)} artifacts selected"
-            left_out = sum(not artifact.default for artifact in artifacts.listed)
-            if left_out:
-                subtitle += f" · {left_out} slow or large ones are unselected by default"
+            subtitle = artifacts_subtitle(state.artifacts)
 
         target = state.neighbour(1)
         blocked = state.step in ("source", "artifacts", "review") and not state.can_go(target)
@@ -148,5 +154,6 @@ class StatusBar(tk.Frame):
         """ How far the run has gone, as often as the run reports it. """
         shown = self.app.app_state.run.worker.shown
         word = "Stopping" if shown.stopping else "Progress"
-        self.texts.show_progress(f"{word}: {shown.done:,} of {shown.total:,} artifacts done",
+        noun = "artifact" if shown.total == 1 else "artifacts"
+        self.texts.show_progress(f"{word}: {shown.done:,} of {shown.total:,} {noun} done",
                                  shown.done, shown.total)
