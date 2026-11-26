@@ -264,6 +264,9 @@ def encrypted_store(directory, name, statements, key=KEY):
         for statement, values in statements:
             connection.execute(statement, values)
         encrypt_store(plain, os.path.join(directory, name), key)
+        # The plain store and its log as they were, for the oracle: closing checkpoints the log away.
+        shutil.copy(plain, os.path.join(directory, 'plain-copy-' + name))
+        shutil.copy(plain + '-wal', os.path.join(directory, 'plain-copy-' + name + '-wal'))
     finally:
         connection.close()
 
@@ -371,6 +374,87 @@ class BeaconAttributes(unittest.TestCase):
             _headers, shared, sources = spd.findMySharedBeacons.__wrapped__(self.context())
         self.assertEqual(shared[0][2:4], ('', ''))
         self.assertNotIn('ItemSharingKeys.db', sources)
+
+
+class DaySummary(unittest.TestCase):
+    """Located advertisements stay rows; the rest are counted per beacon and UTC day, live and recovered."""
+
+    def setUp(self):
+        tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(tmp.cleanup)
+        self.tmp = tmp.name
+        spd._key_cache.clear()
+        patcher = mock.patch.object(spd, 'logfunc')
+        patcher.start()
+        self.addCleanup(patcher.stop)
+        self.store = os.path.join(self.tmp, 'a', 'mobile', 'Library', spd.STORE_DIR)
+        os.makedirs(self.store)
+        statements = [(statement, ()) for statement in SCHEMA.strip().split(';') if statement.strip()]
+        # Day 1: two advertisements of BEACON and one of no beacon, none located. Day 2: one of BEACON
+        # with a location, one of BEACON without. Then two unlocated ones and the located one are deleted.
+        rows = [(1, '2026-01-01T08:00:00.000', BEACON, False, -50), (2, '2026-01-01T09:30:00.500', BEACON, False, -70),
+                (3, '2026-01-01T10:00:00.000', None, False, -60), (4, '2026-01-02T11:00:00.000', BEACON, True, -55),
+                (5, '2026-01-02T12:00:00.000', BEACON, False, -65)]
+        for adv_id, when, beacon, located, rssi in rows:
+            statements.append(('INSERT INTO ObservedAdvertisement VALUES (?, 1, ?, ?, ?, ?)',
+                               (adv_id, bytes(6), bytes(28), rssi, when)))
+            if located:
+                statements.append(('INSERT INTO ObservedAdvertisementLocation VALUES (?, 1.5, 2.5, 10.0, ?)',
+                                   (adv_id, when)))
+            if beacon:
+                statements.append(('INSERT INTO ObservedAdvertisementBeaconInfo VALUES (?, ?)', (adv_id, beacon)))
+        for adv_id in (2, 4, 5):  # one transaction each, as the schema's ON DELETE CASCADE removes them
+            statements.append(('BEGIN', ()))
+            for table in ('ObservedAdvertisementLocation', 'ObservedAdvertisementBeaconInfo', 'ObservedAdvertisement'):
+                statements.append((f'DELETE FROM {table} WHERE advId = ?', (adv_id,)))
+            statements.append(('COMMIT', ()))
+        encrypted_store(self.store, 'Observations.db', statements)
+
+    def context(self):
+        context = mock.Mock()
+        context.get_files_found.return_value = [os.path.join(self.store, name) for name in os.listdir(self.store)
+                                                if not name.startswith('plain-')]
+        context.get_report_folder.return_value = os.path.join(self.tmp, 'report')
+        return context
+
+    def keys(self):
+        entries = [{'agrp': 'com.apple.icloud.searchpartyd', 'svce': 'Observations', 'acct': 'searchparty',
+                    'v_Data': KEY}]
+        return mock.patch.multiple(spd, active_keychain_path=mock.Mock(return_value='keychain.plist'),
+                                   load_keychain_entries=mock.Mock(return_value=entries))
+
+    def run_both(self):
+        with self.keys():
+            _headers, located, _sources = spd.findMyObservedAdvertisements.__wrapped__(self.context())
+            headers, days, _sources = spd.findMyObservedAdvertisementDays.__wrapped__(self.context())
+        return located, [dict(zip([h[0] if isinstance(h, tuple) else h for h in headers], row)) for row in days]
+
+    def test_located_rows_and_day_counts(self):
+        located, days = self.run_both()
+        self.assertEqual([(row[11], row[12]) for row in located], [(4, 'Recovered')])
+        summary = {(row['Day (UTC)'], row['Beacon Identifier']): row for row in days}
+        self.assertEqual(sorted(summary), [('2026-01-01', ''), ('2026-01-01', BEACON), ('2026-01-02', BEACON)])
+        first_day = summary[('2026-01-01', BEACON)]
+        self.assertEqual((first_day['Advertisements'], first_day['Recovered Advertisements']), (2, 1))
+        self.assertEqual(first_day['First Scan Date'].isoformat(), '2026-01-01T08:00:00+00:00')
+        self.assertEqual(first_day['Last Scan Date'].isoformat(), '2026-01-01T09:30:00.500000+00:00')
+        self.assertEqual((first_day['rssi Minimum (as stored)'], first_day['rssi Maximum (as stored)']), (-70, -50))
+        self.assertEqual((summary[('2026-01-02', BEACON)]['Advertisements'],
+                          summary[('2026-01-02', BEACON)]['Recovered Advertisements']), (1, 1))
+
+    def test_every_advertisement_in_any_state_is_counted_once(self):
+        # The oracle: every advId any state of the plain store holds is a located row or one day count.
+        plain = os.path.join(self.store, 'plain-copy-Observations.db')
+        every = set()
+        with sqlite_wal.WalStates(plain, include=spd._WAL_KINDS) as wal:
+            for state in wal.states():
+                try:
+                    every |= {row[0] for row in state.connection.execute('SELECT advId FROM ObservedAdvertisement')}
+                except sqlite3.OperationalError:
+                    pass
+        located, days = self.run_both()
+        self.assertEqual(len(located) + sum(row['Advertisements'] for row in days), len(every))
+        self.assertEqual(len(every), 5)
 
 
 if __name__ == '__main__':

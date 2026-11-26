@@ -260,6 +260,54 @@ __artifacts_v2__ = {
             "wilkerson_iphone16_ios26": "iOS 26.5.2 | 0 rows",
         },
     },
+    "findMyObservedAdvertisementDays": {
+        "name": "Find My Observed Advertisement Days",
+        "description": "Advertisements in the encrypted Observations.db store of searchpartyd that have no "
+                       "location, counted per beacon and UTC day",
+        "author": "@AlexisBrignoni, Claude",
+        "creation_date": "2026-11-26",
+        "last_update_date": "2026-11-26",
+        "requirements": "none",
+        "category": "Locations & Maps",
+        "notes": "One row per searchpartyd folder, beacon and UTC day for the advertisements in Observations.db that "
+                 "have no ObservedAdvertisementLocation row, read and decrypted as described in Find My Observed "
+                 "Advertisements, which reports the advertisements that do have one; together the two account for "
+                 "every advertisement read. An advertisement without a location carries a time, a beacon (or none), a "
+                 "MAC address and an rssi, so these are counted rather than listed; the decrypted store in the report "
+                 "folder holds each one. Day (UTC) is the first 10 characters of scanDate, which is stored as text "
+                 "with no zone and read as UTC (see Find My Observed Advertisements). First Scan Date and Last Scan "
+                 "Date are the earliest and latest scanDate of the day's advertisements. Advertisements counts them, "
+                 "current and recovered, and Recovered Advertisements counts those read only in another state of the "
+                 "write-ahead log. rssi Minimum and rssi Maximum are the lowest and highest stored rssi; what rssi "
+                 "measures is not established. Beacon Identifier, Beacon Record and Beacon Name are joined as in Find "
+                 "My Observed Advertisements; advertisements that name no beacon are counted in a row with those "
+                 "columns empty. Over the nine images, 1,842 advertisements had no location and made 9 rows: "
+                 "felix_ios17 2 rows (1,833 advertisements), dexter_ios18 2 (4, 1 of them recovered), iphone11_ios17 2 "
+                 "(2, one of them the SharedBeacons advertisement), and otto_ios17, hill_iphone15pro_ios26 and "
+                 "wilkerson_iphone16_ios26 1 each. Every row named a beacon, and every row's beacon had a name. "
+                 "Recovery Location is not reported per day; Find My Observed Advertisements gives it for each located "
+                 "advertisement.",
+        "paths": (
+            '*/mobile/Library/com.apple.icloud.searchpartyd/Observations.db*',
+            '*/mobile/Library/com.apple.icloud.searchpartyd/OwnedBeacons/*.record',
+            '*/mobile/Library/com.apple.icloud.searchpartyd/SharedBeacons/*.record',
+            '*/mobile/Library/com.apple.icloud.searchpartyd/BeaconNamingRecord/*.record',
+            '*/mobile/Library/com.apple.icloud.searchpartyd/ItemSharingKeys.db*',
+        ),
+        "output_types": "standard",
+        "artifact_icon": "calendar",
+        "sample_data": {
+            "abe_ios16": "iOS 16.5 | 0 rows",
+            "felix23_ios16": "iOS 16.5 | 0 rows",
+            "adams_iphone12mini": "iOS 17.1.1 | 0 rows",
+            "iphone11_ios17": "iOS 17.3 | 2 rows",
+            "otto_ios17": "iOS 17.5.1 | 1 row",
+            "felix_ios17": "iOS 17.6.1 | 2 rows",
+            "dexter_ios18": "iOS 18.3.2 | 2 rows",
+            "hill_iphone15pro_ios26": "iOS 26.3.1 | 1 row",
+            "wilkerson_iphone16_ios26": "iOS 26.5.2 | 1 row",
+        },
+    },
     "findMyObservedAdvertisements": {
         "name": "Find My Observed Advertisements",
         "description": "Advertisements recorded in the encrypted Observations.db store of searchpartyd, with the "
@@ -272,9 +320,11 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "Locations & Maps",
         "notes": "One row per advertisement in the ObservedAdvertisement table of Observations.db in "
-                 "com.apple.icloud.searchpartyd, read in the current state and in every other state of the database's "
-                 "write-ahead log that scripts/sqlite_wal.py could read. The store is a SQLite database encrypted page "
-                 "by page with AES-256-OFB, as published in joshuahickman1/Lost_Apples "
+                 "com.apple.icloud.searchpartyd that has an ObservedAdvertisementLocation row, read in the current "
+                 "state and in every other state of the database's write-ahead log that scripts/sqlite_wal.py could "
+                 "read. Advertisements without a location row are counted per beacon and UTC day in Find My Observed "
+                 "Advertisement Days, and together the two account for every advertisement read. The store is a SQLite "
+                 "database encrypted page by page with AES-256-OFB, as published in joshuahickman1/Lost_Apples "
                  "(https://github.com/joshuahickman1/Lost_Apples/blob/9ec8597a4164bd63fa757fe2463597a393934e03/src/searchpartyd_db_decryptor.py#L15-L19): "
                  "page 1 bytes 16 to 23 and the last 12 bytes of each page are stored unencrypted, and a page's IV is "
                  "its page number (4 bytes, little-endian) followed by those 12 bytes. The key is the Observations / "
@@ -298,12 +348,16 @@ __artifacts_v2__ = {
                  "current state does not. States are read by scripts/sqlite_wal.py: each committed state of the log's "
                  "current generation that it can read exactly (state n is the database after the first n committed "
                  "transactions, and state 0 the database file without its log), the previous generation's left-over "
-                 "frames where its checks pass, and frames after the last commit. A Recovered row is reported once, as "
-                 "the newest state holding it stored it, with that state's location and beacon rows. Recovery Location "
+                 "frames where its checks pass, and frames after the last commit. Only advId is compared from state to "
+                 "state; the full row of each advertisement the current state lacks is read from the newest state "
+                 "holding it (a committed state, else the previous generation's left-over frames, else the frames "
+                 "after the last commit), with that state's location and beacon rows, and is reported once. An "
+                 "advertisement whose location row survives only in a state older than the one it is read from is "
+                 "summarized per day without it and counted in the log; none did on the nine images. Recovery Location "
                  "names the committed states the advertisement was read in, with their first and last numbers. Why a "
                  "Recovered row is absent from the current state is not established. Recovered rows were returned on "
-                 "adams_iphone12mini (66 of 70), dexter_ios18 (72 of 184), iphone11_ios17 (174 of 182), otto_ios17 "
-                 "(838 of 841) and wilkerson_iphone16_ios26 (57 of 79), all from committed states, so Recovery Method "
+                 "adams_iphone12mini (66 of 70), dexter_ios18 (71 of 180), iphone11_ios17 (174 of 180), otto_ios17 "
+                 "(838 of 840) and wilkerson_iphone16_ios26 (57 of 78), all from committed states, so Recovery Method "
                  "held WAL committed states on every Recovered row. That includes 22 wilkerson_iphone16_ios26 rows "
                  "read only in state 0, the database file without its log, as their Recovery Location says. On "
                  "felix_ios17 and hill_iphone15pro_ios26 every row is Live: Record Origin held Live and Recovery "
@@ -314,23 +368,23 @@ __artifacts_v2__ = {
                  "earlier states (0 to 2) could not be read. abe_ios16 and felix23_ios16 held no advertisements in the "
                  "states read. Scan Date is the advertisement's scanDate and Location Timestamp the timestamp of its "
                  "ObservedAdvertisementLocation row. Both are stored as text with no zone and are read as UTC: read "
-                 "that way, a scanDate equaled a time in a BeaconEstimatedLocation record of the same beacon (a plist "
-                 "date) to the millisecond on 22 rows over six images, a location timestamp did on 19 (of the 2,072 "
-                 "rows whose beacon has such a record), and none matched a whole number of hours away. What each time "
-                 "marks is not established. Latitude, Longitude and Horizontal Accuracy come from the location row, "
-                 "present on 1,819 of the 3,661 rows (23 of 1,856 on felix_ios17). The schema requires "
-                 "horizontalAccuracy to be 0 or more; its unit is not established. Beacon Identifier is the "
-                 "beaconIdentifier of the advertisement's ObservedAdvertisementBeaconInfo row, present on 2,073 rows. "
-                 "It equaled an OwnedBeacons record identifier on 2,072 and a SharedBeacons one on 1 (iphone11_ios17); "
-                 "Beacon Record names which, and Beacon Name is the name in the BeaconNamingRecord whose "
-                 "associatedBeacon matches, else the BeaconAttributes name described in Find My Shared Beacons. All "
-                 "2,072 OwnedBeacons rows had a naming record; the SharedBeacons row had none and takes its name from "
-                 "BeaconAttributes. The other 1,588 rows name no beacon, and what sent them is not established. "
-                 "Records are joined only within one searchpartyd folder. macAddress (hex) is the stored macAddress, "
-                 "which the schema requires to be 6 bytes. Advertisement Data (hex) is the stored advertisementData, "
-                 "28 bytes on 1,691 rows and 6 bytes on 1,970. rssi (as stored) was negative on 3,656 rows. What these "
-                 "three values identify or measure is not established. Advertisement ID is advId. Not reported: "
-                 "source, status, multipart, hint, extraKeyBits, isPosh and isPublished, and the sequence and index of "
+                 "that way, over the advertisements of the nine images with or without a location, a scanDate equaled "
+                 "a time in a BeaconEstimatedLocation record of the same beacon (a plist date) to the millisecond on "
+                 "22 rows over six images, a location timestamp did on 19 (of the 2,072 rows whose beacon has such a "
+                 "record), and none matched a whole number of hours away. What each time marks is not established. "
+                 "Latitude, Longitude and Horizontal Accuracy come from the location row; 1,819 of the 3,661 "
+                 "advertisements read had one (23 of 1,856 on felix_ios17). The schema requires horizontalAccuracy to "
+                 "be 0 or more; its unit is not established. Beacon Identifier is the beaconIdentifier of the "
+                 "advertisement's ObservedAdvertisementBeaconInfo row, present on 231 of the 1,819 rows, each equal to "
+                 "an OwnedBeacons record identifier; Beacon Record names the record type matched (OwnedBeacons or "
+                 "SharedBeacons), and Beacon Name is the name in the BeaconNamingRecord whose associatedBeacon "
+                 "matches, else the BeaconAttributes name described in Find My Shared Beacons. All 231 had a naming "
+                 "record. The other 1,588 rows name no beacon, and what sent them is not established. Records are "
+                 "joined only within one searchpartyd folder. macAddress (hex) is the stored macAddress, which the "
+                 "schema requires to be 6 bytes. Advertisement Data (hex) is the stored advertisementData, 28 bytes on "
+                 "1,689 rows and 6 bytes on 130. rssi (as stored) was negative on 1,818 rows. What these three values "
+                 "identify or measure is not established. Advertisement ID is advId. Not reported: source, status, "
+                 "multipart, hint, extraKeyBits, isPosh and isPublished, and the sequence and index of "
                  "ObservedAdvertisementBeaconInfo, whose meanings are not established. The other tables of "
                  "Observations.db are not read: DeviceEvent, DeviceEventLocation and AttachmentInfo were absent or "
                  "empty on all nine images; KeyGenerationBeaconKeys and KeyGenerationHint have columns named "
@@ -361,12 +415,12 @@ __artifacts_v2__ = {
             "abe_ios16": "iOS 16.5 | 0 rows",
             "felix23_ios16": "iOS 16.5 | 0 rows",
             "adams_iphone12mini": "iOS 17.1.1 | 70 rows",
-            "iphone11_ios17": "iOS 17.3 | 182 rows",
-            "otto_ios17": "iOS 17.5.1 | 841 rows",
-            "felix_ios17": "iOS 17.6.1 | 1856 rows",
-            "dexter_ios18": "iOS 18.3.2 | 184 rows",
-            "hill_iphone15pro_ios26": "iOS 26.3.1 | 449 rows",
-            "wilkerson_iphone16_ios26": "iOS 26.5.2 | 79 rows",
+            "iphone11_ios17": "iOS 17.3 | 180 rows",
+            "otto_ios17": "iOS 17.5.1 | 840 rows",
+            "felix_ios17": "iOS 17.6.1 | 23 rows",
+            "dexter_ios18": "iOS 18.3.2 | 180 rows",
+            "hill_iphone15pro_ios26": "iOS 26.3.1 | 448 rows",
+            "wilkerson_iphone16_ios26": "iOS 26.5.2 | 78 rows",
         },
     },
 }
@@ -384,7 +438,7 @@ from Crypto.Cipher import AES
 
 from scripts.ilapfuncs import artifact_processor, get_sqlite_db_records, logfunc
 from scripts.ios_keychain import active_keychain_path, load_keychain_entries
-from scripts.sqlite_wal import KIND_COMMITTED, KIND_EARLIER, KIND_UNCOMMITTED, rows_not_in_current
+from scripts.sqlite_wal import KIND_COMMITTED, KIND_EARLIER, KIND_UNCOMMITTED, WalStates
 
 STORE_DIR = 'com.apple.icloud.searchpartyd'
 # The item's access group was com.apple.icloud.searchpartyd on the three iOS 18 and 26 images read
@@ -989,41 +1043,6 @@ def _recovery_location(name, spans):
     return _METHOD_WAL_STATES, '; '.join(parts)
 
 
-def _removed_rows(db_path, query, live_keys, label):
-    """Rows of query whose key (its last column) another state in the write-ahead log holds and
-    the current state does not, read through scripts/sqlite_wal.py, with each state's own joins.
-    One row per key, as the newest state holding it stored it: a committed state before the
-    previous log generation before the frames after the last commit.
-    """
-    try:
-        columns, found, wal = rows_not_in_current(str(db_path), query, include=_WAL_KINDS)
-    except (sqlite3.Error, OSError) as ex:
-        logfunc(f'{label}: write-ahead log not read: {ex}')
-        return []
-    if wal.log:
-        logfunc(f'{label}: {wal.summary()}')
-    width = len(columns)
-    by_key = {}
-    for item in found:
-        key = item.values[width - 1]
-        if key in live_keys:
-            continue
-        rank = ((2, item.last_state) if item.first_state is not None else
-                (1, item.earlier_generation[1]) if item.earlier_generation else (0, 0))
-        entry = by_key.setdefault(key, {'row': item.values, 'rank': rank, 'committed': None,
-                                        'earlier': None})
-        if rank > entry['rank']:
-            entry['row'], entry['rank'] = item.values, rank
-        for slot, span in (('committed', (item.first_state, item.last_state)
-                            if item.first_state is not None else None),
-                           ('earlier', item.earlier_generation)):
-            if span:
-                old = entry[slot]
-                entry[slot] = span if old is None else (min(old[0], span[0]), max(old[1], span[1]))
-    name = os.path.basename(str(db_path))
-    return [(entry['row'], *_recovery_location(name, entry)) for entry in by_key.values()]
-
-
 OBSERVATIONS_QUERY = '''
     SELECT ObservedAdvertisement.scanDate, ObservedAdvertisementLocation.timestamp,
            ObservedAdvertisementLocation.latitude, ObservedAdvertisementLocation.longitude,
@@ -1060,6 +1079,154 @@ def _hex(value, separator=None):
     return bytes(value).hex(separator) if separator else bytes(value).hex()
 
 
+# Advertisement rows come in two shapes. One with an ObservedAdvertisementLocation row is reported
+# as a row. The others are summarized per searchpartyd folder, beacon (or none) and UTC day, since a
+# store can hold far more of them than a report table can show, and each one alone carries only a
+# time, a beacon, a MAC address and an rssi.
+LOCATED = ' WHERE ObservedAdvertisementLocation.advId IS NOT NULL'
+BY_ID = ' WHERE ObservedAdvertisement.advId IN ({})'
+DAY_QUERY = '''
+    SELECT max(ObservedAdvertisementBeaconInfo.beaconIdentifier), substr(ObservedAdvertisement.scanDate, 1, 10),
+           count(*), min(ObservedAdvertisement.scanDate), max(ObservedAdvertisement.scanDate),
+           min(ObservedAdvertisement.rssi), max(ObservedAdvertisement.rssi)
+    FROM ObservedAdvertisement
+    LEFT JOIN ObservedAdvertisementLocation
+        ON ObservedAdvertisementLocation.advId = ObservedAdvertisement.advId
+    LEFT JOIN ObservedAdvertisementBeaconInfo
+        ON ObservedAdvertisementBeaconInfo.advId = ObservedAdvertisement.advId
+    WHERE ObservedAdvertisementLocation.advId IS NULL
+    GROUP BY upper(coalesce(ObservedAdvertisementBeaconInfo.beaconIdentifier, '')),
+             substr(ObservedAdvertisement.scanDate, 1, 10)
+'''
+_RANKS = {KIND_COMMITTED: 2, KIND_EARLIER: 1, KIND_UNCOMMITTED: 0}
+_FETCH_CHUNK = 500
+_observations_cache = {}
+
+
+def _add_to_day(days, beacon, scan, rssi, count=1, last=None, rssi_max=None, recovered=0):
+    """Fold advertisements into the (beacon, UTC day) summary."""
+    beacon = _text(beacon)
+    day = scan[:10] if isinstance(scan, str) else ''
+    entry = days.setdefault((beacon.upper(), day), {'beacon': beacon, 'day': day, 'count': 0, 'recovered': 0,
+                                                    'first': None, 'last': None, 'rssi': []})
+    entry['count'] += count
+    entry['recovered'] += recovered
+    for value, keep in ((scan, min), (last if last is not None else scan, max)):
+        if isinstance(value, str):
+            slot = 'first' if keep is min else 'last'
+            entry[slot] = value if entry[slot] is None else keep(entry[slot], value)
+    entry['rssi'] += [value for value in (rssi, rssi_max) if isinstance(value, int)]
+
+
+def _wal_recovered(copy_path, current_ids, label):
+    """Advertisements another readable state of the log holds and the current state does not.
+
+    Only advId is compared from state to state; the full row of each missing advertisement is then
+    read from the newest state holding it (a committed state, else the previous generation's
+    left-over frames, else the frames after the last commit), with that state's own joins.
+    Returns ({advId: (row, method, location)}, location advIds seen in any state).
+    """
+    best = {}
+    spans = {}
+    located_any = set()
+    try:
+        with WalStates(str(copy_path), include=_WAL_KINDS) as wal:
+            for position, state in enumerate(wal.states()):
+                if position == 0:
+                    continue  # the current state, read normally by the caller
+                try:
+                    ids = {row[0] for row in state.connection.execute('SELECT advId FROM ObservedAdvertisement')}
+                    located_any.update(row[0] for row in state.connection.execute(
+                        'SELECT advId FROM ObservedAdvertisementLocation'))
+                except sqlite3.Error:
+                    continue  # the tables do not exist yet in this state
+                rank = _RANKS.get(state.kind, 0)
+                missing = ids - current_ids
+                for adv_id in missing:
+                    span = spans.setdefault(adv_id, {'committed': None, 'earlier': None})
+                    slot = 'committed' if state.kind == KIND_COMMITTED else \
+                        'earlier' if state.kind == KIND_EARLIER else None
+                    if slot:
+                        old = span[slot]
+                        span[slot] = (state.number, state.number) if old is None else \
+                            (min(old[0], state.number), max(old[1], state.number))
+                wanted = sorted(adv_id for adv_id in missing if adv_id not in best or best[adv_id][0] < rank)
+                for start in range(0, len(wanted), _FETCH_CHUNK):
+                    chunk = wanted[start:start + _FETCH_CHUNK]
+                    query = OBSERVATIONS_QUERY + BY_ID.format(', '.join('?' * len(chunk)))
+                    for row in state.connection.execute(query, chunk):
+                        best[row[-1]] = (rank, tuple(row))
+            if wal.log:
+                logfunc(f'{label}: {wal.summary()}')
+    except (sqlite3.Error, OSError) as ex:
+        logfunc(f'{label}: write-ahead log not read: {ex}')
+        return {}, located_any
+    name = os.path.basename(str(copy_path))
+    return ({adv_id: (row, *_recovery_location(name, spans[adv_id])) for adv_id, (_rank, row) in best.items()},
+            located_any)
+
+
+def _read_observations(copy_path, label):
+    """The located advertisement rows and the per-day summary of the rest, for one decrypted store,
+    read once however many artifacts ask. Returns None where the store cannot be queried."""
+    if copy_path in _observations_cache:
+        return _observations_cache[copy_path]
+    try:
+        located = [(tuple(row), _ORIGIN_LIVE, '', '')
+                   for row in get_sqlite_db_records(copy_path, OBSERVATIONS_QUERY + LOCATED)]
+        days = {}
+        for beacon, _day, count, first, last, rssi_min, rssi_max in get_sqlite_db_records(copy_path, DAY_QUERY):
+            _add_to_day(days, beacon, first, rssi_min, count, last, rssi_max)
+        current_ids = {row[0] for row in get_sqlite_db_records(copy_path, 'SELECT advId FROM ObservedAdvertisement')}
+        head_located = {row[0] for row in get_sqlite_db_records(
+            copy_path, 'SELECT advId FROM ObservedAdvertisementLocation')}
+    except sqlite3.Error as ex:
+        logfunc(f'{label}: error reading the decrypted store: {ex}')
+        _observations_cache[copy_path] = None
+        return None
+    recovered, located_any = _wal_recovered(copy_path, current_ids, label)
+    for adv_id, (row, method, location) in recovered.items():
+        if row[1] is not None or row[2] is not None:
+            located.append((row, _ORIGIN_RECOVERED, method, location))
+        else:
+            _add_to_day(days, row[5], row[0], row[7], recovered=1)
+            if adv_id in located_any:
+                head_located.discard(adv_id)
+                current_ids.add(adv_id)  # counted with the current ones below
+    earlier_only = len((current_ids - head_located) & located_any)
+    if earlier_only:
+        logfunc(f'{label}: {earlier_only} advertisements have a location row only in a state of the log older than '
+                'the one they are read from; they are summarized per day without it')
+    _observations_cache[copy_path] = (located, days)
+    return _observations_cache[copy_path]
+
+
+def _observation_stores(context):
+    """(store folder, original path, decrypted reading, names, owned, shared) for each Observations.db
+    that opens, and the ItemSharingKeys.db stores whose names were used."""
+    files_found = [str(path) for path in context.get_files_found()]
+    stores = _read_store(files_found)
+    attributes, attribute_sources = _beacon_attributes(context, files_found)
+    found = []
+    for db_path in sorted(path for path in files_found
+                          if os.path.basename(path) == 'Observations.db' and _store_root(path) is not None):
+        copy_path = _decrypted_copy(context, db_path, OBSERVATIONS_SERVICE)
+        reading = _read_observations(copy_path, f'{db_path}') if copy_path else None
+        if reading is None:
+            continue
+        root = _store_root(db_path)
+        records = stores.get(root, {})
+        found.append((db_path, reading, _beacon_names(records, attributes.get(root, {})),
+                      _identifiers(records, 'OwnedBeacons'), _identifiers(records, 'SharedBeacons')))
+    roots = {_store_root(db_path) for db_path, *_rest in found}
+    return found, [path for path in attribute_sources if _store_root(path) in roots]
+
+
+def _beacon_kind(beacon, owned, shared):
+    return 'OwnedBeacons' if beacon and beacon.upper() in owned else \
+        'SharedBeacons' if beacon and beacon.upper() in shared else ''
+
+
 @artifact_processor
 def findMyObservedAdvertisements(context):
     data_headers = (('Scan Date', 'datetime'), ('Location Timestamp', 'datetime'), ('Latitude', 'latitude'),
@@ -1067,39 +1234,34 @@ def findMyObservedAdvertisements(context):
                     'Beacon Identifier', 'macAddress (hex)', 'rssi (as stored)', 'Advertisement Data (hex)',
                     'Advertisement ID', 'Record Origin', 'Recovery Method', 'Recovery Location')
     data_list = []
-    sources = []
-    files_found = [str(path) for path in context.get_files_found()]
-    stores = _read_store(files_found)
-    databases = sorted(path for path in files_found
-                       if os.path.basename(path) == 'Observations.db' and _store_root(path) is not None)
-    attributes, attribute_sources = _beacon_attributes(context, files_found)
-    for db_path in databases:
-        copy_path = _decrypted_copy(context, db_path, OBSERVATIONS_SERVICE)
-        if copy_path is None:
-            continue
-        records = stores.get(_store_root(db_path), {})
-        names = _beacon_names(records, attributes.get(_store_root(db_path), {}))
-        owned = _identifiers(records, 'OwnedBeacons')
-        shared = _identifiers(records, 'SharedBeacons')
-        try:
-            rows = [tuple(row) for row in get_sqlite_db_records(copy_path, OBSERVATIONS_QUERY)]
-        except sqlite3.Error as ex:
-            logfunc(f'{db_path}: error reading the decrypted store: {ex}')
-            continue
-        sources.append(db_path)
-        found = [(row, _ORIGIN_LIVE, '', '') for row in rows]
-        found.extend((row, _ORIGIN_RECOVERED, method, location) for row, method, location
-                     in _removed_rows(copy_path, OBSERVATIONS_QUERY, {row[-1] for row in rows},
-                                      'Find My Observed Advertisements'))
-        for row, origin, method, location in found:
-            scan, located, latitude, longitude, accuracy, beacon, mac, rssi, advertisement, adv_id = row
+    found, attribute_sources = _observation_stores(context)
+    for _db_path, (located, _days), names, owned, shared in found:
+        for row, origin, method, location in located:
+            scan, located_at, latitude, longitude, accuracy, beacon, mac, rssi, advertisement, adv_id = row
             beacon = _text(beacon)
-            kind = 'OwnedBeacons' if beacon.upper() in owned else \
-                'SharedBeacons' if beacon and beacon.upper() in shared else ''
-            data_list.append((_stored_utc(scan), _stored_utc(located), _value(latitude), _value(longitude),
-                              _value(accuracy), names.get(beacon.upper(), '') if beacon else '', kind,
-                              beacon, _hex(mac, ':'), _value(rssi), _hex(advertisement), adv_id,
-                              origin, method, location))
-    sources += [path for path in attribute_sources if _store_root(path) in
-                {_store_root(source) for source in sources}]
+            data_list.append((_stored_utc(scan), _stored_utc(located_at), _value(latitude), _value(longitude),
+                              _value(accuracy), names.get(beacon.upper(), '') if beacon else '',
+                              _beacon_kind(beacon, owned, shared), beacon, _hex(mac, ':'), _value(rssi),
+                              _hex(advertisement), adv_id, origin, method, location))
+    sources = [db_path for db_path, *_rest in found] + attribute_sources
+    return data_headers, data_list, '\n'.join(sources)
+
+
+@artifact_processor
+def findMyObservedAdvertisementDays(context):
+    data_headers = (('First Scan Date', 'datetime'), ('Last Scan Date', 'datetime'), 'Day (UTC)', 'Beacon Name',
+                    'Beacon Record', 'Beacon Identifier', ('Advertisements', 'number'),
+                    ('Recovered Advertisements', 'number'), ('rssi Minimum (as stored)', 'number'),
+                    ('rssi Maximum (as stored)', 'number'))
+    data_list = []
+    found, attribute_sources = _observation_stores(context)
+    for _db_path, (_located, days), names, owned, shared in found:
+        for entry in days.values():
+            beacon = entry['beacon']
+            data_list.append((_stored_utc(entry['first']), _stored_utc(entry['last']), entry['day'],
+                              names.get(beacon.upper(), '') if beacon else '', _beacon_kind(beacon, owned, shared),
+                              beacon, entry['count'], entry['recovered'],
+                              min(entry['rssi']) if entry['rssi'] else '', max(entry['rssi']) if entry['rssi'] else ''))
+    data_list.sort(key=lambda row: (row[2], row[5]))
+    sources = [db_path for db_path, *_rest in found] + attribute_sources
     return data_headers, data_list, '\n'.join(sources)
