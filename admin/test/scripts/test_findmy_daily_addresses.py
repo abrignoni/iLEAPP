@@ -8,6 +8,7 @@ The two agree only if both follow the same chain.
 import hashlib
 import os
 import plistlib
+import sqlite3
 import tempfile
 import unittest
 from datetime import datetime, timedelta, timezone
@@ -165,6 +166,39 @@ class DailyAddresses(unittest.TestCase):
         self.assertEqual(len(rows), spd.DAY_MARGIN)
         self.assertEqual(rows[0][0], '2026-01-02')
         self.assertEqual(PAIRED.replace(tzinfo=timezone.utc).date().isoformat(), '2026-01-01')
+
+    def test_the_negated_scalar_is_refused(self):
+        private = bytearray(self.record['privateKey']['key']['data'])
+        private[-28:] = (N - SCALAR).to_bytes(28, 'big')  # same x, opposite y
+        self.record['privateKey'] = {'key': {'data': bytes(private)}}
+        self.write_record(f'OwnedBeacons/{BEACON}.record', self.record)
+        _headers, rows, _sources = self.run_artifact()
+        self.assertEqual(rows, [])
+
+    def test_a_far_future_time_is_bounded(self):
+        self.write_record(f'OwnedBeacons/{BEACON}.record', self.record)
+        self.write_record(f'BeaconEstimatedLocation/{BEACON}/e.record', {
+            'identifier': 'e', 'associatedBeacon': BEACON, 'latitude': 1.0, 'longitude': 2.0,
+            'timestamp': datetime(9999, 1, 1), 'scanDate': datetime(9999, 1, 1)})
+        with mock.patch.object(spd, 'MAX_DAYS', 10):
+            _headers, rows, _sources = self.run_artifact()
+        self.assertEqual(len(rows), 10)
+        self.assertTrue(any('only the first 10' in call[0][0] for call in self.log.call_args_list))
+
+    def test_a_read_error_in_the_store_keeps_the_addresses(self):
+        expected = oracle_keys(self.public, SECONDARY, 3)
+        self.write_record(f'OwnedBeacons/{BEACON}.record', self.record)
+        self.observations(mac_of(expected[2]), '2026-01-04T10:00:00.000')
+
+        def failing(_path, _query):
+            raise sqlite3.DatabaseError('database disk image is malformed')
+            yield  # pylint: disable=unreachable
+
+        with mock.patch.object(spd, 'get_sqlite_db_records', failing):
+            _headers, rows, _sources = self.run_artifact()
+        self.assertEqual(len(rows), spd.DAY_MARGIN)
+        self.assertFalse(any(row[1] for row in rows))
+        self.assertTrue(any('stored addresses not read' in call[0][0] for call in self.log.call_args_list))
 
 
 if __name__ == '__main__':

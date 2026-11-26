@@ -1016,6 +1016,13 @@ class FindMySearchpartydLocalTest(LocalCorpusTestCase):
         """Daily addresses have the advertised address shape, and each MAC Address is the start of its
         advertisement key."""
         rows = self.run_artifact(findMySearchpartyd.findMyBeaconDailyAddresses)
+        stores = findMySearchpartyd._read_store(self.paths)  # pylint: disable=protected-access
+        usable = {findMySearchpartyd._text(record.get('identifier')).upper()  # pylint: disable=protected-access
+                  for records in stores.values() for _path, record in records.get('OwnedBeacons', [])
+                  if findMySearchpartyd._key_data(record, 'secondarySharedSecret')}  # pylint: disable=protected-access
+        derived = {row['Beacon Identifier'].upper() for row in rows}
+        self.assertTrue(derived == usable,
+                        f'{len(derived)} beacons with daily addresses, {len(usable)} with a secondarySharedSecret')
         for row in rows:
             self.assert_matches(row['MAC Address'], r'^[c-f][0-9a-f](:[0-9a-f]{2}){5}$', 'MAC Address')
             self.assert_matches(row['Advertisement Key (hex)'], r'^[0-9a-f]{56}$', 'Advertisement Key (hex)')
