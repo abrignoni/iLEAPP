@@ -997,8 +997,11 @@ class FindMySearchpartydLocalTest(LocalCorpusTestCase):
         if not any(path.replace(os.sep, '/').endswith('/ItemSharingKeys.db') for path in self.paths):
             self.skipTest(f'no searchpartyd ItemSharingKeys.db in {LOCAL_IMAGE}')
         rows = self.run_artifact(findMySearchpartyd.findMySharedBeacons)
+        stores = sum(path.replace(os.sep, '/').endswith('/ItemSharingKeys.db') for path in self.paths)
+        copies = list(Path(self.temp_dir.name, 'report').rglob('ItemSharingKeys.db'))
+        self.assertEqual(len(copies), stores, 'an ItemSharingKeys.db was not decrypted')
         attributed = set()
-        for copy in Path(self.temp_dir.name, 'report').rglob('ItemSharingKeys.db'):
+        for copy in copies:
             connection = sqlite3.connect(f'{copy.as_uri()}?mode=ro', uri=True)
             try:
                 attributed |= {row[0].upper() for row in connection.execute(

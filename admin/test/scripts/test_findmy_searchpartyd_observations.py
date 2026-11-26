@@ -333,6 +333,37 @@ class BeaconAttributes(unittest.TestCase):
         self.assertIn(os.path.join(self.store, 'ItemSharingKeys.db'), sources.split('\n'))
         self.assertEqual(sorted(row[6] for row in located), ['Naming record name', 'Shared name'])
 
+    def attributes_store(self, rows):
+        encrypted_store(self.store, 'ItemSharingKeys.db', [
+            ('CREATE TABLE BeaconAttributes (userIdentifier TEXT, beaconIdentifier TEXT, name TEXT, '
+             'roleIdentifier INTEGER, emoji TEXT, systemVersion TEXT, serialNumber TEXT)', ())] + [
+            ('INSERT INTO BeaconAttributes VALUES (?, ?, ?, -1, ?, ?, NULL)', row) for row in rows])
+
+    def test_a_read_error_keeps_the_rows_without_names(self):
+        when = datetime(2026, 1, 2, 3, 4, 5)
+        self.attributes_store([('u', SHARED, 'Shared name', None, '1')])
+        self.record(f'SharedBeacons/{SHARED}.record', {'identifier': SHARED, 'shareDate': when})
+
+        def failing(_path, _query):
+            yield (SHARED, 'Shared name', None)
+            raise sqlite3.DatabaseError('database disk image is malformed')
+
+        with self.keys(), mock.patch.object(spd, 'get_sqlite_db_records', failing):
+            _headers, shared, sources = spd.findMySharedBeacons.__wrapped__(self.context())
+        self.assertEqual(len(shared), 1)
+        self.assertEqual(shared[0][2:4], ('', ''))
+        self.assertNotIn('ItemSharingKeys.db', sources)
+        self.assertIn('BeaconAttributes not read', spd.logfunc.call_args[0][0])
+
+    def test_a_store_with_only_an_emoji_is_cited(self):
+        when = datetime(2026, 1, 2, 3, 4, 5)
+        self.attributes_store([('u', SHARED, '', 'e', '1')])
+        self.record(f'SharedBeacons/{SHARED}.record', {'identifier': SHARED, 'shareDate': when})
+        with self.keys():
+            _headers, shared, sources = spd.findMySharedBeacons.__wrapped__(self.context())
+        self.assertEqual(shared[0][2:4], ('', 'e'))
+        self.assertIn(os.path.join(self.store, 'ItemSharingKeys.db'), sources.split('\n'))
+
     def test_without_the_store_the_rows_stay_unnamed(self):
         when = datetime(2026, 1, 2, 3, 4, 5)
         self.record(f'SharedBeacons/{SHARED}.record', {'identifier': SHARED, 'shareDate': when})

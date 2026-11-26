@@ -139,16 +139,17 @@ __artifacts_v2__ = {
                  "KeyDatabase / searchparty keychain item; that item's data held the key on dexter_ios18, felix_ios17, "
                  "otto_ios17, hill_iphone15pro_ios26 and wilkerson_iphone16_ios26, and its gena attribute on "
                  "adams_iphone12mini and iphone11_ios17 (abe_ios16 and felix23_ios16 have no ItemSharingKeys.db). A "
-                 "decrypted copy is written to the Decrypted searchpartyd folder in the report folder. The "
-                 "BeaconAttributes userIdentifier, roleIdentifier and systemVersion (each present on all 7 rows) and "
-                 "serialNumber (null on all 7) are not reported. The table also has a delegationStatus column on "
-                 "dexter_ios18, hill_iphone15pro_ios26 and wilkerson_iphone16_ios26, where it held no rows. shareType "
-                 "(as stored) held 1 on 7 rows and 4 on 7; its meaning is not established. Model held an empty string "
-                 "on 4 rows. Latest Estimated Location Timestamp and Estimated Location Records come from the "
-                 "BeaconEstimatedLocation records whose associatedBeacon equals the identifier: 19 records for 3 of "
-                 "the 14 beacons. Not reported: accepted (True on all 14), role (-1 on all 14), groupIdentifier ($null "
-                 "on all 14), correlationIdentifier, shareIdentifier, advertisedIndex, cloudKitMetadata and the name "
-                 "dictionary's version.",
+                 "decrypted copy is written to the Decrypted searchpartyd folder in the report folder. Where "
+                 "BeaconAttributes cannot be read, the failure is logged and the beacon rows are reported without its "
+                 "names. The BeaconAttributes userIdentifier, roleIdentifier and systemVersion (each present on all 7 "
+                 "rows) and serialNumber (null on all 7) are not reported. The table also has a delegationStatus "
+                 "column on dexter_ios18, hill_iphone15pro_ios26 and wilkerson_iphone16_ios26, where it held no rows. "
+                 "shareType (as stored) held 1 on 7 rows and 4 on 7; its meaning is not established. Model held an "
+                 "empty string on 4 rows. Latest Estimated Location Timestamp and Estimated Location Records come from "
+                 "the BeaconEstimatedLocation records whose associatedBeacon equals the identifier: 19 records for 3 "
+                 "of the 14 beacons. Not reported: accepted (True on all 14), role (-1 on all 14), groupIdentifier "
+                 "($null on all 14), correlationIdentifier, shareIdentifier, advertisedIndex, cloudKitMetadata and the "
+                 "name dictionary's version.",
         "paths": (
             '*/mobile/Library/com.apple.icloud.searchpartyd/SharedBeacons/*.record',
             '*/mobile/Library/com.apple.icloud.searchpartyd/BeaconEstimatedLocation/*.record',
@@ -922,7 +923,7 @@ KEY_DATABASE_SERVICE = 'KeyDatabase'
 def _beacon_attributes(context, files_found):
     """The name and emoji of each beacon in the BeaconAttributes table of each store's ItemSharingKeys.db,
     read in its current state, keyed by searchpartyd folder and then upper-case beacon identifier.
-    Returns ({folder: {beacon: (name, emoji)}}, [the stores that held a name])."""
+    Returns ({folder: {beacon: (name, emoji)}}, [the stores that held a name or an emoji])."""
     found = {}
     read = []
     for db_path in sorted(str(path) for path in files_found
@@ -931,17 +932,22 @@ def _beacon_attributes(context, files_found):
         if copy_path is None:
             continue
         values = {}
-        for row in get_sqlite_db_records(copy_path, 'SELECT beaconIdentifier, name, emoji FROM BeaconAttributes'):
-            beacon, name, emoji = tuple(row)
-            if not isinstance(beacon, str) or not beacon:
-                continue
-            names, emojis = values.setdefault(beacon.upper(), ([], []))
-            if isinstance(name, str) and name:
-                names.append(name)
-            if isinstance(emoji, str) and emoji:
-                emojis.append(emoji)
-        if any(name for name, _emoji in values.values()):
-            read.append(db_path)  # cited only where it supplied a name
+        try:
+            for row in get_sqlite_db_records(copy_path, 'SELECT beaconIdentifier, name, emoji FROM BeaconAttributes'):
+                beacon, name, emoji = tuple(row)
+                if not isinstance(beacon, str) or not beacon:
+                    continue
+                names, emojis = values.setdefault(beacon.upper(), ([], []))
+                if isinstance(name, str) and name:
+                    names.append(name)
+                if isinstance(emoji, str) and emoji:
+                    emojis.append(emoji)
+        except sqlite3.Error as ex:
+            # The beacon rows are still reported, without names from this store.
+            logfunc(f'{db_path}: BeaconAttributes not read: {ex}; beacon names from it are left out')
+            continue
+        if any(names or emojis for names, emojis in values.values()):
+            read.append(db_path)  # cited only where it supplied a name or an emoji
         found[_store_root(db_path)] = {beacon: (', '.join(dict.fromkeys(names)), ', '.join(dict.fromkeys(emojis)))
                                        for beacon, (names, emojis) in values.items()}
     return found, read
