@@ -29,6 +29,9 @@ source. This is not a style rule.
   rewrote a first line changed the file's bytes and mtime and produced the exact same rows,
   so the write bought nothing.
 - For SQLite always use `open_sqlite_db_readonly()`, and handle a `None` return.
+- Before writing an open, a conversion or a path helper of your own, look it up in
+  `admin/docs/generated/helper_functions_index.md`, the list of helpers artifacts use in this
+  repo.
 - Writing into `report_folder` is fine. That is output, not evidence.
 
 ## Auditing for it
