@@ -21,11 +21,13 @@ def build_request(state):
     paths = state.source_paths()
     opened = run.unlock.result if run.unlock is not None else None
     raw = run.detected.kind == "raw"
+    backup = None if raw else opened  # an unlock.Backup for an encrypted backup
     return SimpleNamespace(plugins=artifact_list.run_order(artifacts), loader=artifacts.loader,
                            detected=run.detected, paths=paths, single_file=run.single_file.get(),
                            input_path=opened.input_path if raw else paths[0],
                            image_keys=opened.keys if raw else None, found=opened if raw else None,
-                           backup_keys=None if raw else opened,
+                           backup_keys=backup.keys if backup else None,
+                           backup_password=backup.password if backup else None,
                            case=state.case_values(),
                            profile=artifact_list.profile_for_report(artifacts),
                            hash_files=run.hash_files.get(),

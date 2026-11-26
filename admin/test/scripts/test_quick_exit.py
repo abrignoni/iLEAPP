@@ -8,6 +8,8 @@ import sys
 import unittest
 from pathlib import Path
 
+from leapp_functions import leapp
+
 REPO_ROOT = Path(__file__).resolve().parents[3]
 
 PROGRAM = """
@@ -54,7 +56,8 @@ class QuickExitTests(unittest.TestCase):
 
     def test_it_comes_before_the_other_imports_of_ours_in_the_window_program(self):
         """ Imported later, its hook would run before the others and skip them. """
-        tree = ast.parse((REPO_ROOT / "ileappGUI.py").read_text(encoding="utf-8"))
+        window_program = REPO_ROOT / f"{leapp.name.lower()}GUI.py"
+        tree = ast.parse(window_program.read_text(encoding="utf-8"))
         imports = [node for node in tree.body if isinstance(node, (ast.Import, ast.ImportFrom))]
         first = next(node for node in imports if not is_standard(node))
         self.assertEqual(first.module, "leapp_functions.app.gui")

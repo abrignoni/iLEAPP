@@ -20,11 +20,14 @@ CHECK_BOX_PICTURES = {}
 RADIO_PICTURES = {}
 LIST_ROW = 22
 ROLES = frozenset((
+    "action",  # Buttons (outline, filled, chosen), the border of an accent card, the progress bar
     "border",  # A card's border, an input's border with the focus, the line above the status bar
     "button_border",  # The border of a quiet button and of a button in a card
     "card_accent",  # The background of a card that sums up (report preview, detected), a shade apart from card_bg
     "card_bg",  # The background of a card and of its labels
-    "header_bg",  # The header background color, identical in both themes, border of an accent card, progress bar
+    "header_bg",  # The header band behind the logos and the gear, identical in both themes
+    "header_icon",  # The gear on the header band, at rest
+    "header_icon_hover",  # The gear on the header band, under the pointer
     "input_bg",  # The background of an input
     "line",  # The lines between the steps, an input's border, the fill of a button in a card
     "main_bg",  # The main window background color
@@ -118,12 +121,12 @@ def title_bar(window, is_dark):
 def apply_styles(style, colors):
     """ Give the ttk buttons and check boxes the colours of a palette. """
     for name, background, foreground, disabled, hover, hover_text in (
-            ("Primary", colors.main_bg, colors.header_bg, (colors.main_bg, colors.text_legend),
+            ("Primary", colors.main_bg, colors.action, (colors.main_bg, colors.text_legend),
              colors.main_bg, colors.text_primary),
-            ("Filled", colors.header_bg, colors.main_bg, (colors.line, colors.main_bg),
-             colors.header_bg, colors.text_primary),
-            ("Chosen", colors.header_bg, colors.main_bg, (colors.line, colors.main_bg),
-             colors.header_bg, colors.text_primary),
+            ("Filled", colors.action, colors.main_bg, (colors.line, colors.main_bg),
+             colors.action, colors.text_primary),
+            ("Chosen", colors.action, colors.main_bg, (colors.line, colors.main_bg),
+             colors.action, colors.text_primary),
             ("Quiet", colors.main_bg, colors.text_primary, (colors.main_bg, colors.text_legend),
              colors.line, colors.text_primary),
             ("Field", colors.line, colors.text_primary, (colors.line, colors.text_legend),
@@ -144,8 +147,8 @@ def apply_styles(style, colors):
     style_check_box(style, colors)
     style_radio_button(style, colors)
     style_lists(style, colors)
-    style.configure("Run.Horizontal.TProgressbar", background=colors.header_bg, troughcolor=colors.line,
-                    bordercolor=colors.line, lightcolor=colors.header_bg, darkcolor=colors.header_bg,
+    style.configure("Run.Horizontal.TProgressbar", background=colors.action, troughcolor=colors.line,
+                    bordercolor=colors.line, lightcolor=colors.action, darkcolor=colors.action,
                     thickness=8)
 
 

@@ -9,8 +9,7 @@ import os
 import tkinter as tk
 from types import SimpleNamespace
 
-from leapp_functions import leapp
-from leapp_functions.app import input_type
+from leapp_functions.app import input_type, secret_fields
 from leapp_functions.app.disk import FILE, FOLDER, MISSING, PENDING, SILENT, ask, path_status
 from leapp_functions.app.platform import validate_filename
 from leapp_functions.app.unlock import UNLOCKERS, Unlock
@@ -19,7 +18,6 @@ from scripts.raw_image import selected_paths, selection_text
 
 ORDER = ("case", "source", "artifacts", "review", "run", "results")
 
-SECRETS = getattr(leapp, "secrets", None)
 STAGE_OF = {"review": "run"}
 DETECT_WAIT = 0.3
 NO_ANSWER = "The {} does not answer: its drive may be disconnected."
@@ -81,7 +79,7 @@ class AppState:
                                    single_file=tk.BooleanVar(), hash_files=tk.BooleanVar(),
                                    detected=None, unlock=None, worker=None,
                                    secrets={field["name"]: tk.StringVar()
-                                            for field in (SECRETS.fields if SECRETS else ())})
+                                            for field in secret_fields.FIELDS})
         self.artifacts = SimpleNamespace(loader=None, listed=[], selected=set(), search="")
 
         self.run_status = "idle"  # "idle" until a run starts, then "running", then "finished"
@@ -230,13 +228,19 @@ class AppState:
         return report_folder_problem(folder, name) if name else ""
 
     def missing_for_secrets(self):
-        """ A file chosen to decrypt apps that is no longer there. """
-        for name, variable in self.run.secrets.items():
-            status = path_status(variable.get()) if variable.get() else FILE
-            if unanswered(status, f"{name} file"):
-                return unanswered(status, f"{name} file")
-            if status != FILE:
-                return f"The {name} file no longer exists."
+        """ A file chosen to decrypt apps that is no longer there, or a text that cannot be used.
+        """
+        for field in secret_fields.FIELDS:
+            value = self.run.secrets[field["name"]].get()
+            if secret_fields.kind(field) == "text":
+                problem = secret_fields.text_problem(field, value.strip())
+            else:
+                status = path_status(value) if value else FILE
+                label = f"{secret_fields.name(field)} file"
+                problem = unanswered(status, label) or (
+                    f"The {label} no longer exists." if status != FILE else "")
+            if problem:
+                return problem
         return ""
 
     def can_go(self, step):
