@@ -182,7 +182,7 @@ class Artifacts(Base):
             _headers, shared, _sources = spd.findMySharedBeacons.__wrapped__(self.context())
             _headers, located, _sources = spd.findMyBeaconEstimatedLocations.__wrapped__(self.context())
         utc = when.replace(tzinfo=timezone.utc)
-        self.assertEqual(shared, [(utc, utc, 'owner@example.com', 'm', '1', 1, -1, -1, 1,
+        self.assertEqual(shared, [(utc, utc, '', '', 'owner@example.com', 'm', '1', 1, -1, -1, 1,
                                    OTHER_BEACON, BEACON)])
         self.assertEqual([row[7] for row in located], ['SharedBeacons'])
 

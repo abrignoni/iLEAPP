@@ -9,11 +9,13 @@ the same, state by state, through scripts/sqlite_wal.py.
 # pylint: disable=no-member,protected-access
 import hashlib
 import os
+import plistlib
 import shutil
 import sqlite3
 import struct
 import tempfile
 import unittest
+from datetime import datetime
 from unittest import mock
 
 from Crypto.Cipher import AES
@@ -26,6 +28,8 @@ OTHER_KEY = bytes(reversed(range(32)))
 PAGE = 4096
 RESERVED = 12
 BEACON = '11111111-2222-3333-4444-555555555555'
+OWNED = '66666666-7777-8888-9999-AAAAAAAAAAAA'
+SHARED = 'ABCDEFAB-CDEF-ABCD-EFAB-CDEFABCDEFAB'
 
 SCHEMA = '''
 CREATE TABLE ObservedAdvertisement ("advId" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
@@ -247,6 +251,126 @@ class Store(unittest.TestCase):
         self.assertTrue(os.path.isfile(os.path.join(
             self.tmp, 'report', spd.DECRYPTED_FOLDER, os.listdir(os.path.join(
                 self.tmp, 'report', spd.DECRYPTED_FOLDER))[0], 'Observations.db')))
+
+
+def encrypted_store(directory, name, statements, key=KEY):
+    """An encrypted searchpartyd store named name in directory, built from SQL statements."""
+    plain = os.path.join(directory, 'plain-' + name)
+    empty_database(plain)
+    connection = sqlite3.connect(plain, isolation_level=None)
+    try:
+        connection.execute('PRAGMA journal_mode=WAL')
+        connection.execute('PRAGMA wal_autocheckpoint=0')
+        for statement, values in statements:
+            connection.execute(statement, values)
+        encrypt_store(plain, os.path.join(directory, name), key)
+    finally:
+        connection.close()
+
+
+class BeaconAttributes(unittest.TestCase):
+    """Names from BeaconAttributes in ItemSharingKeys.db reach the shared beacon rows."""
+
+    def setUp(self):
+        tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(tmp.cleanup)
+        self.tmp = tmp.name
+        spd._key_cache.clear()
+        patcher = mock.patch.object(spd, 'logfunc')
+        patcher.start()
+        self.addCleanup(patcher.stop)
+        self.store = os.path.join(self.tmp, 'a', 'mobile', 'Library', spd.STORE_DIR)
+        os.makedirs(self.store)
+
+    def record(self, relative, document):
+        path = os.path.join(self.store, relative)
+        os.makedirs(os.path.dirname(path), exist_ok=True)
+        nonce = bytes(range(16))
+        cipher = AES.new(KEY, AES.MODE_GCM, nonce=nonce)
+        ciphertext, tag = cipher.encrypt_and_digest(plistlib.dumps(document, fmt=plistlib.FMT_BINARY))
+        with open(path, 'wb') as handle:
+            handle.write(plistlib.dumps([nonce, tag, ciphertext], fmt=plistlib.FMT_BINARY))
+
+    def context(self):
+        files = []
+        for root, _dirs, names in os.walk(self.store):
+            files += [os.path.join(root, name) for name in names if not name.startswith('plain-')]
+        context = mock.Mock()
+        context.get_files_found.return_value = files
+        context.get_report_folder.return_value = os.path.join(self.tmp, 'report')
+        return context
+
+    def keys(self):
+        entries = [{'agrp': 'com.apple.icloud.searchpartyd', 'svce': service, 'acct': account, 'v_Data': KEY}
+                   for service, account in (('BeaconStore', 'BeaconStoreKey'), ('KeyDatabase', 'searchparty'))]
+        return mock.patch.multiple(spd, active_keychain_path=mock.Mock(return_value='keychain.plist'),
+                                   load_keychain_entries=mock.Mock(return_value=entries))
+
+    def test_shared_beacon_gets_its_name_and_emoji(self):
+        when = datetime(2026, 1, 2, 3, 4, 5)
+        encrypted_store(self.store, 'ItemSharingKeys.db', [
+            ('CREATE TABLE BeaconAttributes (userIdentifier TEXT, beaconIdentifier TEXT, name TEXT, '
+             'roleIdentifier INTEGER, emoji TEXT, systemVersion TEXT, serialNumber TEXT)', ()),
+            ('INSERT INTO BeaconAttributes VALUES (?, ?, ?, -1, ?, ?, NULL)',
+             ('u', SHARED.lower(), 'Shared name', 'e', '1')),
+            ('INSERT INTO BeaconAttributes VALUES (?, ?, ?, -1, NULL, ?, NULL)',
+             ('u', OWNED, 'Attribute name', '1'))])
+        self.record(f'SharedBeacons/{SHARED}.record', {'identifier': SHARED, 'shareDate': when})
+        self.record(f'BeaconEstimatedLocation/{SHARED}/e.record', {
+            'identifier': 'e', 'associatedBeacon': SHARED, 'latitude': 1.0, 'longitude': 2.0,
+            'timestamp': when, 'scanDate': when})
+        self.record(f'OwnedBeacons/{OWNED}.record', {'identifier': OWNED, 'pairingDate': when})
+        self.record(f'BeaconNamingRecord/{OWNED}/n.record', {
+            'identifier': 'n', 'associatedBeacon': OWNED, 'name': 'Naming record name'})
+        self.record(f'BeaconEstimatedLocation/{OWNED}/e.record', {
+            'identifier': 'f', 'associatedBeacon': OWNED, 'latitude': 1.0, 'longitude': 2.0,
+            'timestamp': when, 'scanDate': when})
+        with self.keys():
+            headers, shared, sources = spd.findMySharedBeacons.__wrapped__(self.context())
+            _headers, located, _sources = spd.findMyBeaconEstimatedLocations.__wrapped__(self.context())
+        self.assertEqual(headers[2:4], ('Name', 'Emoji'))
+        self.assertEqual(shared[0][2:4], ('Shared name', 'e'))
+        self.assertIn(os.path.join(self.store, 'ItemSharingKeys.db'), sources.split('\n'))
+        self.assertEqual(sorted(row[6] for row in located), ['Naming record name', 'Shared name'])
+
+    def attributes_store(self, rows):
+        encrypted_store(self.store, 'ItemSharingKeys.db', [
+            ('CREATE TABLE BeaconAttributes (userIdentifier TEXT, beaconIdentifier TEXT, name TEXT, '
+             'roleIdentifier INTEGER, emoji TEXT, systemVersion TEXT, serialNumber TEXT)', ())] + [
+            ('INSERT INTO BeaconAttributes VALUES (?, ?, ?, -1, ?, ?, NULL)', row) for row in rows])
+
+    def test_a_read_error_keeps_the_rows_without_names(self):
+        when = datetime(2026, 1, 2, 3, 4, 5)
+        self.attributes_store([('u', SHARED, 'Shared name', None, '1')])
+        self.record(f'SharedBeacons/{SHARED}.record', {'identifier': SHARED, 'shareDate': when})
+
+        def failing(_path, _query):
+            yield (SHARED, 'Shared name', None)
+            raise sqlite3.DatabaseError('database disk image is malformed')
+
+        with self.keys(), mock.patch.object(spd, 'get_sqlite_db_records', failing):
+            _headers, shared, sources = spd.findMySharedBeacons.__wrapped__(self.context())
+        self.assertEqual(len(shared), 1)
+        self.assertEqual(shared[0][2:4], ('', ''))
+        self.assertNotIn('ItemSharingKeys.db', sources)
+        self.assertIn('BeaconAttributes not read', spd.logfunc.call_args[0][0])
+
+    def test_a_store_with_only_an_emoji_is_cited(self):
+        when = datetime(2026, 1, 2, 3, 4, 5)
+        self.attributes_store([('u', SHARED, '', 'e', '1')])
+        self.record(f'SharedBeacons/{SHARED}.record', {'identifier': SHARED, 'shareDate': when})
+        with self.keys():
+            _headers, shared, sources = spd.findMySharedBeacons.__wrapped__(self.context())
+        self.assertEqual(shared[0][2:4], ('', 'e'))
+        self.assertIn(os.path.join(self.store, 'ItemSharingKeys.db'), sources.split('\n'))
+
+    def test_without_the_store_the_rows_stay_unnamed(self):
+        when = datetime(2026, 1, 2, 3, 4, 5)
+        self.record(f'SharedBeacons/{SHARED}.record', {'identifier': SHARED, 'shareDate': when})
+        with self.keys():
+            _headers, shared, sources = spd.findMySharedBeacons.__wrapped__(self.context())
+        self.assertEqual(shared[0][2:4], ('', ''))
+        self.assertNotIn('ItemSharingKeys.db', sources)
 
 
 if __name__ == '__main__':
