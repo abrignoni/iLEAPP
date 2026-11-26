@@ -40,7 +40,8 @@ def crunch(request):
     Context.set_keychain_path(request.secrets.get("keychain") or None)
     return ileapp.crunch_artifacts(request.plugins, request.detected.kind, request.input_path,
                                    request.out_params, True, request.loader, request.case, "UTC",
-                                   request.profile, None, request.backup_keys,
+                                   request.profile, itunes_backup_password=request.backup_password,
+                                   decryption_keys=request.backup_keys,
                                    image_password=request.image_keys, found_members=request.found,
                                    hash_files=request.hash_files)
 

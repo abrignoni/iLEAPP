@@ -177,6 +177,11 @@ def unwrap(key, wrapped):
     return AES.new(key, AES.MODE_KW).unseal(wrapped)
 
 
+def log_backup_password(passcode):
+    """ The line of the log that records the password of an encrypted backup, in clear. """
+    logfunc(f"Manifest.db was successfully decrypted with passcode {passcode}")
+
+
 def decrypt_itunes_backup(directory, passcode):
     """
     Decrypt the keys of an encrypted iTunes backup with its password.
@@ -217,7 +222,7 @@ def decrypt_itunes_backup(directory, passcode):
         return None, "Could not find protection class for Manifest.db"
 
     manifest_db_key = unwrap(classes[manifest_key_class]["Unwrapped"], manifest_key[4:])
-    logfunc(f"Manifest.db was successfully decrypted with passcode {passcode}")
+    log_backup_password(passcode)
     return (classes, manifest_db_key), "Decryption successful"
 
 

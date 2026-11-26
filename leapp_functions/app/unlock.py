@@ -11,6 +11,9 @@ from leapp_functions.app.input_type import decrypt_itunes_backup
 from scripts.raw_image import unlock_raw_input
 
 Question = namedtuple("Question", "kind title text extra", defaults=("", "", None))
+# The keys of a backup as decrypt_itunes_backup returns them, and the password that opened it,
+# which the log of the run records as the command line's does
+Backup = namedtuple("Backup", "keys password")
 
 BACKUP_TITLE = "Backup password"
 BACKUP_PROMPT = "The password set when the backup was encrypted:"
@@ -128,7 +131,8 @@ def unlock_backup(path, asker):
     """
     Ask through asker for the password of the backup at path until one decrypts it.
     Returns:
-        The keys as decrypt_itunes_backup returns them, or None when the examiner cancels.
+        Backup(the keys as decrypt_itunes_backup returns them, the password), or None when the
+        examiner cancels.
     """
     prompt = BACKUP_PROMPT
     while True:
@@ -137,7 +141,7 @@ def unlock_backup(path, asker):
             return None
         keys, message = decrypt_itunes_backup(path, password)
         if keys:
-            return keys
+            return Backup(keys, password)
         prompt = f"{message}. {BACKUP_PROMPT}"
 
 
