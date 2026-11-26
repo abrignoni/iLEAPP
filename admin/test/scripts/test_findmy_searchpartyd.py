@@ -187,5 +187,53 @@ class Artifacts(Base):
         self.assertEqual([row[7] for row in located], ['SharedBeacons'])
 
 
+class UnwantedTrackers(Artifacts):
+    def wild(self, store, identifier, **extra):
+        document = {'identifier': identifier, 'triggerDate': datetime(2026, 1, 2, 5, 0, 0), 'deviceType': 1,
+                    'state': 0, 'advertisement': {'key': {'data': bytes(range(28))}},
+                    'locations': [{'latitude': 1.0, 'longitude': 2.0, 'horizontalAccuracy': 5.0,
+                                   'timestamp': datetime(2026, 1, 2, 4, 0, 0)},
+                                  {'latitude': 1.5, 'longitude': 2.5, 'horizontalAccuracy': 6.0,
+                                   'timestamp': datetime(2026, 1, 2, 6, 0, 0)}]}
+        document.update(extra)
+        self.write(store, f'WildModeAssociationRecord/{identifier}.record', record_bytes(document))
+
+    def test_alert_row(self):
+        published = datetime(2026, 1, 2, 5, 30, 0)
+        self.wild('a', BEACON, datePublished=published, observationState='update', observationType=0)
+        with self.keys([KEY]):
+            _headers, data, sources = spd.findMyUnwantedTrackerAlerts.__wrapped__(self.context())
+        utc = timezone.utc
+        self.assertEqual(data, [(datetime(2026, 1, 2, 5, tzinfo=utc), published.replace(tzinfo=utc), '',
+                                 datetime(2026, 1, 2, 4, tzinfo=utc), datetime(2026, 1, 2, 6, tzinfo=utc), 2,
+                                 'update', 0, 0, 1, bytes(range(28)).hex(), BEACON)])
+        self.assertTrue(sources.endswith(f'{BEACON}.record'))
+        self.log.assert_not_called()
+
+    def test_one_location_row_per_entry_in_each_store(self):
+        self.wild('a', BEACON)
+        self.wild('b', OTHER_BEACON)
+        with self.keys([KEY]):
+            _headers, data, sources = spd.findMyUnwantedTrackerLocations.__wrapped__(self.context())
+        self.assertEqual(sorted((row[4], row[1]) for row in data),
+                         [(BEACON, 1.0), (BEACON, 1.5), (OTHER_BEACON, 1.0), (OTHER_BEACON, 1.5)])
+        self.assertEqual(len(sources.split('\n')), 2)
+
+    def test_missing_fields_still_give_a_row(self):
+        self.wild('a', BEACON, advertisement='$null', locations='$null')
+        with self.keys([KEY]):
+            _headers, data, _sources = spd.findMyUnwantedTrackerAlerts.__wrapped__(self.context())
+            _headers, located, _sources = spd.findMyUnwantedTrackerLocations.__wrapped__(self.context())
+        self.assertEqual([(row[3], row[4], row[5], row[10], row[11]) for row in data], [('', '', 0, '', BEACON)])
+        self.assertEqual(located, [])
+
+    def test_unknown_key_is_logged_and_the_row_kept(self):
+        self.wild('a', BEACON, address={'data': b'abcdef'})
+        with self.keys([KEY]):
+            _headers, data, _sources = spd.findMyUnwantedTrackerAlerts.__wrapped__(self.context())
+        self.assertEqual(len(data), 1)
+        self.assertIn('keys not reported: address', self.log.call_args[0][0])
+
+
 if __name__ == '__main__':
     unittest.main()

@@ -39,7 +39,8 @@ __artifacts_v2__ = {
                  " rows, which have none. Where several naming records match, their distinct names are joined with a "
                  "comma; no image read had more than one. The record identifier and cloudKitMetadata are not reported."
                  " SafeLocations records are not read; Find My Safe Locations Cache reads the SafeLocations.data cache"
-                 " file. The other record types in the folder (among them WildModeAssociationRecord, KeySyncRecord, "
+                 " file. WildModeAssociationRecord records are read by Find My Unwanted Tracker Alerts and Find My "
+                 "Unwanted Tracker Locations. The other record types in the folder (among them KeySyncRecord, "
                  "KeyAlignmentRecords, OwnedDeviceKeyRecord and the SecureLocation records), its databases and "
                  "CachedUnifiedBeacons.data are not read.",
         "paths": (
@@ -141,6 +142,95 @@ __artifacts_v2__ = {
             "felix23_ios16": "iOS 16.5 | 0 rows",
             "adams_iphone12mini": "iOS 17.1.1 | 0 rows",
             "iphone11_ios17": "iOS 17.3 | 14 rows",
+            "otto_ios17": "iOS 17.5.1 | 0 rows",
+            "felix_ios17": "iOS 17.6.1 | 0 rows",
+            "dexter_ios18": "iOS 18.3.2 | 0 rows",
+            "hill_iphone15pro_ios26": "iOS 26.3.1 | 0 rows",
+            "wilkerson_iphone16_ios26": "iOS 26.5.2 | 0 rows",
+        },
+    },
+    "findMyUnwantedTrackerAlerts": {
+        "name": "Find My Unwanted Tracker Alerts",
+        "description": "Unwanted tracker records from the encrypted WildModeAssociationRecord records of "
+                       "searchpartyd, with the span and count of their locations",
+        "author": "@AlexisBrignoni, Claude",
+        "creation_date": "2026-11-26",
+        "last_update_date": "2026-11-26",
+        "requirements": "none",
+        "category": "Locations & Maps",
+        "notes": "One row per WildModeAssociationRecord record in com.apple.icloud.searchpartyd, decrypted as described "
+                 "in Find My Beacon Estimated Locations, where the images whose records could not be read are listed. "
+                 "Of the ten images run (the nine listed there and hickman_ios15), only iphone11_ios17 (4 records) and "
+                 "hickman_ios15 (3) held a WildModeAssociationRecord folder, so every count here is from those 7 "
+                 "records; the other eight images held no such folder. "
+                 "joshuahickman1/Lost_Apples describes these records as unwanted tracker alerts and their locations as "
+                 "the phone's location when it detected the tracker "
+                 "(https://github.com/joshuahickman1/Lost_Apples/blob/9ec8597a4164bd63fa757fe2463597a393934e03/README.md#L41); this module does not establish either. "
+                 "Trigger Date is triggerDate in UTC; it fell between the earliest and latest location timestamps on 7 "
+                 "of 7 records, and what it marks is not established. Date Published and Date Observation State "
+                 "Changed are datePublished and dateObservationStateChanged in UTC, present on 2 of 7 records (both on "
+                 "iphone11_ios17), each less than an hour after Trigger Date, and empty on the other 5; what they mark is not established. "
+                 "Earliest Location Timestamp, Latest Location Timestamp and Locations come from the record's locations "
+                 "list, which held 23 to 163 entries per record (702 in all); Locations counts entries, and on 2 records "
+                 "two entries shared a timestamp. Find My Unwanted Tracker Locations has one row per entry. "
+                 "observationState (as stored) held update on 2 rows and was empty on 5, and observationType (as "
+                 "stored) held 0 on 2 rows and was empty on 5. state (as stored) held 0 on all 7 rows and deviceType "
+                 "(as stored) held 1 on all 7 rows. The meanings of these four values are not established. "
+                 "Advertisement Key (hex) is the data of the record's advertisement key dictionary, 28 bytes on all 7. "
+                 "Lost_Apples compares this value with beacon keys from another device "
+                 "(https://github.com/joshuahickman1/Lost_Apples/blob/9ec8597a4164bd63fa757fe2463597a393934e03/README.md#L145) and derives a Bluetooth address from its first six bytes "
+                 "(https://github.com/joshuahickman1/Lost_Apples/blob/9ec8597a4164bd63fa757fe2463597a393934e03/src/wild_mode_parser.py#L208-L226); neither is done here. Identifier is the "
+                 "record's identifier, equal to its file name on 7 of 7. Lost_Apples also reads the keys address, "
+                 "addresses, manufacturer, manufacturerName, model, modelName, productInfo, uuid and observationStates "
+                 "(https://github.com/joshuahickman1/Lost_Apples/blob/9ec8597a4164bd63fa757fe2463597a393934e03/src/wild_mode_parser.py#L160-L304); none was present in the records read, "
+                 "and they are not reported. Not reported either: recordBaseURL, present on the 3 hickman_ios15 "
+                 "records, which held the record folder's own file URL. A record holding a key other than those reported here is still reported, "
+                 "and the key's name is logged.",
+        "paths": (
+            '*/mobile/Library/com.apple.icloud.searchpartyd/WildModeAssociationRecord/*.record',
+        ),
+        "output_types": "standard",
+        "artifact_icon": "alert-triangle",
+        "sample_data": {
+            "hickman_ios15": "iOS 15.3.1 | 3 rows",
+            "abe_ios16": "iOS 16.5 | 0 rows",
+            "felix23_ios16": "iOS 16.5 | 0 rows",
+            "adams_iphone12mini": "iOS 17.1.1 | 0 rows",
+            "iphone11_ios17": "iOS 17.3 | 4 rows",
+            "otto_ios17": "iOS 17.5.1 | 0 rows",
+            "felix_ios17": "iOS 17.6.1 | 0 rows",
+            "dexter_ios18": "iOS 18.3.2 | 0 rows",
+            "hill_iphone15pro_ios26": "iOS 26.3.1 | 0 rows",
+            "wilkerson_iphone16_ios26": "iOS 26.5.2 | 0 rows",
+        },
+    },
+    "findMyUnwantedTrackerLocations": {
+        "name": "Find My Unwanted Tracker Locations",
+        "description": "The locations listed in the encrypted WildModeAssociationRecord records of searchpartyd, "
+                       "one row per location",
+        "author": "@AlexisBrignoni, Claude",
+        "creation_date": "2026-11-26",
+        "last_update_date": "2026-11-26",
+        "requirements": "none",
+        "category": "Locations & Maps",
+        "notes": "One row per entry in the locations list of a WildModeAssociationRecord record in "
+                 "com.apple.icloud.searchpartyd, decrypted as described in Find My Beacon Estimated Locations. Every "
+                 "count here is from iphone11_ios17 (460 entries in 4 records) and hickman_ios15 (242 in 3), the only "
+                 "images run that held these records. Lost_Apples describes the locations as the phone's location when it detected the unwanted "
+                 "tracker (https://github.com/joshuahickman1/Lost_Apples/blob/9ec8597a4164bd63fa757fe2463597a393934e03/README.md#L41); this module does not establish that. Timestamp is the "
+                 "entry's timestamp in UTC; on 2 records two entries shared a timestamp, and both are reported. Horizontal Accuracy is horizontalAccuracy as stored; its unit is not established. Alert "
+                 "Identifier is the record's identifier, the Identifier of its row in Find My Unwanted Tracker Alerts.",
+        "paths": (
+            '*/mobile/Library/com.apple.icloud.searchpartyd/WildModeAssociationRecord/*.record',
+        ),
+        "output_types": "all",
+        "artifact_icon": "map",
+        "sample_data": {
+            "hickman_ios15": "iOS 15.3.1 | 242 rows",
+            "abe_ios16": "iOS 16.5 | 0 rows",
+            "felix23_ios16": "iOS 16.5 | 0 rows",
+            "adams_iphone12mini": "iOS 17.1.1 | 0 rows",
+            "iphone11_ios17": "iOS 17.3 | 460 rows",
             "otto_ios17": "iOS 17.5.1 | 0 rows",
             "felix_ios17": "iOS 17.6.1 | 0 rows",
             "dexter_ios18": "iOS 18.3.2 | 0 rows",
@@ -408,4 +498,75 @@ def findMySharedBeacons(context):
                               _text(record.get('systemVersion')), _value(record.get('shareType')),
                               _value(record.get('productId')),
                               _value(record.get('vendorId')), count, identifier, owner_beacon))
+    return data_headers, data_list, '\n'.join(sources)
+
+
+# The top-level keys of the WildModeAssociationRecord records read. recordBaseURL held the record
+# folder's own file URL and is not reported. A record holding any other key is still reported; the
+# key's name is logged so a layout not seen here is visible.
+WILD_MODE_KEYS = frozenset((
+    'identifier', 'triggerDate', 'datePublished', 'dateObservationStateChanged', 'locations',
+    'deviceType', 'state', 'observationState', 'observationType', 'advertisement', 'recordBaseURL'))
+
+
+def _wild_mode_records(files_found):
+    """The decrypted WildModeAssociationRecord records, with the file each came from."""
+    found = []
+    for records in _read_store(files_found).values():
+        for file_found, record in records.get('WildModeAssociationRecord', []):
+            unknown = sorted(str(key) for key in record if key not in WILD_MODE_KEYS)
+            if unknown:
+                logfunc(f'{file_found}: WildModeAssociationRecord keys not reported: {", ".join(unknown)}')
+            found.append((file_found, record))
+    return found
+
+
+def _locations(record):
+    locations = record.get('locations')
+    return [entry for entry in locations if isinstance(entry, dict)] if isinstance(locations, list) else []
+
+
+def _advertisement(record):
+    """The advertisement key's data as hex, or '' where the record holds none."""
+    advertisement = record.get('advertisement')
+    key = advertisement.get('key') if isinstance(advertisement, dict) else None
+    data = key.get('data') if isinstance(key, dict) else None
+    return bytes(data).hex() if isinstance(data, (bytes, bytearray)) else ''
+
+
+@artifact_processor
+def findMyUnwantedTrackerAlerts(context):
+    data_headers = (('Trigger Date', 'datetime'), ('Date Published', 'datetime'),
+                    ('Date Observation State Changed', 'datetime'), ('Earliest Location Timestamp', 'datetime'),
+                    ('Latest Location Timestamp', 'datetime'), 'Locations', 'observationState (as stored)',
+                    'observationType (as stored)', 'state (as stored)', 'deviceType (as stored)',
+                    'Advertisement Key (hex)', 'Identifier')
+    data_list = []
+    sources = []
+    for file_found, record in _wild_mode_records(context.get_files_found()):
+        sources.append(file_found)
+        locations = _locations(record)
+        times = [time for time in (_date(entry.get('timestamp')) for entry in locations) if time]
+        data_list.append((_date(record.get('triggerDate')), _date(record.get('datePublished')),
+                          _date(record.get('dateObservationStateChanged')), min(times) if times else '',
+                          max(times) if times else '', len(locations), _text(record.get('observationState')),
+                          _value(record.get('observationType')), _value(record.get('state')),
+                          _value(record.get('deviceType')), _advertisement(record),
+                          _text(record.get('identifier'))))
+    return data_headers, data_list, '\n'.join(sources)
+
+
+@artifact_processor
+def findMyUnwantedTrackerLocations(context):
+    data_headers = (('Timestamp', 'datetime'), ('Latitude', 'latitude'), ('Longitude', 'longitude'),
+                    'Horizontal Accuracy', 'Alert Identifier')
+    data_list = []
+    sources = []
+    for file_found, record in _wild_mode_records(context.get_files_found()):
+        sources.append(file_found)
+        identifier = _text(record.get('identifier'))
+        for entry in _locations(record):
+            data_list.append((_date(entry.get('timestamp')), _value(entry.get('latitude')),
+                              _value(entry.get('longitude')), _value(entry.get('horizontalAccuracy')),
+                              identifier))
     return data_headers, data_list, '\n'.join(sources)
