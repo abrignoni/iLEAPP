@@ -260,8 +260,9 @@ def main(argv=None):
             report = review(sources, allowed)
             added = frozenset((proposed or set()) - allowed)
             print(render_comment(report, added))
-            if missing and not report:
-                # An incomplete scan that found nothing must not clear an earlier alert.
+            if missing:
+                # An incomplete scan must not replace an earlier alert: it would drop the
+                # findings for the modules it could not read.
                 print(f"::warning::Could not read {', '.join(missing)}; left the alert as it was.")
             else:
                 apply_state(token, repo, int(pr_number), report, added)

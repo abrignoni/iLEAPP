@@ -147,6 +147,28 @@ class Network(unittest.TestCase):
         self.assertIn(("POST", "https://api.github.com/repos/o/r/issues/1/labels"), calls)
 
 
+class IncompleteScan(unittest.TestCase):
+    def test_a_partial_scan_never_changes_the_alert(self):
+        saved = (check.pr_sources, check.apply_state, check.allowed_categories)
+        calls = []
+        check.pr_sources = lambda *_a: ({"b": NEW}, None, ["scripts/artifacts/a.py"])
+        check.apply_state = lambda *a, **_kw: calls.append(a)
+        check.allowed_categories = lambda: ALLOWED
+        env = {"GITHUB_TOKEN": "t", "PR_NUMBER": "1", "GITHUB_REPOSITORY": "o/r"}
+        old = {k: check.os.environ.get(k) for k in env}
+        check.os.environ.update(env)
+        try:
+            self.assertEqual(check.main([]), 0)
+        finally:
+            check.pr_sources, check.apply_state, check.allowed_categories = saved
+            for k, v in old.items():
+                if v is None:
+                    check.os.environ.pop(k, None)
+                else:
+                    check.os.environ[k] = v
+        self.assertEqual(calls, [])
+
+
 class AllowedList(unittest.TestCase):
     def test_the_list_reads_and_has_no_duplicates(self):
         data = json.loads(check.ALLOWED_PATH.read_text(encoding="utf-8"))["categories"]
