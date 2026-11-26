@@ -13,10 +13,10 @@ __artifacts_v2__ = {
                  "with the BeaconStore / BeaconStoreKey keychain item from the keychain carried by the extraction or "
                  "supplied with --keychain, and read only when the GCM tag verifies. The item's access group was "
                  "com.apple.icloud.searchpartyd on dexter_ios18, hill_iphone15pro_ios26 and wilkerson_iphone16_ios26 "
-                 "and searchpartyd-baa-fmna-group on abe_ios16, felix23_ios16, adams_iphone12mini, iphone11_ios17, "
-                 "felix_ios17 and otto_ios17. The key was the item's data on dexter_ios18, felix_ios17, otto_ios17, "
-                 "hill_iphone15pro_ios26 and wilkerson_iphone16_ios26, and its gena attribute on abe_ios16, "
-                 "felix23_ios16, adams_iphone12mini and iphone11_ios17, where the item holds no data. The layout was "
+                 "and searchpartyd-baa-fmna-group on hickman_ios15, abe_ios16, felix23_ios16, adams_iphone12mini, "
+                 "iphone11_ios17, felix_ios17 and otto_ios17. The key was the item's data on dexter_ios18, felix_ios17, otto_ios17, "
+                 "hill_iphone15pro_ios26 and wilkerson_iphone16_ios26, and its gena attribute on hickman_ios15, "
+                 "abe_ios16, felix23_ios16, adams_iphone12mini and iphone11_ios17, where the item holds no data. The layout was "
                  "published in denysvitali/searchparty-keys "
                  "(https://github.com/denysvitali/searchparty-keys/blob/b1b4b13c09c46d61b3cf22e66a2fb54e20e3c8c6/decrypt.go#L12-L33)"
                  " and joshuahickman1/Lost_Apples "
@@ -40,7 +40,8 @@ __artifacts_v2__ = {
                  "comma; no image read had more than one. The record identifier and cloudKitMetadata are not reported."
                  " SafeLocations records are not read; Find My Safe Locations Cache reads the SafeLocations.data cache"
                  " file. WildModeAssociationRecord records are read by Find My Unwanted Tracker Alerts and Find My "
-                 "Unwanted Tracker Locations. The other record types in the folder (among them KeySyncRecord, "
+                 "Unwanted Tracker Locations, and LeashRecords are counted by Find My Owned Beacons. The remaining record "
+                 "types in the folder (among them KeySyncRecord, "
                  "KeyAlignmentRecords, OwnedDeviceKeyRecord and the SecureLocation records), its databases and "
                  "CachedUnifiedBeacons.data are not read.",
         "paths": (
@@ -119,7 +120,7 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "Locations & Maps",
         "notes": "One row per SharedBeacons record in com.apple.icloud.searchpartyd, decrypted as described in Find My"
-                 " Beacon Estimated Locations. Of the images whose records could be read, only iphone11_ios17 held "
+                 " Beacon Estimated Locations. Of the nine images in sample_data, only iphone11_ios17 held "
                  "SharedBeacons records, so every count here is from that image. Share Date is shareDate in UTC; what "
                  "it marks is not established. Owner Handle is the destination string of the ownerHandle dictionary, "
                  "present on all 14 rows; the dictionary's type integer (0 on all 14) is not reported. Owner Beacon "
@@ -151,8 +152,8 @@ __artifacts_v2__ = {
     },
     "findMyUnwantedTrackerAlerts": {
         "name": "Find My Unwanted Tracker Alerts",
-        "description": "Unwanted tracker records from the encrypted WildModeAssociationRecord records of "
-                       "searchpartyd, with the span and count of their locations",
+        "description": "The encrypted WildModeAssociationRecord records of searchpartyd, which Lost_Apples "
+                       "describes as unwanted tracker alerts, with the span and count of their locations",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-11-26",
         "last_update_date": "2026-11-26",
@@ -161,30 +162,32 @@ __artifacts_v2__ = {
         "notes": "One row per WildModeAssociationRecord record in com.apple.icloud.searchpartyd, decrypted as described "
                  "in Find My Beacon Estimated Locations, where the images whose records could not be read are listed. "
                  "Of the ten images run (the nine listed there and hickman_ios15), only iphone11_ios17 (4 records) and "
-                 "hickman_ios15 (3) held a WildModeAssociationRecord folder, so every count here is from those 7 "
-                 "records; the other eight images held no such folder. "
+                 "hickman_ios15 (3) held WildModeAssociationRecord records, so every count here is from those 7 "
+                 "records; the other eight images held none. "
                  "joshuahickman1/Lost_Apples describes these records as unwanted tracker alerts and their locations as "
                  "the phone's location when it detected the tracker "
                  "(https://github.com/joshuahickman1/Lost_Apples/blob/9ec8597a4164bd63fa757fe2463597a393934e03/README.md#L41); this module does not establish either. "
                  "Trigger Date is triggerDate in UTC; it fell between the earliest and latest location timestamps on 7 "
                  "of 7 records, and what it marks is not established. Date Published and Date Observation State "
                  "Changed are datePublished and dateObservationStateChanged in UTC, present on 2 of 7 records (both on "
-                 "iphone11_ios17), each less than an hour after Trigger Date, and empty on the other 5; what they mark is not established. "
+                 "iphone11_ios17), each less than an hour after Trigger Date, and absent on the other 5, shown as no value; what they mark is not established. "
                  "Earliest Location Timestamp, Latest Location Timestamp and Locations come from the record's locations "
                  "list, which held 23 to 163 entries per record (702 in all); Locations counts entries, and on 2 records "
                  "two entries shared a timestamp. Find My Unwanted Tracker Locations has one row per entry. "
-                 "observationState (as stored) held update on 2 rows and was empty on 5, and observationType (as "
-                 "stored) held 0 on 2 rows and was empty on 5. state (as stored) held 0 on all 7 rows and deviceType "
+                 "observationState (as stored) held the text update on 2 rows and the key was absent on 5; a value "
+                 "that is not text is shown as no value. observationType (as stored) held 0 on 2 rows and the key was "
+                 "absent on 5. state (as stored) held 0 on all 7 rows and deviceType "
                  "(as stored) held 1 on all 7 rows. The meanings of these four values are not established. "
-                 "Advertisement Key (hex) is the data of the record's advertisement key dictionary, 28 bytes on all 7. "
-                 "Lost_Apples compares this value with beacon keys from another device "
-                 "(https://github.com/joshuahickman1/Lost_Apples/blob/9ec8597a4164bd63fa757fe2463597a393934e03/README.md#L145) and derives a Bluetooth address from its first six bytes "
+                 "Advertisement Key (hex) is the data of the record's advertisement key dictionary, 28 bytes on all 7; an advertisement in another layout gives no value. "
+                 "Lost_Apples describes comparing beacon keys with the Wild Mode records of another device "
+                 "(https://github.com/joshuahickman1/Lost_Apples/blob/9ec8597a4164bd63fa757fe2463597a393934e03/README.md#L145), keeps the 28 byte advertisement for that "
+                 "comparison (https://github.com/joshuahickman1/Lost_Apples/blob/9ec8597a4164bd63fa757fe2463597a393934e03/src/wild_mode_parser.py#L228-L239), and derives a Bluetooth address from its first six bytes "
                  "(https://github.com/joshuahickman1/Lost_Apples/blob/9ec8597a4164bd63fa757fe2463597a393934e03/src/wild_mode_parser.py#L208-L226); neither is done here. Identifier is the "
-                 "record's identifier, equal to its file name on 7 of 7. Lost_Apples also reads the keys address, "
+                 "record's identifier, equal to its file name without the .record extension on 7 of 7. Lost_Apples also reads the keys address, "
                  "addresses, manufacturer, manufacturerName, model, modelName, productInfo, uuid and observationStates "
                  "(https://github.com/joshuahickman1/Lost_Apples/blob/9ec8597a4164bd63fa757fe2463597a393934e03/src/wild_mode_parser.py#L160-L304); none was present in the records read, "
                  "and they are not reported. Not reported either: recordBaseURL, present on the 3 hickman_ios15 "
-                 "records, which held the record folder's own file URL. A record holding a key other than those reported here is still reported, "
+                 "records, which held the record folder's own file URL. A record holding a key other than those named here is still reported, "
                  "and the key's name is logged.",
         "paths": (
             '*/mobile/Library/com.apple.icloud.searchpartyd/WildModeAssociationRecord/*.record',
@@ -252,7 +255,7 @@ from scripts.ios_keychain import active_keychain_path, load_keychain_entries
 
 STORE_DIR = 'com.apple.icloud.searchpartyd'
 # The item's access group was com.apple.icloud.searchpartyd on the three iOS 18 and 26 images read
-# and searchpartyd-baa-fmna-group on the six iOS 16 and 17 images read; the lookup matches a
+# and searchpartyd-baa-fmna-group on the seven iOS 15, 16 and 17 images read; the lookup matches a
 # substring of both.
 ACCESS_GROUP = 'searchpartyd'
 KEY_SERVICE = 'BeaconStore'
