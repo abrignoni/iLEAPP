@@ -111,18 +111,18 @@ class Network(unittest.TestCase):
         check.api_request = self.saved
 
     def test_a_missing_page_stops_the_run(self):
-        check.api_request = lambda token, url, **kw: None
+        check.api_request = lambda _token, _url, **_kw: None
         with self.assertRaises(RuntimeError):
             list(check.paginate("t", "https://api/x"))
 
     def test_an_empty_page_ends_the_list(self):
-        check.api_request = lambda token, url, **kw: []
+        check.api_request = lambda _token, _url, **_kw: []
         self.assertEqual(list(check.paginate("t", "https://api/x")), [])
 
     def test_a_module_that_cannot_be_fetched_is_reported_missing(self):
         files = [{"filename": "scripts/artifacts/a.py", "status": "modified", "contents_url": "u"}]
 
-        def fake(token, url, method="GET", body=None, accept=""):
+        def fake(_token, url, **_kw):
             return files if "/files" in url else None
         check.api_request = fake
         sources, proposed, missing = check.pr_sources("t", "o/r", 1)
@@ -131,7 +131,7 @@ class Network(unittest.TestCase):
     def test_a_label_created_by_another_run_is_used(self):
         calls = []
 
-        def fake(token, url, method="GET", body=None, accept=""):
+        def fake(_token, url, method="GET", **_kw):
             calls.append((method, url))
             if url.endswith("/issues/1/comments?per_page=100&page=1"):
                 return []
