@@ -42,8 +42,8 @@ __artifacts_v2__ = {
                  " file. WildModeAssociationRecord records are read by Find My Unwanted Tracker Alerts and Find My "
                  "Unwanted Tracker Locations, and LeashRecords are counted by Find My Owned Beacons. The remaining record "
                  "types in the folder (among them KeySyncRecord, "
-                 "KeyAlignmentRecords, OwnedDeviceKeyRecord and the SecureLocation records), its databases and "
-                 "CachedUnifiedBeacons.data are not read.",
+                 "KeyAlignmentRecords, OwnedDeviceKeyRecord and the SecureLocation records), its databases other than "
+                 "Observations.db (read by Find My Observed Advertisements) and CachedUnifiedBeacons.data are not read.",
         "paths": (
             '*/mobile/Library/com.apple.icloud.searchpartyd/BeaconEstimatedLocation/*.record',
             '*/mobile/Library/com.apple.icloud.searchpartyd/BeaconNamingRecord/*.record',
@@ -241,17 +241,107 @@ __artifacts_v2__ = {
             "wilkerson_iphone16_ios26": "iOS 26.5.2 | 0 rows",
         },
     },
+    "findMyObservedAdvertisements": {
+        "name": "Find My Observed Advertisements",
+        "description": "Advertisements recorded in the encrypted Observations.db store of searchpartyd, with "
+                       "their location and, where the store names one, the beacon and its name",
+        "author": "@AlexisBrignoni, Claude",
+        "creation_date": "2026-11-26",
+        "last_update_date": "2026-11-26",
+        "requirements": "none",
+        "category": "Locations & Maps",
+        "notes": "One row per advertisement in the ObservedAdvertisement table of Observations.db in "
+                 "com.apple.icloud.searchpartyd, read in every state of the database's write-ahead log. The store is a "
+                 "SQLite database encrypted page by page with AES-256-OFB, as published in joshuahickman1/Lost_Apples "
+                 "(https://github.com/joshuahickman1/Lost_Apples/blob/9ec8597a4164bd63fa757fe2463597a393934e03/src/searchpartyd_db_decryptor.py#L15-L19): "
+                 "page 1 bytes 16 to 23 and the last 12 bytes of each page are stored unencrypted, and a page's IV is "
+                 "its page number (4 bytes, little-endian) followed by those 12 bytes. The key is the Observations / "
+                 "searchparty keychain item from the keychain carried by the extraction or supplied with --keychain: "
+                 "the item's data on dexter_ios18, felix_ios17, otto_ios17, hill_iphone15pro_ios26 and "
+                 "wilkerson_iphone16_ios26, and its gena attribute on abe_ios16, felix23_ios16, adams_iphone12mini and "
+                 "iphone11_ios17. A candidate is used only when it decrypts page 1 to a SQLite header. A store with "
+                 "another page layout, or with no key that opens it, is logged and gives no rows; every store read had "
+                 "4096 byte pages and 12 reserved bytes. On all nine images the log's stored frame checksums verified "
+                 "over the encrypted frames and not over their plaintext, so each frame is checked as stored and only "
+                 "a frame that passes is given a checksum over its plaintext: a frame that fails its stored checksum "
+                 "still fails after decryption. The decrypted database and log are written to the Decrypted "
+                 "searchpartyd folder in this artifact's report folder, and that copy is what is queried. Record "
+                 "Origin. Live rows come from the current state of the decrypted store. Recovered rows are "
+                 "advertisements, keyed by advId (INTEGER PRIMARY KEY AUTOINCREMENT in the store's schema on all nine "
+                 "images), that another state in the log holds and the current state does not. States are read by "
+                 "scripts/sqlite_wal.py: each committed state of the log's current generation (state n is the database "
+                 "after the first n committed transactions, and state 0 the database file without its log), the "
+                 "previous generation's left-over frames where its checks pass, and frames after the last commit. A "
+                 "Recovered row is reported once, as the newest state holding it stored it, with that state's location "
+                 "and beacon rows. Recovery Location names the committed states the advertisement was read in, with "
+                 "their first and last numbers. Why a Recovered row is absent from the current state is not "
+                 "established. Recovered rows were returned on adams_iphone12mini (66 of 70), dexter_ios18 (72 of "
+                 "184), iphone11_ios17 (174 of 182), otto_ios17 (838 of 841) and wilkerson_iphone16_ios26 (57 of 79), "
+                 "all from committed states, so Recovery Method held WAL committed states on every Recovered row. On "
+                 "felix_ios17 and hill_iphone15pro_ios26 every row is Live: Record Origin held Live and Recovery "
+                 "Method and Recovery Location were empty on all their rows. The previous-generation and "
+                 "uncommitted-frame paths gave no rows: the 5 left-over frames in the abe_ios16 log hold no commit "
+                 "frame, and no log held frames after its last commit. On felix23_ios16 the database file already held "
+                 "the whole log, so its 3 earlier states could not be read. abe_ios16 and felix23_ios16 held no "
+                 "advertisements. Scan Date is the advertisement's scanDate and Location Timestamp the timestamp of "
+                 "its ObservedAdvertisementLocation row. Both are stored as text with no zone and are read as UTC: "
+                 "read that way, a scanDate equaled a time in a BeaconEstimatedLocation record of the same beacon (a "
+                 "plist date) to the millisecond on 22 rows over six images, a location timestamp did on 19, and none "
+                 "matched a whole number of hours away. What each time marks is not established. Latitude, Longitude "
+                 "and Horizontal Accuracy come from the location row, present on 1,819 of the 3,661 rows (23 of 1,856 "
+                 "on felix_ios17). The schema requires horizontalAccuracy to be 0 or more; its unit is not "
+                 "established. Beacon Identifier is the beaconIdentifier of the advertisement's "
+                 "ObservedAdvertisementBeaconInfo row, present on 2,073 rows. It equaled an OwnedBeacons record "
+                 "identifier on 2,072 and a SharedBeacons one on 1 (iphone11_ios17); Beacon Record names which, and "
+                 "Beacon Name is the name in the BeaconNamingRecord whose associatedBeacon matches, present on all "
+                 "2,072 OwnedBeacons rows. The other 1,588 rows name no beacon, and what sent them is not established. "
+                 "Records are joined only within one searchpartyd folder. macAddress (hex) is the stored macAddress, "
+                 "which the schema requires to be 6 bytes. Advertisement Data (hex) is the stored advertisementData, "
+                 "28 bytes on 1,691 rows and 6 bytes on 1,970. rssi (as stored) was negative on 3,656 rows. What these "
+                 "three values identify or measure is not established. Advertisement ID is advId. Not reported: "
+                 "source, status, multipart, hint, extraKeyBits, isPosh and isPublished, whose meanings are not "
+                 "established. The other tables of Observations.db are not read: DeviceEvent, DeviceEventLocation and "
+                 "AttachmentInfo were absent or empty on all nine images; KeyGenerationBeaconKeys and "
+                 "KeyGenerationHint hold key material; KeyGenerationBeaconInfo, KeySyncMetadata, FindMyServiceDevices "
+                 "(rows on the two iOS 26 images only) and BatteryState (wilkerson_iphone16_ios26 only) are not read "
+                 "here. The folder's other databases (CloudStorage, CloudStorage_CKRecordCache, ItemSharingKeys, "
+                 "LocalStorage and StandaloneBeacon) are not read.",
+        "paths": (
+            '*/mobile/Library/com.apple.icloud.searchpartyd/Observations.db*',
+            '*/mobile/Library/com.apple.icloud.searchpartyd/OwnedBeacons/*.record',
+            '*/mobile/Library/com.apple.icloud.searchpartyd/SharedBeacons/*.record',
+            '*/mobile/Library/com.apple.icloud.searchpartyd/BeaconNamingRecord/*.record',
+        ),
+        "output_types": "all",
+        "artifact_icon": "bluetooth",
+        "sample_data": {
+            "abe_ios16": "iOS 16.5 | 0 rows",
+            "felix23_ios16": "iOS 16.5 | 0 rows",
+            "adams_iphone12mini": "iOS 17.1.1 | 70 rows",
+            "iphone11_ios17": "iOS 17.3 | 182 rows",
+            "otto_ios17": "iOS 17.5.1 | 841 rows",
+            "felix_ios17": "iOS 17.6.1 | 1856 rows",
+            "dexter_ios18": "iOS 18.3.2 | 184 rows",
+            "hill_iphone15pro_ios26": "iOS 26.3.1 | 449 rows",
+            "wilkerson_iphone16_ios26": "iOS 26.5.2 | 79 rows",
+        },
+    },
 }
 
+import hashlib
+import os
 import plistlib
-from datetime import timezone
+import sqlite3
+import struct
+from datetime import datetime, timezone
 from pathlib import PurePath
 from xml.parsers.expat import ExpatError
 
 from Crypto.Cipher import AES
 
-from scripts.ilapfuncs import artifact_processor, logfunc
+from scripts.ilapfuncs import artifact_processor, get_sqlite_db_records, logfunc
 from scripts.ios_keychain import active_keychain_path, load_keychain_entries
+from scripts.sqlite_wal import KIND_COMMITTED, KIND_EARLIER, KIND_UNCOMMITTED, rows_not_in_current
 
 STORE_DIR = 'com.apple.icloud.searchpartyd'
 # The item's access group was com.apple.icloud.searchpartyd on the three iOS 18 and 26 images read
@@ -286,30 +376,37 @@ def _field_text(entry, field):
     return str(value) if value is not None else ''
 
 
-def _beacon_store_keys():
-    """Every 32 byte BeaconStore key candidate the keychain in use holds, or None without one.
+def _keychain_keys(service, account):
+    """Every 32 byte key candidate the keychain in use holds for a searchpartyd item, or None
+    without a keychain.
 
     The key was the item's data (v_Data) on some images run. On others the item held no data
-    and the key was its 32 byte gena attribute, so both are candidates; the GCM tag decides
-    which, if either, is the key.
+    and the key was its 32 byte gena attribute, so both are candidates; the caller's check (the
+    GCM tag, or the SQLite header of a decrypted page) decides which, if either, is the key.
     """
     keychain = active_keychain_path()
     if not keychain:
         return None
-    if keychain not in _key_cache:
+    cache_key = (keychain, service, account)
+    if cache_key not in _key_cache:
         keys = []
         for entry in load_keychain_entries(keychain):
             if (ACCESS_GROUP not in _field_text(entry, 'agrp').lower()
-                    or _field_text(entry, 'svce') != KEY_SERVICE
-                    or _field_text(entry, 'acct') != KEY_ACCOUNT):
+                    or _field_text(entry, 'svce') != service
+                    or _field_text(entry, 'acct') != account):
                 continue
             for field in ('v_Data', 'gena'):
                 value = entry.get(field)
                 if isinstance(value, (bytes, bytearray)) and len(value) == KEY_LENGTH \
                         and bytes(value) not in keys:
                     keys.append(bytes(value))
-        _key_cache[keychain] = keys
-    return _key_cache[keychain]
+        _key_cache[cache_key] = keys
+    return _key_cache[cache_key]
+
+
+def _beacon_store_keys():
+    """Every 32 byte BeaconStore / BeaconStoreKey key candidate, or None without a keychain."""
+    return _keychain_keys(KEY_SERVICE, KEY_ACCOUNT)
 
 
 def read_searchpartyd_record(file_found):
@@ -572,4 +669,291 @@ def findMyUnwantedTrackerLocations(context):
             data_list.append((_date(entry.get('timestamp')), _value(entry.get('latitude')),
                               _value(entry.get('longitude')), _value(entry.get('horizontalAccuracy')),
                               identifier))
+    return data_headers, data_list, '\n'.join(sources)
+
+
+# The searchpartyd .db stores are SQLite databases encrypted page by page (SQLite Encryption
+# Extension, AES-256-OFB), as published in joshuahickman1/Lost_Apples (searchpartyd_db_decryptor.py
+# lines 15-25 and 99-130 at 9ec8597a). Page 1 bytes 16 to 23 (page size, versions, reserved byte
+# count) are stored unencrypted. The last RESERVED_BYTES of each page are stored unencrypted too,
+# and the page's IV is its page number (4 bytes, little-endian) followed by them. The key is the
+# keychain item named for the store (account searchparty).
+SQLITE_MAGIC = b'SQLite format 3\x00'
+SEE_RESERVED_BYTES = 12
+STORE_ACCOUNT = 'searchparty'
+OBSERVATIONS_SERVICE = 'Observations'
+WAL_MAGICS = (0x377F0682, 0x377F0683)
+WAL_HEADER = 32
+WAL_FRAME_HEADER = 24
+DECRYPTED_FOLDER = 'Decrypted searchpartyd'
+
+
+def _page_geometry(header):
+    """(page size, reserved bytes) from the unencrypted page 1 bytes 16 to 23, or None."""
+    if len(header) < 24:
+        return None
+    size = int.from_bytes(header[16:18], 'big')
+    size = 65536 if size == 1 else size
+    if size < 512 or size & (size - 1):
+        return None
+    return size, header[20]
+
+
+def _decrypt_page(key, page, page_number):
+    """One page's plaintext. The reserved bytes are kept, so the page keeps its stored IV."""
+    reserved = page[-SEE_RESERVED_BYTES:]
+    iv = page_number.to_bytes(4, 'little') + reserved
+    plain = AES.new(key, AES.MODE_OFB, iv=iv).decrypt(page[:-SEE_RESERVED_BYTES])
+    if page_number == 1:
+        plain = plain[:16] + page[16:24] + plain[24:]
+    return plain + reserved
+
+
+def _wal_checksum(data, big_endian, state):
+    """SQLite's write-ahead log checksum over data, continuing from state."""
+    words = struct.unpack(('>' if big_endian else '<') + f'{len(data) // 4}I', data)
+    first, second = state
+    for index in range(0, len(words), 2):
+        first = (first + words[index] + second) & 0xFFFFFFFF
+        second = (second + words[index + 1] + first) & 0xFFFFFFFF
+    return first, second
+
+
+def _decrypt_wal(raw, key, page_size):
+    """The log with each frame's page decrypted, or None when it is not a log of this page size.
+
+    SQLite SEE computes a frame's checksum over the frame as stored, that is over the encrypted
+    page. Each frame is checked that way, against the frame before it as stored. A frame that
+    passes gets a new checksum over its plaintext, chained from the new checksum of the frame
+    before it; a frame that fails keeps its stored checksum, which does not match its plaintext.
+    So SQLite, and scripts/sqlite_wal.py, read the decrypted log the way they would read the
+    stored one: the same frames pass and fail, including a previous generation's left-over
+    frames, whose chain starts from the first left-over frame's stored checksum.
+    Returns (log, frames, bytes after the last whole frame).
+    """
+    if len(raw) < WAL_HEADER or int.from_bytes(raw[:4], 'big') not in WAL_MAGICS \
+            or int.from_bytes(raw[8:12], 'big') != page_size:
+        return None
+    big_endian = bool(int.from_bytes(raw[:4], 'big') & 1)
+    out = bytearray(raw[:WAL_HEADER])
+    stored_before = out_before = struct.unpack('>II', raw[24:32])
+    frame_size = WAL_FRAME_HEADER + page_size
+    frames = (len(raw) - WAL_HEADER) // frame_size
+    for index in range(frames):
+        offset = WAL_HEADER + index * frame_size
+        header = raw[offset:offset + WAL_FRAME_HEADER]
+        page = raw[offset + WAL_FRAME_HEADER:offset + frame_size]
+        page_number = int.from_bytes(header[:4], 'big')
+        stored = struct.unpack('>II', header[16:24])
+        passes = page_number and _wal_checksum(
+            page, big_endian, _wal_checksum(header[:8], big_endian, stored_before)) == stored
+        plain = _decrypt_page(key, page, page_number) if page_number else page
+        new = _wal_checksum(plain, big_endian, _wal_checksum(header[:8], big_endian, out_before)) \
+            if passes else stored
+        out += header[:16] + struct.pack('>II', *new) + plain
+        stored_before, out_before = stored, new
+    return bytes(out), frames, len(raw) - WAL_HEADER - frames * frame_size
+
+
+def decrypt_searchpartyd_db(db_path, service, output_dir):
+    """Write a decrypted copy of one searchpartyd .db store, and of its -wal when there is one,
+    into output_dir. Returns the copy's path, or None (logged) where the store cannot be read.
+    The evidence files are only read.
+    """
+    try:
+        with open(db_path, 'rb') as db_file:
+            raw = db_file.read()
+    except OSError as error:
+        logfunc(f'{db_path}: could not read store: {error}')
+        return None
+    if raw[:16] == SQLITE_MAGIC:
+        logfunc(f'{db_path} is not encrypted; read as it is')
+        return db_path
+    geometry = _page_geometry(raw)
+    if geometry is None or geometry[1] != SEE_RESERVED_BYTES or len(raw) % geometry[0]:
+        logfunc(f'{db_path}: page size, reserved bytes or file size is not the encrypted layout '
+                f'read here ({SEE_RESERVED_BYTES} reserved bytes, a whole number of pages); not read')
+        return None
+    page_size = geometry[0]
+    keys = _keychain_keys(service, STORE_ACCOUNT)
+    if keys is None:
+        logfunc(f'{db_path} is encrypted and no keychain is available; not read. '
+                'Supply the extraction\'s keychain with --keychain.')
+        return None
+    key = next((k for k in keys if _decrypt_page(k, raw[:page_size], 1)[:16] == SQLITE_MAGIC), None)
+    if key is None:
+        logfunc(f'{db_path}: no {service} key in the keychain in use decrypts page 1 to a SQLite '
+                f'header ({len(keys)} candidates tried); not read')
+        return None
+    os.makedirs(output_dir, exist_ok=True)
+    copy_path = os.path.join(output_dir, os.path.basename(db_path))
+    with open(copy_path, 'wb') as copy_file:
+        for number in range(len(raw) // page_size):
+            copy_file.write(_decrypt_page(key, raw[number * page_size:(number + 1) * page_size], number + 1))
+    wal_path = db_path + '-wal'
+    if os.path.isfile(wal_path):
+        try:
+            with open(wal_path, 'rb') as wal_file:
+                wal = _decrypt_wal(wal_file.read(), key, page_size)
+        except OSError as error:
+            logfunc(f'{wal_path}: could not read log: {error}; the database file is read without it')
+            wal = None
+        if wal is None:
+            logfunc(f'{wal_path} is not a write-ahead log for this database; the database file is read '
+                    'without it')
+        else:
+            log, frames, tail = wal
+            with open(copy_path + '-wal', 'wb') as copy_file:
+                copy_file.write(log)
+            if tail:
+                logfunc(f'{wal_path}: {tail} bytes after the last of its {frames} whole frames are not read')
+    return copy_path
+
+
+def _decrypted_output_dir(context, db_path, index):
+    """A folder of its own for each store, in this artifact's report folder."""
+    digest = hashlib.sha1(str(db_path).encode('utf-8', 'surrogateescape')).hexdigest()[:12]
+    return os.path.join(context.get_report_folder(), DECRYPTED_FOLDER, f'{index:02d} {digest}')
+
+
+_WAL_KINDS = (KIND_COMMITTED, KIND_EARLIER, KIND_UNCOMMITTED)
+_ORIGIN_LIVE = 'Live'
+_ORIGIN_RECOVERED = 'Recovered'
+_METHOD_WAL_STATES = 'WAL committed states'
+_METHOD_WAL_UNCOMMITTED = 'WAL uncommitted frames'
+
+
+def _recovery_location(name, spans):
+    """(method, location) for a key read in the states spans names."""
+    parts = []
+    committed, earlier = spans['committed'], spans['earlier']
+    if committed:
+        first, last = committed
+        if last == 0:
+            parts.append(f'{name} without its log, state 0')
+        elif first == 0:
+            parts.append(f'{name} and {name}-wal, committed states 0 to {last}')
+        else:
+            states = f'state {first}' if first == last else f'states {first} to {last}'
+            parts.append(f'{name}-wal, committed {states}')
+    if earlier:
+        first, last = earlier
+        commits = f'commit {first}' if first == last else f'commits {first} to {last}'
+        parts.append(f'{name}-wal, previous log generation, left-over {commits}')
+    if not parts:
+        return _METHOD_WAL_UNCOMMITTED, f'{name}-wal, frames after the last commit'
+    return _METHOD_WAL_STATES, '; '.join(parts)
+
+
+def _removed_rows(db_path, query, live_keys, label):
+    """Rows of query whose key (its last column) another state in the write-ahead log holds and
+    the current state does not, read through scripts/sqlite_wal.py, with each state's own joins.
+    One row per key, as the newest state holding it stored it: a committed state before the
+    previous log generation before the frames after the last commit.
+    """
+    try:
+        columns, found, wal = rows_not_in_current(str(db_path), query, include=_WAL_KINDS)
+    except (sqlite3.Error, OSError) as ex:
+        logfunc(f'{label}: write-ahead log not read: {ex}')
+        return []
+    if wal.log:
+        logfunc(f'{label}: {wal.summary()}')
+    width = len(columns)
+    by_key = {}
+    for item in found:
+        key = item.values[width - 1]
+        if key in live_keys:
+            continue
+        rank = ((2, item.last_state) if item.first_state is not None else
+                (1, item.earlier_generation[1]) if item.earlier_generation else (0, 0))
+        entry = by_key.setdefault(key, {'row': item.values, 'rank': rank, 'committed': None,
+                                        'earlier': None})
+        if rank > entry['rank']:
+            entry['row'], entry['rank'] = item.values, rank
+        for slot, span in (('committed', (item.first_state, item.last_state)
+                            if item.first_state is not None else None),
+                           ('earlier', item.earlier_generation)):
+            if span:
+                old = entry[slot]
+                entry[slot] = span if old is None else (min(old[0], span[0]), max(old[1], span[1]))
+    name = os.path.basename(str(db_path))
+    return [(entry['row'], *_recovery_location(name, entry)) for entry in by_key.values()]
+
+
+OBSERVATIONS_QUERY = '''
+    SELECT ObservedAdvertisement.scanDate, ObservedAdvertisementLocation.timestamp,
+           ObservedAdvertisementLocation.latitude, ObservedAdvertisementLocation.longitude,
+           ObservedAdvertisementLocation.horizontalAccuracy,
+           ObservedAdvertisementBeaconInfo.beaconIdentifier, ObservedAdvertisement.macAddress,
+           ObservedAdvertisement.rssi, ObservedAdvertisement.advertisementData,
+           ObservedAdvertisement.advId
+    FROM ObservedAdvertisement
+    LEFT JOIN ObservedAdvertisementLocation
+        ON ObservedAdvertisementLocation.advId = ObservedAdvertisement.advId
+    LEFT JOIN ObservedAdvertisementBeaconInfo
+        ON ObservedAdvertisementBeaconInfo.advId = ObservedAdvertisement.advId
+'''
+
+
+def _stored_utc(value):
+    """A stored text time (2024-01-31T12:34:56.789, no zone) as a UTC datetime, or ''."""
+    if not isinstance(value, str):
+        return ''
+    try:
+        return datetime.strptime(value, '%Y-%m-%dT%H:%M:%S.%f').replace(tzinfo=timezone.utc)
+    except ValueError:
+        try:
+            return datetime.strptime(value, '%Y-%m-%dT%H:%M:%S').replace(tzinfo=timezone.utc)
+        except ValueError:
+            logfunc(f'Find My Observed Advertisements: a time not in the stored layout is not read: '
+                    f'{len(value)} characters')
+            return ''
+
+
+def _hex(value, separator=None):
+    if not isinstance(value, (bytes, bytearray)) or not value:
+        return ''
+    return bytes(value).hex(separator) if separator else bytes(value).hex()
+
+
+@artifact_processor
+def findMyObservedAdvertisements(context):
+    data_headers = (('Scan Date', 'datetime'), ('Location Timestamp', 'datetime'), ('Latitude', 'latitude'),
+                    ('Longitude', 'longitude'), 'Horizontal Accuracy', 'Beacon Name', 'Beacon Record',
+                    'Beacon Identifier', 'macAddress (hex)', 'rssi (as stored)', 'Advertisement Data (hex)',
+                    'Advertisement ID', 'Record Origin', 'Recovery Method', 'Recovery Location')
+    data_list = []
+    sources = []
+    files_found = [str(path) for path in context.get_files_found()]
+    stores = _read_store(files_found)
+    databases = sorted(path for path in files_found
+                       if os.path.basename(path) == 'Observations.db' and _store_root(path) is not None)
+    for index, db_path in enumerate(databases, 1):
+        copy_path = decrypt_searchpartyd_db(db_path, OBSERVATIONS_SERVICE,
+                                            _decrypted_output_dir(context, db_path, index))
+        if copy_path is None:
+            continue
+        records = stores.get(_store_root(db_path), {})
+        names = _names(records)
+        owned = _identifiers(records, 'OwnedBeacons')
+        shared = _identifiers(records, 'SharedBeacons')
+        try:
+            rows = [tuple(row) for row in get_sqlite_db_records(copy_path, OBSERVATIONS_QUERY)]
+        except sqlite3.Error as ex:
+            logfunc(f'{db_path}: error reading the decrypted store: {ex}')
+            continue
+        sources.append(db_path)
+        found = [(row, _ORIGIN_LIVE, '', '') for row in rows]
+        found.extend((row, _ORIGIN_RECOVERED, method, location) for row, method, location
+                     in _removed_rows(copy_path, OBSERVATIONS_QUERY, {row[-1] for row in rows},
+                                      'Find My Observed Advertisements'))
+        for row, origin, method, location in found:
+            scan, located, latitude, longitude, accuracy, beacon, mac, rssi, advertisement, adv_id = row
+            beacon = _text(beacon)
+            kind = 'OwnedBeacons' if beacon.upper() in owned else \
+                'SharedBeacons' if beacon and beacon.upper() in shared else ''
+            data_list.append((_stored_utc(scan), _stored_utc(located), _value(latitude), _value(longitude),
+                              _value(accuracy), names.get(beacon.upper(), '') if beacon else '', kind,
+                              beacon, _hex(mac, ':'), _value(rssi), _hex(advertisement), adv_id,
+                              origin, method, location))
     return data_headers, data_list, '\n'.join(sources)
