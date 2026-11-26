@@ -299,7 +299,9 @@ __artifacts_v2__ = {
                  "daily MAC Address exactly, and their 28 byte advertisementData equals the derived Advertisement Key "
                  "exactly. On dexter_ios18, the 59 distinct addresses stored for 2 of its 4 owned beacons, over every "
                  "readable state of the log (58 in the current state), each equaled a derived address of that beacon: "
-                 "3 from the daily chain and 56 from the 15 minute chain, which this artifact does not list. Key Index "
+                 "3 from the daily chain and 56 from the 15 minute chain, which this artifact does not list. This check "
+                 "needs Observations.db, so it could run only where the store exists; hickman_ios15 has none. Of the "
+                 "ten images in sample_data, dexter_ios18 is the only one with recorded rows. Key Index "
                  "is the number of update steps from the record's secondarySharedSecret, one per day in the chain. "
                  "Estimated Date (UTC) is the pairing date plus Key Index days, in UTC; it is an estimate. Lost_Apples "
                  "notes that the secret can be replaced after pairing, and describes each key as starting at 4 AM "
@@ -307,12 +309,15 @@ __artifacts_v2__ = {
                  "date was 2 days before Estimated Date. Recorded First and Recorded Last are the earliest and latest "
                  "scanDate at which this phone stored that MAC Address for the same beacon in the current state of "
                  "Observations.db, a time stored with no zone and read as UTC (see Find My Observed Advertisements); "
-                 "they are empty where it did not, or where the store could not be read. A recorded row shows a time "
+                 "they are empty where it did not, or where the store could not be read. On hickman_ios15, which has no "
+                 "Observations.db, both are empty on all 62 rows. A recorded row shows a time "
                  "at which this phone stored that address; it does not give the start or end of the key's use. Rows "
                  "run from Key Index 1 to the number of whole days from pairing to the latest time read from the "
                  "store, plus 7. That time is the latest scanDate of an advertisement that names a beacon, or the "
                  "latest BeaconEstimatedLocation timestamp of any beacon in the folder; with no such time, or one "
-                 "before pairing, 7 rows are given. The margin is there because recorded keys ran ahead of Estimated "
+                 "before pairing, 7 rows are given; no beacon on the ten images reached that case. On hickman_ios15 the "
+                 "latest time came from the BeaconEstimatedLocation records alone, as it has no Observations.db. The "
+                 "margin is there because recorded keys ran ahead of Estimated "
                  "Date; a key in use after the last row is still possible. A range longer than 20 years is cut to that "
                  "and logged, so one wrong far-future time cannot set an endless range. Where the stored addresses "
                  "cannot be read, the failure is logged and the daily addresses are still derived, with Recorded First "
@@ -321,9 +326,10 @@ __artifacts_v2__ = {
                  "MAC Address or Advertisement Key; matching is left to the examiner, and a match or no match alone "
                  "does not establish that the beacon was there. The 15 minute keys, which Lost_Apples describes as "
                  "used near the owner device (lines 629 to 637), are not listed, and beacons with no "
-                 "secondarySharedSecret get no rows (31 of the 37 OwnedBeacons records on the nine images, counted in "
-                 "the log). Lost_Apples also derives the 15 minute keys, from sharedSecret. Over the nine images, 6 "
-                 "records gave 1,233 rows: abe_ios16 28, adams_iphone12mini 49 (2 beacons), dexter_ios18 222 (3 "
+                 "secondarySharedSecret get no rows (37 of the 45 OwnedBeacons records on the ten images, counted in "
+                 "the log). Lost_Apples also derives the 15 minute keys, from sharedSecret. Over the ten images, 8 "
+                 "records gave 1,295 rows: hickman_ios15 62 (2 beacons), abe_ios16 28, adams_iphone12mini 49 (2 "
+                 "beacons), dexter_ios18 222 (3 "
                  "recorded) and iphone11_ios17 934 (2 beacons). Beacon Name is the BeaconNamingRecord name, present on "
                  "all of the rows.",
         "paths": (
@@ -335,6 +341,7 @@ __artifacts_v2__ = {
         "output_types": "standard",
         "artifact_icon": "radio",
         "sample_data": {
+            "hickman_ios15": "iOS 15.3.1 | 62 rows",
             "abe_ios16": "iOS 16.5 | 28 rows",
             "felix23_ios16": "iOS 16.5 | 0 rows",
             "adams_iphone12mini": "iOS 17.1.1 | 49 rows",
@@ -358,7 +365,9 @@ __artifacts_v2__ = {
         "notes": "One row per searchpartyd folder, beacon and UTC day for the advertisements in Observations.db that "
                  "have no ObservedAdvertisementLocation row, read and decrypted as described in Find My Observed "
                  "Advertisements, which reports the advertisements that do have one; together the two account for "
-                 "every advertisement read. These advertisements are counted per day and are not listed; their "
+                 "every advertisement read. hickman_ios15 has no Observations.db (see Find My Observed "
+                 "Advertisements), so it gives no rows and every figure here is from the other nine images in "
+                 "sample_data. These advertisements are counted per day and are not listed; their "
                  "macAddress, advertisementData and the other stored columns are not reported here. Where the store "
                  "was encrypted, the decrypted database and log in the report folder hold them, and a recovered one is "
                  "in an earlier state of the log, not in the database's current state. Day (UTC) is the first 10 "
@@ -385,6 +394,7 @@ __artifacts_v2__ = {
         "output_types": "standard",
         "artifact_icon": "calendar",
         "sample_data": {
+            "hickman_ios15": "iOS 15.3.1 | 0 rows",
             "abe_ios16": "iOS 16.5 | 0 rows",
             "felix23_ios16": "iOS 16.5 | 0 rows",
             "adams_iphone12mini": "iOS 17.1.1 | 0 rows",
@@ -409,7 +419,12 @@ __artifacts_v2__ = {
         "notes": "One row per advertisement in the ObservedAdvertisement table of Observations.db in "
                  "com.apple.icloud.searchpartyd that has an ObservedAdvertisementLocation row, read in the current "
                  "state and in every other state of the database's write-ahead log that scripts/sqlite_wal.py could "
-                 "read. Advertisements without a location row are counted per beacon and UTC day in Find My Observed "
+                 "read. hickman_ios15, one of the ten images in sample_data, has no file named Observations.db in its "
+                 "searchpartyd folder (read from the archive listing), so it gives no rows and every figure here is "
+                 "from the other nine. That folder holds BeaconObservationStore/observations.plist, a plain binary "
+                 "plist of 14 UUID-shaped strings, each followed by a list; 6 of the 14 equal an OwnedBeacons record "
+                 "identifier. No artifact here reads it, and what it records is not established. "
+                 "Advertisements without a location row are counted per beacon and UTC day in Find My Observed "
                  "Advertisement Days, and together the two account for every advertisement read. The store is a SQLite "
                  "database encrypted page by page with AES-256-OFB, as published in joshuahickman1/Lost_Apples "
                  "(https://github.com/joshuahickman1/Lost_Apples/blob/9ec8597a4164bd63fa757fe2463597a393934e03/src/searchpartyd_db_decryptor.py#L15-L19): "
@@ -500,6 +515,7 @@ __artifacts_v2__ = {
         "output_types": "all",
         "artifact_icon": "bluetooth",
         "sample_data": {
+            "hickman_ios15": "iOS 15.3.1 | 0 rows",
             "abe_ios16": "iOS 16.5 | 0 rows",
             "felix23_ios16": "iOS 16.5 | 0 rows",
             "adams_iphone12mini": "iOS 17.1.1 | 70 rows",
