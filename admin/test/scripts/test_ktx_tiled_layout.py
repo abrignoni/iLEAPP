@@ -16,7 +16,10 @@ def _block(n):
     return n.to_bytes(4, 'little') * 4
 
 
-def _reader(width, height, head_words=(), image_scale=None):
+TILED_WORDS = (0,) * 12 + (1,) + (0,) * 8   # HEAD word 12 = 1, as on every tiled file measured
+
+
+def _reader(width, height, head_words=TILED_WORDS, image_scale=None):
     reader = KTX_reader(image_scale=image_scale)
     reader.pixelWidth = width
     reader.pixelHeight = height
@@ -115,6 +118,18 @@ class ScaleFromNameTests(unittest.TestCase):
         self.assertEqual(_image_scale_for(staged, seeker), 2)
         self.assertIsNone(_image_scale_for(staged, None))
         self.assertEqual(_image_scale_for('/report/data/x/DEF@3x.ktx', seeker), 3)
+
+
+class FlagTests(unittest.TestCase):
+
+    def test_tiled_length_needs_word_12_set(self):
+        for words in ((0,) * 21, (0,) * 12 + (2,) + (0,) * 8, ()):
+            with self.assertRaises(ValueError):
+                _reader(1170, 2532, words).untile_astc_4x4(_tile(1170, 2532))
+
+    def test_linear_length_needs_word_12_clear(self):
+        with self.assertRaises(ValueError):
+            _reader(1170, 2532, (0,) * 12 + (2,) + (0,) * 8).untile_astc_4x4(_raster(1170, 2532))
 
 
 if __name__ == '__main__':

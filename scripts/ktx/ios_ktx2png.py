@@ -253,11 +253,12 @@ class KTX_reader:
         read when the count equals the padded surface. It was 1 in every tiled file
         and 0 in every linear file observed. It is not documented by Apple.
 
-        Only those lengths are accepted: linear at exactly one block per 4x4
-        pixels, tiled at exactly the padded surface plus one block, or exactly the
-        padded surface with HEAD word 12 set to 1. Every AAPL file measured (10,628
-        in 24 images, iOS 15 to 27) had one of the first two; the third was not seen
-        in any file. Anything else, such as a cut-short file,
+        Only those lengths are accepted, each with its HEAD word 12: linear at
+        exactly one block per 4x4 pixels with word 12 = 0 (or no word 12), tiled at
+        exactly the padded surface plus one block, or exactly the padded surface,
+        with word 12 = 1. Every AAPL file measured (10,628 in 24 images, iOS 15 to
+        27) had one of the first two with that word 12; the third was not seen in
+        any file. Anything else, such as a cut-short file,
         raises ValueError, because the decoder would turn it into a full-size
         picture with no error.
 
@@ -279,14 +280,15 @@ class KTX_reader:
         padded = tiles_x * tiles_y * TILE_BLOCKS * TILE_BLOCKS
         count, remainder = divmod(len(data), ASTC_BLOCK_BYTES)
         words = self.aapl_head_words
-        flagged = len(words) > 12 and words[12] == 1
-        if remainder == 0 and count == exact and not (padded == exact and flagged):
+        word12 = words[12] if len(words) > 12 else 0
+        if remainder == 0 and count == exact and word12 == 0:
             return data
-        if remainder != 0 or not (count == padded + 1 or (count == padded and flagged)):
+        if remainder != 0 or word12 != 1 or count not in (padded, padded + 1):
             raise ValueError(
-                f'AAPL texture holds {len(data)} bytes, which is not an accepted linear '
-                f'({exact * ASTC_BLOCK_BYTES}) or tiled ({(padded + 1) * ASTC_BLOCK_BYTES}) '
-                f'size for {self.pixelWidth}x{self.pixelHeight}')
+                f'AAPL texture holds {len(data)} bytes with HEAD word 12 = {word12}, which is '
+                f'not an accepted linear ({exact * ASTC_BLOCK_BYTES}, word 12 = 0) or tiled '
+                f'({(padded + 1) * ASTC_BLOCK_BYTES}, word 12 = 1) size for '
+                f'{self.pixelWidth}x{self.pixelHeight}')
         self.is_tiled = True
         if self.image_scale == 2:
             morton_x, morton_y = _MORTON_Y, _MORTON_X
