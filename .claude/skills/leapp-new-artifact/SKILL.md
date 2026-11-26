@@ -65,6 +65,13 @@ Get these right, because they are the ones most often wrong:
 - **`paths`** is `fnmatch`, not glob. `*` crosses `/`. Matching is case-sensitive off
   Windows, except on the NTFS, ReFS, exFAT and FAT volumes of a raw image. See the `leapp-artifact-paths` rule and validate before committing.
 - **`author`** is unversioned: `@YourHandle`, or `@YourHandle, Claude` if an agent helped.
+- **`category`** comes from the agreed list in `admin/data/artifact_categories.json`. The GUI
+  category picker, the report sidebar and the LAVA manifest all group by it, so a new name
+  becomes a new group of one. Use the category whose purpose fits (iLEAPP, ALEAPP), the
+  provider (RLEAPP), the make (VLEAPP), or in DLEAPP the platform-prefixed one for system
+  artifacts and the shared one for apps. When none fits, add the category to the list in the
+  same PR and say why in the PR body. The New Category Alert workflow comments on any PR whose
+  category is not on the list, and it does not fail the build.
 - **`description` and `notes`** are examiner-facing and reach the report and the LAVA
   manifest. Say only what the data proves. See the `leapp-claims` rule.
 - **`output_types`**: `"standard"` for the usual fan-out, `"all"` to add KML when the
