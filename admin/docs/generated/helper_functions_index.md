@@ -162,8 +162,8 @@ for the rest. `admin/docs/helper_functions.md` explains where the five cores' he
 
 | Used by | Name | Signature | First docstring line |
 | ---: | --- | --- | --- |
-| 6 | `rows_not_in_current` | `rows_not_in_current(db_path, query, params=(), key_columns=None, max_states=DEFAULT_MAX_STATES, include=(KIND_COMMITTED,))` | Rows the query returns in another state but not in the current one. |
-| 2 | class `WalStates` | `WalStates(db_path, max_states=DEFAULT_MAX_STATES, include=(KIND_COMMITTED,))` | Open each readable state of a WAL-mode database read-only. |
+| 5 | `rows_not_in_current` | `rows_not_in_current(db_path, query, params=(), key_columns=None, max_states=DEFAULT_MAX_STATES, include=(KIND_COMMITTED,))` | Rows the query returns in another state but not in the current one. |
+| 3 | class `WalStates` | `WalStates(db_path, max_states=DEFAULT_MAX_STATES, include=(KIND_COMMITTED,))` | Open each readable state of a WAL-mode database read-only. |
 | | `WalStates.summary` | `summary(self)` | One line describing what was read and what was not, for the log. |
 | | `WalStates.close` | `close(self)` | (no docstring) |
 | | `WalStates.states` | `states(self)` | Yield a State for each readable state, current first, as the class says. |
