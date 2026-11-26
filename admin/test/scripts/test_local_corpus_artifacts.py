@@ -993,13 +993,13 @@ class FindMySearchpartydLocalTest(LocalCorpusTestCase):
 
 
     def test_shared_beacon_names(self):
-        """Every shared beacon with a BeaconAttributes row in ItemSharingKeys.db gets a Name."""
+        """The number of named shared beacon rows equals the number whose identifier has a BeaconAttributes name."""
         if not any(path.replace(os.sep, '/').endswith('/ItemSharingKeys.db') for path in self.paths):
             self.skipTest(f'no searchpartyd ItemSharingKeys.db in {LOCAL_IMAGE}')
         rows = self.run_artifact(findMySearchpartyd.findMySharedBeacons)
         attributed = set()
         for copy in Path(self.temp_dir.name, 'report').rglob('ItemSharingKeys.db'):
-            connection = sqlite3.connect(f'file:{copy}?mode=ro', uri=True)
+            connection = sqlite3.connect(f'{copy.as_uri()}?mode=ro', uri=True)
             try:
                 attributed |= {row[0].upper() for row in connection.execute(
                     "SELECT beaconIdentifier FROM BeaconAttributes WHERE name != ''")}
@@ -1020,7 +1020,7 @@ class FindMySearchpartydLocalTest(LocalCorpusTestCase):
         self.assertEqual(len(copies), len(store), 'a store was not decrypted')
         current = set()
         for copy in copies:
-            connection = sqlite3.connect(f'file:{copy}?mode=ro', uri=True)
+            connection = sqlite3.connect(f'{copy.as_uri()}?mode=ro', uri=True)
             try:
                 current |= {row[0] for row in connection.execute('SELECT advId FROM ObservedAdvertisement')}
             finally:
