@@ -1,6 +1,8 @@
 """TikTok friends feed and follow feed played-id stores: every account table, both schema versions, TikTok containers only (SYNTHETIC)."""
 import datetime
+import fnmatch
 import os
+import shutil
 import plistlib
 import sqlite3
 import tempfile
@@ -74,6 +76,76 @@ class PlayedVideosTest(unittest.TestCase):
         db.close()
         _, rows, _ = self.run_artifact(module.tiktok_follow_feed_played, [meta, path, path + '-wal'])
         self.assertEqual(rows, [(UNIX + datetime.timedelta(seconds=1700000300.0), 'g1', '333')])
+
+
+class WalOnlyRowsTest(unittest.TestCase):
+    """Rows that exist only in the -wal are read, through the artifact's own path patterns (issue 2878)."""
+
+    def setUp(self):
+        temp = tempfile.TemporaryDirectory()
+        self.addCleanup(temp.cleanup)
+        self.root = temp.name
+
+    def wal_store(self, relative, ddl, rows):
+        """Write a store in WAL mode and copy the main file and -wal before any checkpoint."""
+        build = os.path.join(self.root, 'build', os.path.basename(relative))
+        os.makedirs(os.path.dirname(build), exist_ok=True)
+        db = sqlite3.connect(build)
+        self.assertEqual(db.execute('PRAGMA journal_mode=WAL').fetchone()[0], 'wal')
+        db.execute('PRAGMA wal_autocheckpoint=0')
+        db.execute(ddl)
+        db.executemany(f'INSERT INTO playedItemIds_555 VALUES ({",".join("?" * len(rows[0]))})', rows)
+        db.commit()
+        target = os.path.join(self.root, 'private/var/mobile/Containers/Data/Application/A', relative)
+        os.makedirs(os.path.dirname(target), exist_ok=True)
+        shutil.copyfile(build, target)
+        shutil.copyfile(build + '-wal', target + '-wal')
+        db.close()
+        return target
+
+    def collect(self, artifact):
+        """Every file under the tree that one of the artifact's declared path patterns matches."""
+        patterns = module.__artifacts_v2__[artifact]['paths']
+        found = []
+        for folder, _dirs, files in os.walk(self.root):
+            for name in files:
+                path = os.path.join(folder, name).replace('\\', '/')
+                if any(fnmatch.fnmatch(path, pattern) for pattern in patterns):
+                    found.append(path)
+        return found
+
+    def run_artifact(self, artifact):
+        meta = os.path.join(self.root, 'private/var/mobile/Containers/Data/Application/A',
+                            '.com.apple.mobile_container_manager.metadata.plist')
+        with open(meta, 'wb') as handle:
+            plistlib.dump({'MCMMetadataIdentifier': 'com.zhiliaoapp.musically'}, handle)
+        found = self.collect(artifact)
+        context = SimpleNamespace(get_files_found=lambda: found, get_relative_path=os.path.basename)
+        with mock.patch.object(module, 'logfunc'), mock.patch('scripts.artifacts.tikTok.logfunc'):
+            return getattr(module, artifact).__wrapped__(context), found
+
+    def check(self, artifact, relative, ddl, rows):
+        store = self.wal_store(relative, ddl, rows)
+        main_only = sqlite3.connect(f'file:{store}?mode=ro&immutable=1', uri=True)
+        tables = main_only.execute("SELECT count(*) FROM sqlite_master WHERE type = 'table'").fetchone()[0]
+        main_only.close()
+        self.assertEqual(tables, 0, 'the fixture keeps the table and rows in the -wal only')
+        (_headers, result, _source), found = self.run_artifact(artifact)
+        self.assertIn(store + '-wal', found, 'the declared paths collect the -wal')
+        self.assertEqual(len(result), len(rows))
+        return result
+
+    def test_friends_feed_rows_only_in_the_wal(self):
+        rows = self.check('tiktok_friends_feed_played', 'Library/Caches/com.friends.feed.deduplicate/record.db',
+                          f'CREATE TABLE playedItemIds_555({OLD})',
+                          [('w1', 1, 1700000000.0, 1, 1700000060.0), ('w2', 1, 1700000100.0, 1, 1700000100.0)])
+        self.assertEqual(sorted(r[2] for r in rows), ['w1', 'w2'])
+
+    def test_follow_feed_rows_only_in_the_wal(self):
+        rows = self.check('tiktok_follow_feed_played', 'Documents/follow_feed/played_videos_recorder.db',
+                          'CREATE TABLE playedItemIds_555(gid TEXT PRIMARY KEY, createTime REAL)',
+                          [('g1', 1700000300.0), ('g2', 1700000400.0)])
+        self.assertEqual(sorted(r[1] for r in rows), ['g1', 'g2'])
 
 
 if __name__ == '__main__':
