@@ -75,17 +75,20 @@ class MissingFieldTest(unittest.TestCase):
                     bad[field] = 7
                     self.check_skipped(name, bad)
 
-    def test_invalid_utf8_skips_only_that_record(self):
+    def test_invalid_utf8_keeps_the_row_with_the_bytes_escaped(self):
         cases = {'biomeAirpMode': ('5',), 'biomeWifi': ('5', '4.3')}
         for name, fields in cases.items():
             for field in fields:
                 with self.subTest(module=name, field=field):
                     bad = payload(GOOD)
                     if field == '4.3':
-                        bad['4'] = dict(bad['4'], **{'3': b'\xff'})
+                        bad['4'] = dict(bad['4'], **{'3': b'net\xff'})
                     else:
-                        bad[field] = b'\xff'
-                    self.check_skipped(name, bad)
+                        bad[field] = b'id\xff'
+                    rows, _, _ = self.run_module(name, bad)
+                    self.assertEqual([row[-1] for row in rows], [8, 64, 128], 'every record is reported')
+                    expected = 'net\\xff' if field == '4.3' else 'id\\xff'
+                    self.assertIn(expected, rows[1], 'the invalid byte is shown escaped')
 
 
 if __name__ == '__main__':
