@@ -260,6 +260,79 @@ __artifacts_v2__ = {
             "wilkerson_iphone16_ios26": "iOS 26.5.2 | 0 rows",
         },
     },
+    "findMyBeaconDailyAddresses": {
+        "name": "Find My Beacon Daily Addresses",
+        "description": "The daily MAC addresses and advertisement keys derived from the encrypted OwnedBeacons "
+                       "records of searchpartyd, with the times this phone stored that address, where it did",
+        "author": "@AlexisBrignoni, Claude",
+        "creation_date": "2026-11-26",
+        "last_update_date": "2026-11-26",
+        "requirements": "none",
+        "category": "Locations & Maps",
+        "notes": "One row per day key derived for each OwnedBeacons record in com.apple.icloud.searchpartyd that holds "
+                 "a secondarySharedSecret, decrypted as described in Find My Beacon Estimated Locations. The "
+                 "derivation is the separated-state key chain of Apple's Find My Network Accessory Specification "
+                 "(sections 6.3.4 and 5.1.3) as summarized in joshuahickman1/Lost_Apples "
+                 "(https://github.com/joshuahickman1/Lost_Apples/blob/9ec8597a4164bd63fa757fe2463597a393934e03/src/key_schedule_generator.py#L1-L36): "
+                 "each key's secret is the ANSI X9.63 KDF (SHA-256) of the one before it with \"update\", the KDF of "
+                 "that with \"diversify\" gives two P-224 scalars u and v, and the key is the point u*P + v*G, computed "
+                 "here as (d*u + v)*G from the record's private scalar d. Before any key is derived, the private "
+                 "scalar is checked against the record's own public key; a record that fails, or has no pairing date, "
+                 "is logged and gives no rows. Advertisement Key (hex) is the key's 28 byte x coordinate, and MAC "
+                 "Address is its first 6 bytes with the top two bits of the first byte set. Both are derived values: "
+                 "the record's private key and shared secrets are not reported. The derivation was checked against the "
+                 "advertisements the same phone stored for its own beacons in Observations.db: on dexter_ios18, 3 "
+                 "stored addresses of its one beacon with a secondarySharedSecret (7 advertisements) equal a derived "
+                 "daily MAC Address exactly, and their 28 byte advertisementData equals the derived Advertisement Key "
+                 "exactly. On dexter_ios18, the 59 distinct addresses stored for 2 of its 4 owned beacons, over every "
+                 "readable state of the log (58 in the current state), each equaled a derived address of that beacon: "
+                 "3 from the daily chain and 56 from the 15 minute chain, which this artifact does not list. Key Index "
+                 "is the number of update steps from the record's secondarySharedSecret, one per day in the chain. "
+                 "Estimated Date (UTC) is the pairing date plus Key Index days, in UTC; it is an estimate. Lost_Apples "
+                 "notes that the secret can be replaced after pairing, and describes each key as starting at 4 AM "
+                 "local time, which this artifact does not apply. On the 3 recorded rows of dexter_ios18, the recorded "
+                 "date was 2 days before Estimated Date. Recorded First and Recorded Last are the earliest and latest "
+                 "scanDate at which this phone stored that MAC Address for the same beacon in the current state of "
+                 "Observations.db, a time stored with no zone and read as UTC (see Find My Observed Advertisements); "
+                 "they are empty where it did not, or where the store could not be read. A recorded row shows a time "
+                 "at which this phone stored that address; it does not give the start or end of the key's use. Rows "
+                 "run from Key Index 1 to the number of whole days from pairing to the latest time read from the "
+                 "store, plus 7. That time is the latest scanDate of an advertisement that names a beacon, or the "
+                 "latest BeaconEstimatedLocation timestamp of any beacon in the folder; with no such time, or one "
+                 "before pairing, 7 rows are given. The margin is there because recorded keys ran ahead of Estimated "
+                 "Date; a key in use after the last row is still possible. A range longer than 20 years is cut to that "
+                 "and logged, so one wrong far-future time cannot set an endless range. Where the stored addresses "
+                 "cannot be read, the failure is logged and the daily addresses are still derived, with Recorded First "
+                 "and Recorded Last empty. The list is for searching other data, such as another phone's Find My "
+                 "Observed Advertisements or Find My Unwanted Tracker Alerts, or a Bluetooth detector export, for the "
+                 "MAC Address or Advertisement Key; matching is left to the examiner, and a match or no match alone "
+                 "does not establish that the beacon was there. The 15 minute keys, which Lost_Apples describes as "
+                 "used near the owner device (lines 629 to 637), are not listed, and beacons with no "
+                 "secondarySharedSecret get no rows (31 of the 37 OwnedBeacons records on the nine images, counted in "
+                 "the log). Lost_Apples also derives the 15 minute keys, from sharedSecret. Over the nine images, 6 "
+                 "records gave 1,233 rows: abe_ios16 28, adams_iphone12mini 49 (2 beacons), dexter_ios18 222 (3 "
+                 "recorded) and iphone11_ios17 934 (2 beacons). Beacon Name is the BeaconNamingRecord name, present on "
+                 "all of the rows.",
+        "paths": (
+            '*/mobile/Library/com.apple.icloud.searchpartyd/OwnedBeacons/*.record',
+            '*/mobile/Library/com.apple.icloud.searchpartyd/BeaconNamingRecord/*.record',
+            '*/mobile/Library/com.apple.icloud.searchpartyd/BeaconEstimatedLocation/*.record',
+            '*/mobile/Library/com.apple.icloud.searchpartyd/Observations.db*',
+        ),
+        "output_types": "standard",
+        "artifact_icon": "radio",
+        "sample_data": {
+            "abe_ios16": "iOS 16.5 | 28 rows",
+            "felix23_ios16": "iOS 16.5 | 0 rows",
+            "adams_iphone12mini": "iOS 17.1.1 | 49 rows",
+            "iphone11_ios17": "iOS 17.3 | 934 rows",
+            "otto_ios17": "iOS 17.5.1 | 0 rows",
+            "felix_ios17": "iOS 17.6.1 | 0 rows",
+            "dexter_ios18": "iOS 18.3.2 | 222 rows",
+            "hill_iphone15pro_ios26": "iOS 26.3.1 | 0 rows",
+            "wilkerson_iphone16_ios26": "iOS 26.5.2 | 0 rows",
+        },
+    },
     "findMyObservedAdvertisementDays": {
         "name": "Find My Observed Advertisement Days",
         "description": "Advertisements in the encrypted Observations.db store of searchpartyd that have no "
@@ -432,11 +505,12 @@ import os
 import plistlib
 import sqlite3
 import struct
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import PurePath
 from xml.parsers.expat import ExpatError
 
 from Crypto.Cipher import AES
+from Crypto.PublicKey import ECC
 
 from scripts.ilapfuncs import artifact_processor, get_sqlite_db_records, logfunc
 from scripts.ios_keychain import active_keychain_path, load_keychain_entries
@@ -1273,4 +1347,140 @@ def findMyObservedAdvertisementDays(context):
                               min(entry['rssi']) if entry['rssi'] else '', max(entry['rssi']) if entry['rssi'] else ''))
     data_list.sort(key=lambda row: (row[2], row[5]))
     sources = [db_path for db_path, *_rest in found] + attribute_sources
+    return data_headers, data_list, '\n'.join(sources)
+
+
+# Daily advertisement keys of an owned beacon. Apple's Find My Network Accessory Specification
+# (sections 6.3.4 and 5.1.3) derives them from the beacon's secondary shared secret, as summarized in
+# joshuahickman1/Lost_Apples (src/key_schedule_generator.py lines 1 to 36 at 9ec8597a): each day's
+# secret is the ANSI X9.63 KDF (SHA-256) of the day before's with "update"; the KDF of that with
+# "diversify" gives two 36 byte values u and v, each reduced to a P-224 scalar; the day's key is the
+# point u*P + v*G, which equals (d*u + v)*G for the beacon's private scalar d. The 28 byte
+# x coordinate is the advertisement key, and its first 6 bytes with the top two bits of the first set
+# are the advertised MAC address.
+P224_ORDER = 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFF16A2E0B8F03E13DD29455C5C2A3D
+PRIVATE_KEY_LENGTH = 85  # 0x04, x (28 bytes), y (28 bytes), d (28 bytes)
+PUBLIC_KEY_LENGTH = 57   # 0x04, x, y
+DAY_MARGIN = 7  # recorded keys ran up to 3 days ahead of the pairing-based estimate
+MAX_DAYS = 20 * 366  # a bound against a wrong far-future time setting the range for every beacon
+
+
+def _x963_kdf(secret, info, length):
+    out, counter = b'', 1
+    while len(out) < length:
+        out += hashlib.sha256(secret + counter.to_bytes(4, 'big') + info).digest()
+        counter += 1
+    return out[:length]
+
+
+def _daily_keys(secondary_secret, private_scalar, days):
+    """(day index, 28 byte advertisement key) for days 1 to days."""
+    secret = secondary_secret
+    for index in range(1, days + 1):
+        secret = _x963_kdf(secret, b'update', 32)
+        derived = _x963_kdf(secret, b'diversify', 72)
+        u = int.from_bytes(derived[:36], 'big') % (P224_ORDER - 1) + 1
+        v = int.from_bytes(derived[36:], 'big') % (P224_ORDER - 1) + 1
+        point = ECC.construct(curve='P-224', d=(private_scalar * u + v) % P224_ORDER).pointQ
+        yield index, int(point.x).to_bytes(28, 'big')
+
+
+def _key_data(record, field):
+    value = record.get(field)
+    value = value.get('key') if isinstance(value, dict) else None
+    value = value.get('data') if isinstance(value, dict) else None
+    return bytes(value) if isinstance(value, (bytes, bytearray)) else None
+
+
+def _private_scalar(record):
+    """The beacon's P-224 private scalar, checked against its own public key, or None."""
+    private, public = _key_data(record, 'privateKey'), _key_data(record, 'publicKey')
+    if not private or len(private) != PRIVATE_KEY_LENGTH or not public or len(public) != PUBLIC_KEY_LENGTH:
+        return None
+    scalar = int.from_bytes(private[-28:], 'big')
+    try:
+        point = ECC.construct(curve='P-224', d=scalar).pointQ
+    except ValueError:
+        return None
+    # The whole point: d and its negation share x, and they give different keys.
+    own = b'\x04' + int(point.x).to_bytes(28, 'big') + int(point.y).to_bytes(28, 'big')
+    return scalar if own == public else None
+
+
+def _recorded_macs(context, files_found):
+    """(first, last) scanDate of each (beacon, MAC address) in the current state of each store's
+    Observations.db, keyed by store folder, and the latest scanDate among them in each store."""
+    found, latest = {}, {}
+    for db_path in sorted(path for path in files_found
+                          if os.path.basename(path) == 'Observations.db' and _store_root(path) is not None):
+        copy_path = _decrypted_copy(context, db_path, OBSERVATIONS_SERVICE)
+        if copy_path is None:
+            continue
+        macs = {}
+        try:
+            for beacon, mac, first, last in get_sqlite_db_records(copy_path, '''
+                    SELECT upper(ObservedAdvertisementBeaconInfo.beaconIdentifier), ObservedAdvertisement.macAddress,
+                           min(ObservedAdvertisement.scanDate), max(ObservedAdvertisement.scanDate)
+                    FROM ObservedAdvertisement
+                    JOIN ObservedAdvertisementBeaconInfo
+                        ON ObservedAdvertisementBeaconInfo.advId = ObservedAdvertisement.advId
+                    GROUP BY 1, 2'''):
+                if isinstance(mac, (bytes, bytearray)):
+                    macs[(beacon, bytes(mac))] = (first, last)
+        except sqlite3.Error as ex:
+            # The daily addresses are still derived, with no recorded times from this store.
+            logfunc(f'{db_path}: stored addresses not read: {ex}; recorded times are left empty')
+            macs = {}
+        root = _store_root(db_path)
+        found[root] = macs
+        times = [_stored_utc(last) for _first, last in macs.values()]
+        latest[root] = max((t for t in times if t), default=None)
+    return found, latest
+
+
+@artifact_processor
+def findMyBeaconDailyAddresses(context):
+    data_headers = ('Estimated Date (UTC)', ('Recorded First', 'datetime'), ('Recorded Last', 'datetime'),
+                    'Beacon Name', 'Beacon Identifier', ('Key Index', 'number'), 'MAC Address',
+                    'Advertisement Key (hex)')
+    data_list = []
+    sources = []
+    files_found = [str(path) for path in context.get_files_found()]
+    recorded, latest_scan = _recorded_macs(context, files_found)
+    for root, records in _read_store(files_found).items():
+        names = _names(records)
+        estimated = _estimates(records)
+        macs = recorded.get(root, {})
+        ends = [latest_scan.get(root)] + [time for times in estimated.values() for time in times if time]
+        end = max((time for time in ends if time), default=None)
+        for file_found, record in records.get('OwnedBeacons', []):
+            identifier = _text(record.get('identifier'))
+            secondary = _key_data(record, 'secondarySharedSecret')
+            pairing = _date(record.get('pairingDate'))
+            if not secondary:
+                continue  # no daily keys (counted in the log below)
+            scalar = _private_scalar(record)
+            if scalar is None or not pairing:
+                logfunc(f'{file_found}: key material or pairing date not in the layout read here; '
+                        'no daily addresses derived')
+                continue
+            days = max(((end or pairing) - pairing).days, 0) + DAY_MARGIN
+            if days > MAX_DAYS:
+                logfunc(f'{file_found}: the latest time read from the store is {days} days after pairing; '
+                        f'only the first {MAX_DAYS} daily addresses are derived')
+                days = MAX_DAYS
+            sources.append(file_found)
+            for index, key in _daily_keys(secondary, scalar, days):
+                mac = bytes([key[0] | 0xC0]) + key[1:6]
+                first, last = macs.get((identifier.upper(), mac), (None, None))
+                data_list.append(((pairing + timedelta(days=index)).date().isoformat(), _stored_utc(first),
+                                  _stored_utc(last), names.get(identifier.upper(), ''), identifier, index,
+                                  mac.hex(':'), key.hex()))
+        without = sum(1 for _f, record in records.get('OwnedBeacons', [])
+                      if not _key_data(record, 'secondarySharedSecret'))
+        if without:
+            logfunc(f'Find My Beacon Daily Addresses: {without} owned beacons hold no secondarySharedSecret and '
+                    'have no daily addresses')
+    sources += [path for path in files_found if os.path.basename(path) == 'Observations.db'
+                and _store_root(path) in {_store_root(source) for source in sources}]
     return data_headers, data_list, '\n'.join(sources)
