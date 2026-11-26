@@ -58,7 +58,8 @@ def result_rows(worker):
     rows = [("Artifacts", f"{shown.done:,} of {shown.total:,} run")]
     summary = shown.summary
     if summary is not None and shown.outcome != "failed":
-        files = f"{summary.with_files:,} artifacts · {summary.without_files:,} without files"
+        noun = "artifact" if summary.with_files == 1 else "artifacts"
+        files = f"{summary.with_files:,} {noun} · {summary.without_files:,} without files"
         if summary.errors:
             files += f" · {len(summary.errors):,} with errors"
         rows.append(("Files found", files))

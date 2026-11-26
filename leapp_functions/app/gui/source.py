@@ -1,6 +1,6 @@
 """
-The Source screen: the extraction to parse, the secrets that open what some apps keep
-encrypted, and where the report goes.
+The Source screen: the extraction to parse, where the report goes, and the secrets that open
+what some apps keep encrypted.
 """
 
 import os
@@ -12,19 +12,22 @@ from leapp_functions.app import history, input_type, secret_fields
 from leapp_functions.app.disk import FILE, PENDING, SILENT, path_status
 from leapp_functions.app.gui import images, themes
 from leapp_functions.app.gui.app_state import WAITING
-from leapp_functions.app.gui.custom_widgets import (GAP, Caption, Card, Field, FileField,
-                                                    LabeledEntry, OutlineButton, Tooltip,
-                                                    mark_line, open_menu, show_example,
-                                                    two_columns)
+from leapp_functions.app.gui.custom_widgets import (GAP, MAIN_WIDTH, MARGIN, Caption, Card, Field,
+                                                    FileField, LabeledEntry, ModalWindow,
+                                                    OutlineButton, Tooltip, mark_line, open_menu,
+                                                    show_example, two_columns)
 from leapp_functions.app.output import default_output_folder_name
 from leapp_functions.app.platform import sanitize_file_name
 from leapp_functions.app.secret_fields import SECRETS
 from scripts.raw_image import (RAW_IMAGE_FILE_PATTERNS, RAW_IMAGE_LABEL, confirm_found_members,
                                selection_text)
 
-FILE_TYPES = (("All supported files", "*.tar *.zip *.gz *.xz " + RAW_IMAGE_FILE_PATTERNS),
+# A Berla iVe export, offered only by a LEAPP that reads one (VLEAPP)
+EXPORT_TYPES = (("Berla iVe export", "*.iVa"),) if "iva" in input_type.SUPPORTED else ()
+FILE_TYPES = (("All supported files", " ".join(["*.tar *.zip *.gz *.xz", RAW_IMAGE_FILE_PATTERNS]
+                                               + [pattern for _label, pattern in EXPORT_TYPES])),
               ("tar file", "*.tar"), ("zip file", "*.zip"), ("gz file", "*.gz"),
-              ("tar.xz file", "*.xz"), (RAW_IMAGE_LABEL, RAW_IMAGE_FILE_PATTERNS))
+              ("tar.xz file", "*.xz"), (RAW_IMAGE_LABEL, RAW_IMAGE_FILE_PATTERNS)) + EXPORT_TYPES
 DETECT_DELAY = 300
 WATCH_DELAY = 1000
 POLL_DELAY = 100
@@ -47,10 +50,11 @@ class SourceScreen(tk.Frame):
 
         main, side = two_columns(self, app)
         self.build_extraction(main)
-        if SECRETS is not None:
-            SecretsCard(main, app, SECRETS).grid(row=1, column=0, sticky="ew", pady=(GAP, 0))
+        # What a run needs comes first; the secrets, all optional, may need scrolling to.
         self.output_card = OutputCard(main, app)
-        self.output_card.grid(row=2, column=0, sticky="ew", pady=(GAP, 0))
+        self.output_card.grid(row=1, column=0, sticky="ew", pady=(GAP, 0))
+        if SECRETS is not None:
+            SecretsCard(main, app, SECRETS).grid(row=2, column=0, sticky="ew", pady=(GAP, 0))
         DetectedCard(side, app).pack(fill="x")
         ChecksCard(side, app).pack(fill="x", pady=(2 * GAP, 0))
 
@@ -240,29 +244,23 @@ class OutputCard(tk.Frame):
         open_menu(menu, button)
 
 
-class SecretsCard(tk.Frame):
-    """ The secrets that open what some apps keep encrypted, as the configuration file lists them:
-    files to choose, or texts to type, hidden unless shown (see secret_fields). """
+class SecretFields:
+    """ The inputs of the secrets: a file to choose, or a text to type, hidden unless shown, or to
+    read from a file (see secret_fields). Built in a card of the Source screen, or in the window of
+    the secrets when there are several. """
 
-    def __init__(self, parent, app, secrets):
-        super().__init__(parent, bg=app.colors.main_bg)
+    def __init__(self, app):
         self.app = app
-        card = Card(self, app, secrets.title)
-        card.pack(fill="x")
-        card.body.columnconfigure(0, weight=1)
-        for row, field in enumerate(secrets.fields):
-            line = tk.Frame(card.body, bg=app.colors.card_bg)
-            line.grid(row=row, column=0, sticky="ew", pady=(12 if row else 0, 0))
-            line.columnconfigure(0, weight=1)
-            variable = app.app_state.run.secrets[field["name"]]
-            if secret_fields.kind(field) == "text":
-                self.build_text_field(line, field, variable)
-            else:
-                FileField(line, app, Field(field["label"], variable,
-                                           pick=lambda field=field, variable=variable:
-                                           self.choose(field, variable))).grid(
-                    row=0, column=0, sticky="ew")
-                self.add_clear(line, 1, variable)
+
+    def build(self, line, field, variable):
+        """ The inputs of one secret, in line. """
+        if secret_fields.kind(field) == "text":
+            self.build_text_field(line, field, variable)
+        else:
+            FileField(line, self.app, Field(field["label"], variable,
+                                            pick=lambda: self.choose(line, field, variable))).grid(
+                row=0, column=0, sticky="ew")
+            self.add_clear(line, 1, variable)
 
     def build_text_field(self, line, field, variable):
         """ A text to type, hidden unless shown, or to read from a file. Its help text takes the
@@ -276,7 +274,7 @@ class SecretsCard(tk.Frame):
         eye_button(line, self.app, labeled.entry, labeled.box.winfo_reqheight()).grid(
             row=1, column=1, sticky="s", padx=(8, 0))
         OutlineButton(line, self.app, text="Load from file…", style="in_card",
-                      command=lambda: self.load(field, variable)).grid(
+                      command=lambda: self.load(line, field, variable)).grid(
             row=1, column=2, sticky="s", padx=(8, 0))
         self.add_clear(line, 3, variable, row=1)
 
@@ -299,19 +297,21 @@ class SecretsCard(tk.Frame):
         clear.bind("<Destroy>", lambda _event: variable.trace_remove("write", trace))
         refresh()
 
-    def choose(self, field, variable):
+    @staticmethod
+    def choose(line, field, variable):
         """ Ask for the file. Cancelling leaves the field as it was. """
         path = filedialog.askopenfilename(
-            parent=self.winfo_toplevel(), title=f"Choose the {secret_fields.name(field)} file",
+            parent=line.winfo_toplevel(), title=f"Choose the {secret_fields.name(field)} file",
             filetypes=secret_fields.file_types(field))
         if path:
             variable.set(path)
 
-    def load(self, field, variable):
+    @staticmethod
+    def load(line, field, variable):
         """ Read the text of a secret from a file. Cancelling leaves the field as it was. An error
         names the file, never what it holds. """
         path = filedialog.askopenfilename(
-            parent=self.winfo_toplevel(),
+            parent=line.winfo_toplevel(),
             title=f"Choose a file holding the {secret_fields.name(field)}",
             filetypes=secret_fields.file_types(field))
         if not path:
@@ -322,7 +322,121 @@ class SecretsCard(tk.Frame):
         except (OSError, UnicodeDecodeError) as error:
             messagebox.showerror("Could not read the file",
                                  f"{os.path.basename(path)}: {type(error).__name__}",
-                                 parent=self.winfo_toplevel())
+                                 parent=line.winfo_toplevel())
+
+
+class SecretsCard(tk.Frame):
+    """ The secrets that open what some apps keep encrypted, as the configuration file lists them.
+    One secret has its inputs on the card. Several would make the screen scroll: the card then
+    says which are given, and Enter… opens them in a window of their own (SecretsWindow). """
+
+    def __init__(self, parent, app, secrets):
+        super().__init__(parent, bg=app.colors.main_bg)
+        self.app = app
+        self.secrets = secrets
+        self.window = None
+        card = Card(self, app, secrets.title)
+        card.pack(fill="x")
+        card.body.columnconfigure(0, weight=1)
+        if len(secrets.fields) == 1:
+            field = secrets.fields[0]
+            line = tk.Frame(card.body, bg=app.colors.card_bg)
+            line.grid(row=0, column=0, sticky="ew")
+            line.columnconfigure(0, weight=1)
+            SecretFields(app).build(line, field, app.app_state.run.secrets[field["name"]])
+        else:
+            self.build_summary(card)
+
+    def build_summary(self, card):
+        """ One line that says which secrets are given, and the button that opens their window. """
+        summary = Caption(card.body, self.app, "", card.background)
+        summary.grid(row=0, column=0, sticky="ew")
+        OutlineButton(card.body, self.app, text="Enter…", style="in_card",
+                      command=self.open_window).grid(row=0, column=1, sticky="e", padx=(16, 0))
+        variables = [self.app.app_state.run.secrets[field["name"]] for field in self.secrets.fields]
+
+        def show(*_args):
+            """ How many secrets are given, and which. """
+            summary.configure(text=summary_text(self.secrets.fields, variables))
+
+        traces = [(variable, variable.trace_add("write", show)) for variable in variables]
+        summary.bind("<Destroy>", lambda _event: [variable.trace_remove("write", trace)
+                                                  for variable, trace in traces])
+        show()
+
+    def open_window(self):
+        """ Open the window of the secrets, or bring it to the front if it is open. """
+        if self.window is not None and self.window.winfo_exists():
+            self.window.lift()
+        else:
+            self.window = SecretsWindow(self.app, self.secrets)
+
+
+def summary_text(fields, variables):
+    """ "Optional. 1 of 4 given: Signal key." """
+    given = [secret_fields.name(field) for field, variable in zip(fields, variables)
+             if variable.get().strip()]
+    if not given:
+        return f"Optional. None of the {len(fields)} given."
+    return f"Optional. {len(given)} of {len(fields)} given: {', '.join(given)}."
+
+
+class SecretsWindow(ModalWindow):
+    """ The secrets, when there are several, in a window of their own above the main one: one line
+    for each, whose inputs show under it on demand, so the window stays short. """
+
+    def __init__(self, app, secrets):
+        super().__init__(app, secrets.title.capitalize())
+        card = Card(self, app, secrets.title)
+        card.pack(fill="x", padx=MARGIN, pady=(MARGIN, 0))
+        card.body.columnconfigure(1, weight=1, minsize=MAIN_WIDTH - 2 * MARGIN)
+        inputs = SecretFields(app)
+        for row, field in enumerate(secrets.fields):
+            line = tk.Frame(card.body, bg=app.colors.card_bg)
+            line.grid(row=row, column=0, columnspan=2, sticky="ew", pady=(10 if row else 0, 0))
+            line.columnconfigure(1, weight=1)
+            detail = tk.Frame(line, bg=app.colors.card_bg)
+            detail.columnconfigure(0, weight=1)
+            inputs.build(detail, field, app.app_state.run.secrets[field["name"]])
+            self.build_line(line, field, app.app_state.run.secrets[field["name"]], detail)
+        self.show()
+
+    def build_line(self, line, field, variable, detail):
+        """ One line for a secret: its name, whether it is given, and a button that shows its
+        inputs under the line, or hides them again. """
+        colors = self.app.colors
+        tk.Label(line, text=secret_fields.title(field), anchor="w", bg=colors.card_bg,
+                 fg=colors.text_primary, font=themes.sans(13, "bold")).grid(
+            row=0, column=0, sticky="w")
+        status = tk.Label(line, anchor="w", bg=colors.card_bg, fg=colors.text_secondary,
+                          font=themes.sans(13))
+        status.grid(row=0, column=1, sticky="ew", padx=(16, 8))
+        toggle = OutlineButton(line, self.app, text="Enter…", style="in_card")
+        toggle.grid(row=0, column=2, sticky="e")
+
+        def show_status(*_args):
+            """ None, Given, or the name of the file chosen. """
+            value = variable.get().strip()
+            if not value:
+                status.configure(text="None")
+            elif secret_fields.kind(field) == "text":
+                status.configure(text="Given")
+            else:
+                status.configure(text=os.path.basename(value))
+
+        def flip():
+            """ Show the inputs under the line, or hide them again. """
+            if detail.grid_info():
+                detail.grid_remove()
+                toggle.set_text("Enter…")
+            else:
+                detail.grid(row=1, column=0, columnspan=3, sticky="ew", pady=(8, 4))
+                toggle.set_text("Done")
+
+        toggle.button.configure(command=flip)
+        trace = variable.trace_add("write", show_status)
+        status.bind("<Destroy>", lambda _event: variable.trace_remove("write", trace))
+        show_status()
 
 
 def eye_button(parent, app, entry, side):

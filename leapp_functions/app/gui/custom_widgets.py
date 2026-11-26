@@ -313,8 +313,11 @@ class ScrollArea(tk.Frame):
             self.place_content()
 
     def reveal(self, event):
-        """ Bring into view the widget that has just got the focus. """
-        if not self.holds(event.widget) or self.screen_height() <= self.view.winfo_height():
+        """ Bring into view the widget that has just got the focus. Tk also sends a FocusIn to the
+        widgets that hold it, its card among them: those are left alone, or a click on a button of a
+        card taller than the room would scroll to the end of the card, away from the pointer. """
+        if (not self.holds(event.widget) or str(event.widget) != str(self.tk.call("focus"))
+                or self.screen_height() <= self.view.winfo_height()):
             return
         top = event.widget.winfo_rooty() - self.content.winfo_rooty()
         bottom = top + event.widget.winfo_height()
@@ -323,6 +326,56 @@ class ScrollArea(tk.Frame):
         elif bottom > self.offset + self.view.winfo_height():
             self.offset = bottom - self.view.winfo_height()
         self.place_content()
+
+
+class ModalWindow(tk.Toplevel):
+    """ A window of its own above the main one, which cannot be used while it is open. It closes
+    with Escape or its Close button, and follows the main window when that is minimised or comes
+    back (settings.SettingsControl). A subclass builds its content, then calls show(). """
+
+    def __init__(self, app, title):
+        super().__init__(app, bg=app.colors.main_bg)
+        self.withdraw()  # hidden while it is built, so that it does not appear in a corner first
+        self.app = app
+        self.title(title)
+        self.resizable(False, False)
+        self.transient(app)
+        themes.title_bar(self, app.appearance.is_dark)
+        self.bind("<Escape>", lambda _event: self.destroy())
+        self.bind("<Map>", self.on_map)
+
+    def show(self, position=None):
+        """ Add the Close button under the content and put the window on screen: centred over the
+        main window, or at position ("+x+y"). """
+        close = OutlineButton(self, self.app, text="Close", command=self.destroy)
+        close.pack(anchor="e", padx=MARGIN, pady=(GAP, MARGIN))
+        if position is None:
+            self.place_over(self.app)
+        else:
+            self.geometry(position)
+        self.deiconify()
+
+    def on_map(self, event):
+        """ The window is on screen, the first time or after the main window comes back: it takes
+        the keyboard and the mouse from the main window again. """
+        if event.widget is self:
+            self.grab_set()
+            self.focus_set()
+
+    def follow(self, shown):
+        """ Hide the window while the main window is minimised, show it again when it comes
+        back. """
+        if shown:
+            self.deiconify()
+        else:
+            self.withdraw()
+
+    def place_over(self, app):
+        """ Centre the window over the main window. """
+        self.update_idletasks()
+        x = app.winfo_rootx() + (app.winfo_width() - self.winfo_reqwidth()) // 2
+        y = app.winfo_rooty() + (app.winfo_height() - self.winfo_reqheight()) // 2
+        self.geometry(f"+{max(x, 0)}+{max(y, 0)}")
 
 
 def wrap_to_width(event):

@@ -75,9 +75,10 @@ TOOLS = {
     "DLEAPP": {
         "marker": "dleappGUI.py",
         "svg": "assets/DLEAPP_logo.svg",
-        "square": {"assets/DLEAPP_logo.png": 1024, "assets/icon.png": 256,
+        "square": {"assets/DLEAPP_square.png": 1024, "assets/icon.png": 256,
                    "scripts/_elements/logo.png": 512},
-        "banner": {"assets/DLEAPP_banner.png": 640, "scripts/_elements/DLEAPP_banner.png": 640},
+        "banner": {"assets/DLEAPP_logo.png": 51, "assets/DLEAPP_banner.png": 640,
+                   "scripts/_elements/DLEAPP_banner.png": 640},
         "icns": ["assets/icon.icns"],
         "ico": [],
     },

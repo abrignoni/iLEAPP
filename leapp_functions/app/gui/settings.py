@@ -7,8 +7,8 @@ from tkinter import messagebox, ttk
 
 from leapp_functions import leapp
 from leapp_functions.app import history
-from leapp_functions.app.gui import themes
-from leapp_functions.app.gui.custom_widgets import GAP, MARGIN, Caption, Card, OutlineButton
+from leapp_functions.app.gui.custom_widgets import (GAP, MARGIN, Caption, Card, ModalWindow,
+                                                    OutlineButton)
 
 BUTTON_GAP = 8
 APPEARANCES = (("dark", "Dark"), ("light", "Light"))
@@ -35,9 +35,18 @@ class SettingsControl:
             return self.window
         return None
 
+    def modal(self):
+        """ The window open above the main one, if any: Settings, or another, such as the window
+        of the secrets. """
+        for child in self.app.winfo_children():
+            if isinstance(child, ModalWindow):
+                return child
+        return None
+
     def open(self):
-        """ Open the Settings window, or bring it to the front if it is already open. """
-        window = self.opened()
+        """ Open the Settings window, or bring it to the front if it is already open. Another window
+        open above the main one is brought to the front instead: it must be closed first. """
+        window = self.modal()
         if window is not None:
             window.lift()
             window.focus_set()
@@ -57,65 +66,32 @@ class SettingsControl:
         self.window = SettingsWindow(self, position)
 
     def on_minimize(self, event):
-        """ The main window has been minimised or brought back: the Settings window follows it. """
-        window = self.opened()
+        """ The main window has been minimised or brought back: the window above it follows it. """
+        window = self.modal()
         if event.widget is self.app and window is not None:
             window.follow(event.type == tk.EventType.Map)
 
     def on_activate(self, event):
         """ The system has made the main window the active one when it comes back.
-        While the Settings window is open, it is the one that must stay active. """
-        window = self.opened()
+        While a window is open above it, that one must stay active. """
+        window = self.modal()
         if event.widget is self.app and window is not None:
             window.focus_force()
 
 
-class SettingsWindow(tk.Toplevel):
+class SettingsWindow(ModalWindow):
     """ The settings, in a window of its own above the main one. The main window cannot be used
     while it is open. """
 
     def __init__(self, control, position=None):
-        app = control.app
-        super().__init__(app, bg=app.colors.main_bg)
-        self.withdraw()  # hidden while it is built, so that it does not appear in a corner first
-        self.app = app
+        super().__init__(control.app, "Settings")
         self.control = control
-        self.title("Settings")
-        self.resizable(False, False)
-        self.transient(app)
-        themes.title_bar(self, app.appearance.is_dark)
-
-        self.appearance = tk.StringVar(self, value=app.appearance.name)
+        self.appearance = tk.StringVar(self, value=self.app.appearance.name)
         self.build_appearance()
         self.history_enabled = tk.BooleanVar(self, value=history.is_history_enabled())
         self.clear_buttons = self.build_history()
         self.refresh_clear_buttons()
-
-        close = OutlineButton(self, app, text="Close", command=self.destroy)
-        close.pack(anchor="e", padx=MARGIN, pady=(GAP, MARGIN))
-        self.bind("<Escape>", lambda _event: self.destroy())
-        self.bind("<Map>", self.on_map)
-
-        if position is None:
-            self.place_over(app)
-        else:
-            self.geometry(position)
-        self.deiconify()
-
-    def on_map(self, event):
-        """ The window is on screen, the first time or after the main window comes back: it takes
-        the keyboard and the mouse from the main window again. """
-        if event.widget is self:
-            self.grab_set()
-            self.focus_set()
-
-    def follow(self, shown):
-        """ Hide the window while the main window is minimised, show it again when it comes
-        back. """
-        if shown:
-            self.deiconify()
-        else:
-            self.withdraw()
+        self.show(position)
 
     def build_appearance(self):
         """ The card to choose the colours of the windows. """
@@ -181,10 +157,3 @@ class SettingsWindow(tk.Toplevel):
                 parent=self):
             history.clear_history()
             self.refresh_clear_buttons()
-
-    def place_over(self, app):
-        """ Centre the window over the main window. """
-        self.update_idletasks()
-        x = app.winfo_rootx() + (app.winfo_width() - self.winfo_reqwidth()) // 2
-        y = app.winfo_rooty() + (app.winfo_height() - self.winfo_reqheight()) // 2
-        self.geometry(f"+{max(x, 0)}+{max(y, 0)}")
