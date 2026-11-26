@@ -7,6 +7,7 @@ checksums over the encrypted frames). The plain copy is the oracle: the decrypte
 the same, state by state, through scripts/sqlite_wal.py.
 """
 # pylint: disable=no-member,protected-access
+import hashlib
 import os
 import shutil
 import sqlite3
@@ -55,8 +56,10 @@ def empty_database(path):
         handle.write(bytes(header) + leaf + bytes(PAGE - 100 - len(leaf)))
 
 
-def encrypt_page(key, page, number, salt):
-    reserved = bytes((number * 7 + i + salt) & 0xFF for i in range(RESERVED))
+def encrypt_page(key, page, number):
+    # The reserved bytes (the IV) follow from the page, so a page a checkpoint copies from the log
+    # into the database file is byte for byte the same in both, as SQLite SEE's copy is.
+    reserved = hashlib.sha256(number.to_bytes(4, 'big') + page[:-RESERVED]).digest()[:RESERVED]
     iv = number.to_bytes(4, 'little') + reserved
     body = AES.new(key, AES.MODE_OFB, iv=iv).encrypt(page[:-RESERVED])
     if number == 1:
@@ -69,7 +72,7 @@ def encrypt_store(plain_db, out_db, key=KEY, torn_last_frame=False):
         raw = handle.read()
     with open(out_db, 'wb') as handle:
         for number in range(len(raw) // PAGE):
-            handle.write(encrypt_page(key, raw[number * PAGE:(number + 1) * PAGE], number + 1, 0))
+            handle.write(encrypt_page(key, raw[number * PAGE:(number + 1) * PAGE], number + 1))
     with open(plain_db + '-wal', 'rb') as handle:
         wal = handle.read()
     big = bool(int.from_bytes(wal[:4], 'big') & 1)
@@ -80,7 +83,7 @@ def encrypt_store(plain_db, out_db, key=KEY, torn_last_frame=False):
         offset = 32 + index * frame
         head = bytearray(wal[offset:offset + 24])
         number = int.from_bytes(head[:4], 'big')
-        page = encrypt_page(key, wal[offset + 24:offset + frame], number, index + 1)
+        page = encrypt_page(key, wal[offset + 24:offset + frame], number)
         state = spd._wal_checksum(page, big, spd._wal_checksum(bytes(head[:8]), big, state))
         head[16:24] = struct.pack('>II', *state)
         out += head + page
@@ -175,6 +178,25 @@ class Store(unittest.TestCase):
             copy = spd.decrypt_searchpartyd_db(self.store, 'Observations', os.path.join(self.tmp, 'out'))
         expected = states(os.path.join(self.tmp, 'torn.db'))
         self.assertEqual(len(expected), 11)  # the last commit is lost, as SQLite would lose it
+        self.assertEqual(states(copy), expected)
+
+    def test_a_damaged_log_header_is_read_as_the_plain_store_does(self):
+        # Checkpointed, so the database file matches the log's last commit and scripts/sqlite_wal.py
+        # can rebuild the earlier states from the frames alone.
+        self.connection.execute('PRAGMA wal_checkpoint(PASSIVE)')
+        encrypt_store(self.plain, self.store)
+        damaged = os.path.join(self.tmp, 'damaged.db')
+        shutil.copy(self.plain, damaged)
+        for log in (self.plain + '-wal', self.store + '-wal'):
+            with open(log, 'rb') as handle:
+                wal = bytes(32) + handle.read()[32:]
+            with open(damaged + '-wal' if log == self.plain + '-wal' else log, 'wb') as handle:
+                handle.write(wal)
+        with self.keys([KEY]):
+            copy = spd.decrypt_searchpartyd_db(self.store, 'Observations', os.path.join(self.tmp, 'out'))
+        self.assertIn('log header is damaged', self.log.call_args[0][0])
+        expected = states(damaged)
+        self.assertGreater(len(expected), 1)
         self.assertEqual(states(copy), expected)
 
     def test_no_key_decrypts_page_one(self):

@@ -270,16 +270,18 @@ __artifacts_v2__ = {
                  "checksum still fails after decryption. The decrypted database and log are written to the Decrypted "
                  "searchpartyd folder in this artifact's report folder, and that copy is what is queried. A store that "
                  "is already plain SQLite is read where it is. Bytes after the log's last whole frame are not copied "
-                 "(3,896 bytes on abe_ios16). Record Origin. Live rows come from the current state of the decrypted "
-                 "store. Recovered rows are advertisements, keyed by advId (INTEGER PRIMARY KEY AUTOINCREMENT in the "
-                 "store's schema on all nine images), that another state in the log holds and the current state does "
-                 "not. States are read by scripts/sqlite_wal.py: each committed state of the log's current generation "
-                 "that it can read exactly (state n is the database after the first n committed transactions, and "
-                 "state 0 the database file without its log), the previous generation's left-over frames where its "
-                 "checks pass, and frames after the last commit. A Recovered row is reported once, as the newest state "
-                 "holding it stored it, with that state's location and beacon rows. Recovery Location names the "
-                 "committed states the advertisement was read in, with their first and last numbers. Why a Recovered "
-                 "row is absent from the current state is not established. Recovered rows were returned on "
+                 "(3,896 bytes on abe_ios16). A log whose header is damaged is still decrypted, its frames taken at "
+                 "the database's page size as scripts/sqlite_wal.py reads such a log; that path is covered by the unit "
+                 "test, and no image read had a damaged header. Record Origin. Live rows come from the current state "
+                 "of the decrypted store. Recovered rows are advertisements, keyed by advId (INTEGER PRIMARY KEY "
+                 "AUTOINCREMENT in the store's schema on all nine images), that another state in the log holds and the "
+                 "current state does not. States are read by scripts/sqlite_wal.py: each committed state of the log's "
+                 "current generation that it can read exactly (state n is the database after the first n committed "
+                 "transactions, and state 0 the database file without its log), the previous generation's left-over "
+                 "frames where its checks pass, and frames after the last commit. A Recovered row is reported once, as "
+                 "the newest state holding it stored it, with that state's location and beacon rows. Recovery Location "
+                 "names the committed states the advertisement was read in, with their first and last numbers. Why a "
+                 "Recovered row is absent from the current state is not established. Recovered rows were returned on "
                  "adams_iphone12mini (66 of 70), dexter_ios18 (72 of 184), iphone11_ios17 (174 of 182), otto_ios17 "
                  "(838 of 841) and wilkerson_iphone16_ios26 (57 of 79), all from committed states, so Recovery Method "
                  "held WAL committed states on every Recovered row. That includes 22 wilkerson_iphone16_ios26 rows "
@@ -311,10 +313,17 @@ __artifacts_v2__ = {
                  "whose meanings are not established. The other tables of Observations.db are not read: DeviceEvent, "
                  "DeviceEventLocation and AttachmentInfo were absent or empty on all nine images; "
                  "KeyGenerationBeaconKeys and KeyGenerationHint have columns named privateKey and sharedSecret and "
-                 "held no rows on any of the nine images; KeyGenerationBeaconInfo, KeySyncMetadata, "
-                 "FindMyServiceDevices (rows on the two iOS 26 images only) and BatteryState (wilkerson_iphone16_ios26 "
-                 "only) are not read here. The folder's other databases (CloudStorage, CloudStorage_CKRecordCache, "
-                 "ItemSharingKeys, LocalStorage and StandaloneBeacon) are not read.",
+                 "held no rows on any of the nine images; KeyGenerationBeaconInfo holds a beacon identifier and "
+                 "pairDate per beacon, and read as UTC its pairDate equaled the OwnedBeacons pairingDate that Find My "
+                 "Owned Beacons reports on all 31 joined rows; KeySyncMetadata holds integers (type, sequence, index, "
+                 "isWild) and a time whose meanings are not established. FindMyServiceDevices (rows on the two iOS 26 "
+                 "images only) and BatteryState (wilkerson_iphone16_ios26 only) are left for a separate artifact. The "
+                 "folder's other databases decrypted with their own keychain items on these images and are not read: "
+                 "CloudStorage, LocalStorage and StandaloneBeacon held no rows on any of them, "
+                 "CloudStorage_CKRecordCache held only CloudKit change tokens (one DatabaseChangeToken and one "
+                 "ZoneChangeToken row), and ItemSharingKeys held rows on iphone11_ios17 only (7 BeaconAttributes rows "
+                 "and 47,600 NearOwnerKeys rows, each a 6 byte nearOwnerAdvertisement with integers); it is left for a "
+                 "separate artifact.",
         "paths": (
             '*/mobile/Library/com.apple.icloud.searchpartyd/Observations.db*',
             '*/mobile/Library/com.apple.icloud.searchpartyd/OwnedBeacons/*.record',
@@ -728,6 +737,33 @@ def _wal_checksum(data, big_endian, state):
     return first, second
 
 
+def _usable_wal_header(raw):
+    """(big_endian, page size) from a log header SQLite would accept, or None for a damaged one."""
+    magic = int.from_bytes(raw[:4], 'big')
+    size = int.from_bytes(raw[8:12], 'big')
+    if magic not in WAL_MAGICS or size < 512 or size > 65536 or size & (size - 1):
+        return None
+    big_endian = bool(magic & 1)
+    if _wal_checksum(raw[:24], big_endian, (0, 0)) != struct.unpack('>II', raw[24:32]):
+        return None
+    return big_endian, size
+
+
+def _frame_chain_byte_order(raw, page_size):
+    """With no usable header, the byte order under which frame 2's stored checksum follows from
+    frame 1's, tried big-endian first as scripts/sqlite_wal.py does; big-endian when neither holds."""
+    frame_size = WAL_FRAME_HEADER + page_size
+    if len(raw) < WAL_HEADER + 2 * frame_size:
+        return True
+    first = raw[WAL_HEADER:WAL_HEADER + frame_size]
+    second = raw[WAL_HEADER + frame_size:WAL_HEADER + 2 * frame_size]
+    for big_endian in (True, False):
+        state = _wal_checksum(second[:8], big_endian, struct.unpack('>II', first[16:24]))
+        if _wal_checksum(second[WAL_FRAME_HEADER:], big_endian, state) == struct.unpack('>II', second[16:24]):
+            return big_endian
+    return True
+
+
 def _decrypt_wal(raw, key, page_size):
     """The log with each frame's page decrypted, or None when it is not a log of this page size.
 
@@ -737,13 +773,21 @@ def _decrypt_wal(raw, key, page_size):
     before it; a frame that fails keeps its stored checksum, which does not match its plaintext.
     So SQLite, and scripts/sqlite_wal.py, read the decrypted log the way they would read the
     stored one: the same frames pass and fail, including a previous generation's left-over
-    frames, whose chain starts from the first left-over frame's stored checksum.
-    Returns (log, frames, bytes after the last whole frame).
+    frames, whose chain starts from the first left-over frame's stored checksum. A log whose
+    header is damaged is kept as scripts/sqlite_wal.py reads one: its frames are taken at the
+    database's page size, in the byte order under which their chain holds, and the header is
+    copied as stored.
+    Returns (log, frames, bytes after the last whole frame, whether the header was usable).
     """
-    if len(raw) < WAL_HEADER or int.from_bytes(raw[:4], 'big') not in WAL_MAGICS \
-            or int.from_bytes(raw[8:12], 'big') != page_size:
+    if len(raw) < WAL_HEADER:
         return None
-    big_endian = bool(int.from_bytes(raw[:4], 'big') & 1)
+    header_fields = _usable_wal_header(raw)
+    if header_fields is None:
+        big_endian = _frame_chain_byte_order(raw, page_size)
+    elif header_fields[1] != page_size:
+        return None
+    else:
+        big_endian = header_fields[0]
     out = bytearray(raw[:WAL_HEADER])
     stored_before = out_before = struct.unpack('>II', raw[24:32])
     frame_size = WAL_FRAME_HEADER + page_size
@@ -761,7 +805,7 @@ def _decrypt_wal(raw, key, page_size):
             if passes else stored
         out += header[:16] + struct.pack('>II', *new) + plain
         stored_before, out_before = stored, new
-    return bytes(out), frames, len(raw) - WAL_HEADER - frames * frame_size
+    return bytes(out), frames, len(raw) - WAL_HEADER - frames * frame_size, header_fields is not None
 
 
 def decrypt_searchpartyd_db(db_path, service, output_dir):
@@ -808,12 +852,15 @@ def decrypt_searchpartyd_db(db_path, service, output_dir):
             logfunc(f'{wal_path}: could not read log: {error}; the database file is read without it')
             wal = None
         if wal is None:
-            logfunc(f'{wal_path} is not a write-ahead log for this database; the database file is read '
-                    'without it')
+            logfunc(f'{wal_path} is shorter than a log header or names another page size; the database '
+                    'file is read without it')
         else:
-            log, frames, tail = wal
+            log, frames, tail, header_usable = wal
             with open(copy_path + '-wal', 'wb') as copy_file:
                 copy_file.write(log)
+            if not header_usable:
+                logfunc(f'{wal_path}: the log header is damaged; its {frames} frames are kept at the '
+                        'database\'s page size for scripts/sqlite_wal.py to read')
             if tail:
                 logfunc(f'{wal_path}: {tail} bytes after the last of its {frames} whole frames are not read')
     return copy_path

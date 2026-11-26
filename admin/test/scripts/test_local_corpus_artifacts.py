@@ -23,6 +23,7 @@ import fnmatch
 import os
 import re
 import shutil
+import sqlite3
 import tempfile
 import unittest
 import zipfile
@@ -872,6 +873,7 @@ class FindMySearchpartydLocalTest(LocalCorpusTestCase):
     ANCHOR = 'mobile/Library/com.apple.icloud.searchpartyd/'
     TYPES = ('BeaconEstimatedLocation', 'OwnedBeacons', 'SharedBeacons', 'BeaconNamingRecord',
              'LeashRecords', 'WildModeAssociationRecord')
+    STORES = ('Observations.db', 'Observations.db-wal')
     KEYCHAIN = 'extra/KeychainDump/backup_keychain_v2.plist'
     UUID = r'^[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{12}$'
 
@@ -897,10 +899,14 @@ class FindMySearchpartydLocalTest(LocalCorpusTestCase):
 
         def wanted(name):
             name = name.replace(os.sep, '/')
-            if self.ANCHOR not in name or not name.endswith('.record'):
+            if self.ANCHOR not in name:
                 return None
             tail = name[name.rindex(self.ANCHOR):]
             if '..' in tail.split('/'):
+                return None
+            if tail[len(self.ANCHOR):] in self.STORES:
+                return tail
+            if not name.endswith('.record'):
                 return None
             return tail if tail[len(self.ANCHOR):].split('/')[0] in self.TYPES else None
 
@@ -915,7 +921,7 @@ class FindMySearchpartydLocalTest(LocalCorpusTestCase):
             found.append(str(destination))
 
         if source.is_dir():
-            for candidate in source.rglob('*.record'):
+            for candidate in source.rglob('*'):
                 tail = wanted(str(candidate))
                 if tail and candidate.is_file():
                     copy(tail, lambda c=candidate: open(c, 'rb'))
@@ -933,6 +939,7 @@ class FindMySearchpartydLocalTest(LocalCorpusTestCase):
     def run_artifact(self, func):
         context = mock.Mock()
         context.get_files_found.return_value = list(self.paths)
+        context.get_report_folder.return_value = os.path.join(self.temp_dir.name, 'report')
         headers, rows, _ = func.__wrapped__(context)
         self.assert_row_shape(headers, rows)
         names = [header[0] if isinstance(header, tuple) else header for header in headers]
@@ -983,6 +990,38 @@ class FindMySearchpartydLocalTest(LocalCorpusTestCase):
             self.assert_plausible_timestamp(row['Timestamp'])
             self.assertTrue(-90 <= row['Latitude'] <= 90 and -180 <= row['Longitude'] <= 180,
                             'coordinate out of range')
+
+
+    def test_observed_advertisements(self):
+        """Observations.db opens with the extraction's keychain, every advertisement of the current
+        state becomes a Live row, and no Recovered row repeats one."""
+        store = [path for path in self.paths if path.replace(os.sep, '/').endswith('/Observations.db')]
+        if not store:
+            self.skipTest(f'no searchpartyd Observations.db in {LOCAL_IMAGE}')
+        rows = self.run_artifact(findMySearchpartyd.findMyObservedAdvertisements)
+        copies = list(Path(self.temp_dir.name, 'report').rglob('Observations.db'))
+        self.assertEqual(len(copies), len(store), 'a store was not decrypted')
+        current = set()
+        for copy in copies:
+            connection = sqlite3.connect(f'file:{copy}?mode=ro', uri=True)
+            try:
+                current |= {row[0] for row in connection.execute('SELECT advId FROM ObservedAdvertisement')}
+            finally:
+                connection.close()
+        live = [row['Advertisement ID'] for row in rows if row['Record Origin'] == 'Live']
+        recovered = [row['Advertisement ID'] for row in rows if row['Record Origin'] == 'Recovered']
+        self.assertEqual(sorted(live), sorted(current), 'Live rows differ from the current state')
+        self.assertFalse(set(recovered) & set(live), 'a Recovered row repeats a Live one')
+        self.assertEqual(len(recovered), len(set(recovered)), 'a Recovered row is repeated')
+        for row in rows:
+            self.assert_plausible_timestamp(row['Scan Date'])
+            self.assert_plausible_timestamp(row['Location Timestamp'])
+            self.assert_matches(row['macAddress (hex)'], r'^([0-9a-f]{2}:){5}[0-9a-f]{2}$', 'macAddress (hex)')
+            if row['Beacon Identifier']:
+                self.assert_matches(row['Beacon Identifier'], self.UUID, 'Beacon Identifier')
+            if row['Latitude'] != '':
+                self.assertTrue(-90 <= row['Latitude'] <= 90 and -180 <= row['Longitude'] <= 180,
+                                'coordinate out of range')
 
 
 if __name__ == '__main__':
