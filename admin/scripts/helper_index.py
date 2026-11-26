@@ -15,6 +15,7 @@ LEAPP cores; what it writes differs because each core's helpers differ.
 """
 import argparse
 import ast
+import re
 import sys
 from collections import Counter
 from pathlib import Path
@@ -41,10 +42,12 @@ def _has_artifact_block(tree):
 
 
 def _module_path(dotted):
-    """The file a dotted scripts.* name refers to, or None for a package or a missing file."""
+    """The file a dotted scripts.* name refers to: the module, a package's __init__.py, or None."""
     candidate = ROOT.joinpath(*dotted.split('.'))
     if candidate.with_suffix('.py').is_file():
         return candidate.with_suffix('.py')
+    if (candidate / '__init__.py').is_file():
+        return candidate / '__init__.py'
     return None
 
 
@@ -71,6 +74,16 @@ def _child_module(package, name):
     return dotted if _module_path(dotted) else None
 
 
+def _absolute(path, node):
+    """The dotted module an ImportFrom names, with a relative import resolved from path's package."""
+    if node.level == 0:
+        return node.module
+    package = list(path.relative_to(ROOT).with_suffix('').parts[:-1])
+    if node.level > 1:
+        package = package[:-(node.level - 1)]
+    return '.'.join(package + ([node.module] if node.module else []))
+
+
 def collect_imports():
     """Counter of (module, name) over artifact modules, one count per importing module.
 
@@ -84,17 +97,17 @@ def collect_imports():
             continue
         seen = set()
         for node in ast.walk(tree):
-            if isinstance(node, ast.ImportFrom) and node.level == 0 and node.module \
-                    and (node.module == 'scripts' or node.module.startswith('scripts.')):
+            module = _absolute(path, node) if isinstance(node, ast.ImportFrom) else None
+            if module and (module == 'scripts' or module.startswith('scripts.')):
                 for alias in node.names:
                     if alias.name == '*':
-                        seen.add((node.module, STAR))
+                        seen.add((module, STAR))
                         continue
-                    child = _child_module(node.module, alias.name)
+                    child = _child_module(module, alias.name)
                     if child:
                         seen.add((child, WHOLE))
-                    elif node.module != 'scripts':
-                        seen.add((node.module, alias.name))
+                    elif module != 'scripts':
+                        seen.add((module, alias.name))
             elif isinstance(node, ast.Import):
                 for alias in node.names:
                     if alias.name.startswith('scripts.'):
@@ -103,21 +116,32 @@ def collect_imports():
     return counts
 
 
+# A code span: a run of backticks, then text, then a run of the same length.
+CODE_SPAN = re.compile(r'(`+)(?!`).*?(?<!`)\1(?!`)')
+
+
 def _md(text):
     """Text for a table cell: | escaped everywhere, < and > escaped outside code spans."""
-    parts = text.split('`')
-    for index in range(0, len(parts), 2):
-        parts[index] = parts[index].replace('<', '&lt;').replace('>', '&gt;')
-    return '`'.join(parts).replace('|', '\\|')
+    out = []
+    last = 0
+    for match in CODE_SPAN.finditer(text):
+        out.append(text[last:match.start()].replace('<', '&lt;').replace('>', '&gt;'))
+        out.append(match.group(0))
+        last = match.end()
+    out.append(text[last:].replace('<', '&lt;').replace('>', '&gt;'))
+    return ''.join(out).replace('|', '\\|')
 
 
 def _signature(node, name=None, drop_self=False):
     """name(arguments), with | escaped so a union annotation does not split the table cell."""
     args = node.args
-    if drop_self and args.args:
-        args = ast.arguments(posonlyargs=args.posonlyargs, args=args.args[1:], vararg=args.vararg,
+    if drop_self and (args.posonlyargs or args.args):
+        positional = len(args.posonlyargs) + len(args.args)
+        defaults = args.defaults[1:] if len(args.defaults) == positional else args.defaults
+        posonly, regular = (args.posonlyargs[1:], args.args) if args.posonlyargs else ([], args.args[1:])
+        args = ast.arguments(posonlyargs=posonly, args=regular, vararg=args.vararg,
                              kwonlyargs=args.kwonlyargs, kw_defaults=args.kw_defaults, kwarg=args.kwarg,
-                             defaults=args.defaults[1:] if len(args.defaults) == len(args.args) else args.defaults)
+                             defaults=defaults)
     return f'{name or node.name}({ast.unparse(args)})'.replace('|', '\\|')
 
 

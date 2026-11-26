@@ -126,7 +126,7 @@ for the rest. `admin/docs/helper_functions.md` explains where the five cores' he
 | 2 | `safe_source` | `safe_source(text)` | Escape an evidence text/document body for display as source on the HTML page. |
 | 2 | `safe_url` | `safe_url(url, text=None, target=None)` | Render an evidence URL as escaped text. **Never returns a link.** |
 | 1 | `safe_local_path` | `safe_local_path(path)` | Percent-encode a report-relative path for use in an ``href``/``src`` attribute. |
-| 0 | `safe_local_link` | `safe_local_link(path, text=None)` | Build an ``&lt;a href&gt;`` to a file inside the report folder. |
+| 0 | `safe_local_link` | `safe_local_link(path, text=None)` | Build an ``<a href>`` to a file inside the report folder. |
 
 ## `scripts.realm_parser`
 
@@ -508,6 +508,7 @@ artifact modules importing any one name from it, or the module itself.
 
 | Used by | Module | Kind |
 | ---: | --- | --- |
+| 95 | `scripts.blackboxprotobuf` | vendored or generated |
 | 74 | `scripts.ccl_segb.ccl_segb_common` | vendored or generated |
 | 72 | `scripts.ccl_segb.ccl_segb` | vendored or generated |
 | 10 | `scripts.artifacts.Ph126iOS26REFforAssetAnalysis` | artifact module |

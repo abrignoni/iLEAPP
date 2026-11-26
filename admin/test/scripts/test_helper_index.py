@@ -59,7 +59,25 @@ class TestHelperIndex(unittest.TestCase):
                 def get_relative_path(self, path):
                     """The evidence-relative path."""
             ''')
-        self.write('scripts/pkg/__init__.py', '')
+        self.write('scripts/pkg/__init__.py', '''
+            def pkg_helper():
+                """Defined in the package itself."""
+            ''')
+        self.write('scripts/blackboxprotobuf/__init__.py', 'def decode_message(data):\n    pass\n')
+        self.write('scripts/quoted.py', '''
+            def quoted():
+                """Use ``<a href>`` here, not <x>."""
+            class Positional:
+                def __init__(self, /, path):
+                    pass
+            ''')
+        self.write('scripts/artifacts/relative.py', '''
+            __artifacts_v2__ = {"r": {"name": "R"}}
+            from ..ilapfuncs import unused
+            from scripts import blackboxprotobuf
+            from scripts.pkg import pkg_helper
+            from scripts.quoted import quoted, Positional
+            ''')
         self.write('scripts/pkg/child.py', '''
             def child_helper():
                 """In a module imported from its package."""
@@ -109,7 +127,7 @@ class TestHelperIndex(unittest.TestCase):
     def test_counts_signatures_and_docstrings(self):
         text = load(self.root).build()
         self.assertIn('| 2 | `used` | `used(path, limit=3)` | Used by two artifacts. |', text)
-        self.assertIn('| 0 | `unused` | `unused()` | (no docstring) |', text)
+        self.assertIn('| 1 | `unused` | `unused()` | (no docstring) |', text)
         self.assertNotIn('_private', text)
         self.assertIn("| 1 | class `Context` | | The run's state. |", text)
         self.assertIn('| | `Context.get_files_found` | `get_files_found(self)` | Files the artifact matched. |', text)
@@ -141,6 +159,14 @@ class TestHelperIndex(unittest.TestCase):
         self.assertIn('Imported with `*` by 1 artifact module(s)', text)
         section = text.split('## `scripts.starred`')[1].split('## ')[0]
         self.assertNotIn('Imported as a module', section)
+
+    def test_packages_relative_imports_code_spans_and_positional_self(self):
+        text = load(self.root).build()
+        self.assertIn('| 1 | `scripts.blackboxprotobuf` | vendored or generated |', text)
+        self.assertIn('## `scripts.pkg`', text)
+        self.assertIn('| 1 | `pkg_helper` | `pkg_helper()` | Defined in the package itself. |', text)
+        self.assertIn('| 1 | `quoted` | `quoted()` | Use ``<a href>`` here, not &lt;x&gt;. |', text)
+        self.assertIn('| 1 | class `Positional` | `Positional(path)` |', text)
 
     def test_check_exit_codes_and_leaves_the_file_alone(self):
         module = load(self.root)
