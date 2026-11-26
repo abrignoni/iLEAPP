@@ -272,18 +272,20 @@ __artifacts_v2__ = {
         "notes": "One row per searchpartyd folder, beacon and UTC day for the advertisements in Observations.db that "
                  "have no ObservedAdvertisementLocation row, read and decrypted as described in Find My Observed "
                  "Advertisements, which reports the advertisements that do have one; together the two account for "
-                 "every advertisement read. An advertisement without a location carries a time, a beacon (or none), a "
-                 "MAC address and an rssi, so these are counted rather than listed; the decrypted store in the report "
-                 "folder holds each one. Day (UTC) is the first 10 characters of scanDate, which is stored as text "
-                 "with no zone and read as UTC (see Find My Observed Advertisements). First Scan Date and Last Scan "
-                 "Date are the earliest and latest scanDate of the day's advertisements. Advertisements counts them, "
-                 "current and recovered, and Recovered Advertisements counts those read only in another state of the "
-                 "write-ahead log. rssi Minimum and rssi Maximum are the lowest and highest stored rssi; what rssi "
-                 "measures is not established. Beacon Identifier, Beacon Record and Beacon Name are joined as in Find "
-                 "My Observed Advertisements; advertisements that name no beacon are counted in a row with those "
-                 "columns empty. Over the nine images, 1,842 advertisements had no location and made 9 rows: "
+                 "every advertisement read. These advertisements are counted per day and are not listed; their "
+                 "macAddress, advertisementData and the other stored columns are not reported here. Where the store "
+                 "was encrypted, the decrypted database and log in the report folder hold them, and a recovered one is "
+                 "in an earlier state of the log, not in the database's current state. Day (UTC) is the first 10 "
+                 "characters of scanDate, which is stored as text with no zone and read as UTC (see Find My Observed "
+                 "Advertisements). First Scan Date and Last Scan Date are the earliest and latest scanDate of the "
+                 "day's advertisements. Advertisements counts them, current and recovered, and Recovered "
+                 "Advertisements counts those read only in another state of the write-ahead log. rssi Minimum and rssi "
+                 "Maximum are the lowest and highest stored rssi; what rssi measures is not established. Beacon "
+                 "Identifier, Beacon Record and Beacon Name are joined as in Find My Observed Advertisements; "
+                 "advertisements that name no beacon are counted in a row with those columns empty, a path covered by "
+                 "the unit test. Over the nine images, 1,842 advertisements had no location and made 9 rows: "
                  "felix_ios17 2 rows (1,833 advertisements), dexter_ios18 2 (4, 1 of them recovered), iphone11_ios17 2 "
-                 "(2, one of them the SharedBeacons advertisement), and otto_ios17, hill_iphone15pro_ios26 and "
+                 "(2, one of them of a SharedBeacons beacon), and otto_ios17, hill_iphone15pro_ios26 and "
                  "wilkerson_iphone16_ios26 1 each. Every row named a beacon, and every row's beacon had a name. "
                  "Recovery Location is not reported per day; Find My Observed Advertisements gives it for each located "
                  "advertisement.",
@@ -310,10 +312,9 @@ __artifacts_v2__ = {
     },
     "findMyObservedAdvertisements": {
         "name": "Find My Observed Advertisements",
-        "description": "Advertisements recorded in the encrypted Observations.db store of searchpartyd, with the "
-                       "location where the store holds one, the beacon identifier where it names one, and the "
-                       "beacon name from the matching BeaconNamingRecord, or from BeaconAttributes in "
-                       "ItemSharingKeys.db where there is none",
+        "description": "Advertisements in the encrypted Observations.db store of searchpartyd that have a location, "
+                       "with the beacon identifier where the store names one, and the beacon name from the matching "
+                       "BeaconNamingRecord, or from BeaconAttributes in ItemSharingKeys.db where there is none",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-11-26",
         "last_update_date": "2026-11-26",
@@ -367,41 +368,42 @@ __artifacts_v2__ = {
                  "which are not read. On felix23_ios16 the database file already held the whole log, so 3 of its 4 "
                  "earlier states (0 to 2) could not be read. abe_ios16 and felix23_ios16 held no advertisements in the "
                  "states read. Scan Date is the advertisement's scanDate and Location Timestamp the timestamp of its "
-                 "ObservedAdvertisementLocation row. Both are stored as text with no zone and are read as UTC: read "
-                 "that way, over the advertisements of the nine images with or without a location, a scanDate equaled "
-                 "a time in a BeaconEstimatedLocation record of the same beacon (a plist date) to the millisecond on "
-                 "22 rows over six images, a location timestamp did on 19 (of the 2,072 rows whose beacon has such a "
-                 "record), and none matched a whole number of hours away. What each time marks is not established. "
-                 "Latitude, Longitude and Horizontal Accuracy come from the location row; 1,819 of the 3,661 "
-                 "advertisements read had one (23 of 1,856 on felix_ios17). The schema requires horizontalAccuracy to "
-                 "be 0 or more; its unit is not established. Beacon Identifier is the beaconIdentifier of the "
-                 "advertisement's ObservedAdvertisementBeaconInfo row, present on 231 of the 1,819 rows, each equal to "
-                 "an OwnedBeacons record identifier; Beacon Record names the record type matched (OwnedBeacons or "
-                 "SharedBeacons), and Beacon Name is the name in the BeaconNamingRecord whose associatedBeacon "
-                 "matches, else the BeaconAttributes name described in Find My Shared Beacons. All 231 had a naming "
-                 "record. The other 1,588 rows name no beacon, and what sent them is not established. Records are "
-                 "joined only within one searchpartyd folder. macAddress (hex) is the stored macAddress, which the "
-                 "schema requires to be 6 bytes. Advertisement Data (hex) is the stored advertisementData, 28 bytes on "
-                 "1,689 rows and 6 bytes on 130. rssi (as stored) was negative on 1,818 rows. What these three values "
-                 "identify or measure is not established. Advertisement ID is advId. Not reported: source, status, "
-                 "multipart, hint, extraKeyBits, isPosh and isPublished, and the sequence and index of "
-                 "ObservedAdvertisementBeaconInfo, whose meanings are not established. The other tables of "
-                 "Observations.db are not read: DeviceEvent, DeviceEventLocation and AttachmentInfo were absent or "
-                 "empty on all nine images; KeyGenerationBeaconKeys and KeyGenerationHint have columns named "
-                 "privateKey and sharedSecret and held no rows on any of the nine images; KeyGenerationBeaconInfo "
-                 "holds a beacon identifier and pairDate per beacon, and read as UTC its pairDate equaled the "
-                 "OwnedBeacons pairingDate that Find My Owned Beacons reports on all 31 joined rows; KeySyncMetadata "
-                 "holds integers (type, sequence, index, isWild) and a time whose meanings are not established. "
-                 "FindMyServiceDevices held 5 rows, on the two iOS 26 images only, and each had a record in the "
-                 "Devices.data cache that Find My Devices Cache reports whose id equaled its deviceId, with the same "
-                 "name and rawDeviceModel; BatteryState, on wilkerson_iphone16_ios26 only, held one batteryLevel value "
-                 "on all 66 distinct rows over the log's states. Neither is read. The folder's other databases "
-                 "decrypted with their own keychain items on these images: CloudStorage, LocalStorage and "
-                 "StandaloneBeacon held no rows on any of them and are not read, CloudStorage_CKRecordCache held only "
-                 "CloudKit change tokens (one DatabaseChangeToken and one ZoneChangeToken row) and is not read, and "
-                 "ItemSharingKeys held rows on iphone11_ios17 only (7 BeaconAttributes rows and 47,600 NearOwnerKeys "
-                 "rows, each a 6 byte nearOwnerAdvertisement with integers). Its BeaconAttributes names are joined "
-                 "into the beacon names here and in Find My Shared Beacons; its other tables are not read.",
+                 "ObservedAdvertisementLocation row. Both are stored as text with no zone and are read as UTC. Read "
+                 "that way, over the 2,072 advertisements of the nine images whose beacon has a "
+                 "BeaconEstimatedLocation record (231 with a location row, 1,841 without), a scanDate equaled a time "
+                 "in a record of the same beacon (a plist date) to the millisecond on 22 advertisements over six "
+                 "images (19 with a location row, 3 without), and a location timestamp did on 19 of the 231; none "
+                 "matched a whole number of hours away. What each time marks is not established. Latitude, Longitude "
+                 "and Horizontal Accuracy come from the location row; 1,819 of the 3,661 advertisements read had one "
+                 "(23 of 1,856 on felix_ios17). The schema requires horizontalAccuracy to be 0 or more; its unit is "
+                 "not established. Beacon Identifier is the beaconIdentifier of the advertisement's "
+                 "ObservedAdvertisementBeaconInfo row, present on 231 of the 1,819 rows, each equal to an OwnedBeacons "
+                 "record identifier; Beacon Record names the record type matched (OwnedBeacons or SharedBeacons), and "
+                 "Beacon Name is the name in the BeaconNamingRecord whose associatedBeacon matches, else the "
+                 "BeaconAttributes name described in Find My Shared Beacons. All 231 had a naming record. The other "
+                 "1,588 rows name no beacon, and what sent them is not established. Records are joined only within one "
+                 "searchpartyd folder. macAddress (hex) is the stored macAddress, which the schema requires to be 6 "
+                 "bytes. Advertisement Data (hex) is the stored advertisementData, 28 bytes on 1,689 rows and 6 bytes "
+                 "on 130. rssi (as stored) was negative on 1,818 rows. What these three values identify or measure is "
+                 "not established. Advertisement ID is advId. Not reported: source, status, multipart, hint, "
+                 "extraKeyBits, isPosh and isPublished, and the sequence and index of ObservedAdvertisementBeaconInfo, "
+                 "whose meanings are not established. The other tables of Observations.db are not read: DeviceEvent, "
+                 "DeviceEventLocation and AttachmentInfo were absent or empty on all nine images; "
+                 "KeyGenerationBeaconKeys and KeyGenerationHint have columns named privateKey and sharedSecret and "
+                 "held no rows on any of the nine images; KeyGenerationBeaconInfo holds a beacon identifier and "
+                 "pairDate per beacon, and read as UTC its pairDate equaled the OwnedBeacons pairingDate that Find My "
+                 "Owned Beacons reports on all 31 joined rows; KeySyncMetadata holds integers (type, sequence, index, "
+                 "isWild) and a time whose meanings are not established. FindMyServiceDevices held 5 rows, on the two "
+                 "iOS 26 images only, and each had a record in the Devices.data cache that Find My Devices Cache "
+                 "reports whose id equaled its deviceId, with the same name and rawDeviceModel; BatteryState, on "
+                 "wilkerson_iphone16_ios26 only, held one batteryLevel value on all 66 distinct rows over the log's "
+                 "states. Neither is read. The folder's other databases decrypted with their own keychain items on "
+                 "these images: CloudStorage, LocalStorage and StandaloneBeacon held no rows on any of them and are "
+                 "not read, CloudStorage_CKRecordCache held only CloudKit change tokens (one DatabaseChangeToken and "
+                 "one ZoneChangeToken row) and is not read, and ItemSharingKeys held rows on iphone11_ios17 only (7 "
+                 "BeaconAttributes rows and 47,600 NearOwnerKeys rows, each a 6 byte nearOwnerAdvertisement with "
+                 "integers). Its BeaconAttributes names are joined into the beacon names here and in Find My Shared "
+                 "Beacons; its other tables are not read.",
         "paths": (
             '*/mobile/Library/com.apple.icloud.searchpartyd/Observations.db*',
             '*/mobile/Library/com.apple.icloud.searchpartyd/OwnedBeacons/*.record',
@@ -1080,9 +1082,9 @@ def _hex(value, separator=None):
 
 
 # Advertisement rows come in two shapes. One with an ObservedAdvertisementLocation row is reported
-# as a row. The others are summarized per searchpartyd folder, beacon (or none) and UTC day, since a
-# store can hold far more of them than a report table can show, and each one alone carries only a
-# time, a beacon, a MAC address and an rssi.
+# as a row. The others are counted per searchpartyd folder, beacon (or none) and UTC day, since a
+# store can hold far more of them than a report table can show; their stored columns other than the
+# time, beacon and rssi are not reported.
 LOCATED = ' WHERE ObservedAdvertisementLocation.advId IS NOT NULL'
 BY_ID = ' WHERE ObservedAdvertisement.advId IN ({})'
 DAY_QUERY = '''
