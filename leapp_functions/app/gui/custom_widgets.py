@@ -53,7 +53,7 @@ class OutlineButton(tk.Frame):
     def border_of(self, style):
         """ The border colour of a style. """
         colors = self.colors
-        return colors.button_border if style in ("quiet", "in_card") else colors.header_bg
+        return colors.button_border if style in ("quiet", "in_card") else colors.action
 
     def set_style(self, style):
         """ Change the style of the button. """
@@ -187,7 +187,7 @@ class Card(tk.Frame):
     def __init__(self, parent, app, title="", accent=False):
         colors = self.colors = app.colors
         self.background = colors.card_accent if accent else colors.card_bg
-        border = colors.header_bg if accent else colors.border
+        border = colors.action if accent else colors.border
         super().__init__(parent, bg=self.background, highlightthickness=BORDER if accent else 1,
                          highlightbackground=border, highlightcolor=border)
         inner = tk.Frame(self, bg=self.background)
