@@ -6,11 +6,11 @@ name: New Category Alert
 # because the job checks out and runs only the base branch's code. The PR's
 # files are fetched as text by the script and parsed, never executed.
 
+# No paths filter: GitHub applies one to the first 300 changed files only, and a later push that
+# drops the PR's last artifact change must still reach the script so it can clear the alert.
 on:
   pull_request_target:
     types: [opened, synchronize, reopened]
-    paths:
-      - 'scripts/artifacts/**'
 
 permissions:
   contents: read

@@ -57,13 +57,13 @@ class Comment(unittest.TestCase):
         body = check.render_comment(check.review({"new": NEW}, ALLOWED))
         self.assertIn(check.MARKER, body)
         self.assertIn("@" + check.MAINTAINER, body)
-        self.assertIn('"Smart Fridges"', body)
+        self.assertIn("`Smart Fridges`", body)
 
     def test_a_category_the_pr_adds_to_the_list_is_still_reported(self):
         report = check.review({"new": NEW}, ALLOWED)
         body = check.render_comment(report, frozenset({"Smart Fridges"}))
         self.assertIn("@" + check.MAINTAINER, body)
-        self.assertIn('"Smart Fridges" (added to the list in this PR)', body)
+        self.assertIn("`Smart Fridges` (added to the list in this PR)", body)
         self.assertNotIn("please use it", body)
 
     def test_only_the_bots_own_comment_is_edited(self):
@@ -76,6 +76,97 @@ class Comment(unittest.TestCase):
         body = check.render_comment({})
         self.assertIn(check.MARKER, body)
         self.assertNotIn("@", body)
+
+
+class OlderFormAndListShape(unittest.TestCase):
+    def test_the_older_tuple_form_is_read(self):
+        source = '__artifacts__ = {"r": ("Smart Fridges", ("*/f",), None)}\n'
+        self.assertEqual(check.review({"old": source}, ALLOWED), {"old": (["Smart Fridges"], [])})
+
+    def test_an_older_entry_that_is_not_a_tuple_is_unreadable(self):
+        source = 'X = ("Messaging",)\n__artifacts__ = {"r": X}\n'
+        self.assertEqual(check.review({"old": source}, ALLOWED), {"old": ([], [2])})
+
+    def test_a_list_of_the_wrong_shape_reads_as_empty(self):
+        for text in ('[]', '{"categories": null}', '{"categories": "Messaging"}', 'not json', None):
+            self.assertEqual(check.categories_from_list(text), set(), text)
+        self.assertEqual(check.categories_from_list('{"categories": ["A", 3]}'), {"A"})
+
+
+class Rendering(unittest.TestCase):
+    def test_pr_supplied_names_render_as_inert_code(self):
+        report = {"evil`\n@someone": (["x`y\n@team [link](http://e)"], [])}
+        body = check.render_comment(report)
+        self.assertNotIn("\n@someone", body)
+        self.assertNotIn("\n@team", body)
+        self.assertIn("`evil' @someone`", body)
+        self.assertEqual(body.count("@"), 3)  # the maintainer, plus two inside code spans
+
+
+class Network(unittest.TestCase):
+    def setUp(self):
+        self.saved = check.api_request
+
+    def tearDown(self):
+        check.api_request = self.saved
+
+    def test_a_missing_page_stops_the_run(self):
+        check.api_request = lambda _token, _url, **_kw: None
+        with self.assertRaises(RuntimeError):
+            list(check.paginate("t", "https://api/x"))
+
+    def test_an_empty_page_ends_the_list(self):
+        check.api_request = lambda _token, _url, **_kw: []
+        self.assertEqual(list(check.paginate("t", "https://api/x")), [])
+
+    def test_a_module_that_cannot_be_fetched_is_reported_missing(self):
+        files = [{"filename": "scripts/artifacts/a.py", "status": "modified", "contents_url": "u"}]
+
+        def fake(_token, url, **_kw):
+            return files if "/files" in url else None
+        check.api_request = fake
+        sources, proposed, missing = check.pr_sources("t", "o/r", 1)
+        self.assertEqual((sources, proposed, missing), ({}, None, ["scripts/artifacts/a.py"]))
+
+    def test_a_label_created_by_another_run_is_used(self):
+        calls = []
+
+        def fake(_token, url, method="GET", **_kw):
+            calls.append((method, url))
+            if url.endswith("/issues/1/comments?per_page=100&page=1"):
+                return []
+            if url.endswith("/issues/1"):
+                return {"labels": []}
+            if url.endswith("/labels/new-category"):
+                return None if sum(1 for c in calls if c[1].endswith("/labels/new-category")) == 1 else {}
+            if url == "https://api.github.com/repos/o/r/labels" and method == "POST":
+                raise RuntimeError("HTTP 422: already_exists")
+            return {}
+        check.api_request = fake
+        check.apply_state("t", "o/r", 1, {"m": (["Smart Fridges"], [])})
+        self.assertIn(("POST", "https://api.github.com/repos/o/r/issues/1/labels"), calls)
+
+
+class IncompleteScan(unittest.TestCase):
+    def test_a_partial_scan_never_changes_the_alert(self):
+        saved = (check.pr_sources, check.apply_state, check.allowed_categories)
+        calls = []
+        check.pr_sources = lambda *_a: ({"b": NEW}, None, ["scripts/artifacts/a.py"])
+        check.apply_state = lambda *a, **_kw: calls.append(a)
+        check.allowed_categories = lambda: ALLOWED
+        env = {"GITHUB_TOKEN": "t", "PR_NUMBER": "1", "GITHUB_REPOSITORY": "o/r"}
+        old = {k: check.os.environ.get(k) for k in env}
+        check.os.environ.update(env)
+        try:
+            self.assertEqual(check.main([]), 0)
+        finally:
+            check.pr_sources, check.apply_state, check.allowed_categories = saved
+            for k, v in old.items():
+                if v is None:
+                    check.os.environ.pop(k, None)
+                else:
+                    check.os.environ[k] = v
+        self.assertEqual(calls, [])
 
 
 class AllowedList(unittest.TestCase):
