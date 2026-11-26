@@ -99,6 +99,12 @@ class ReadRecord(Base):
             self.assertIsNone(spd.read_searchpartyd_record(path))
         self.assertIn('--keychain', self.log.call_args[0][0])
 
+    def test_unreadable_file_is_logged_not_raised(self):
+        path = os.path.join(self.tmp, 'missing.record')
+        with self.keys([KEY]):
+            self.assertIsNone(spd.read_searchpartyd_record(path))
+        self.assertIn('could not read record', self.log.call_args[0][0])
+
     def test_other_layouts_are_refused(self):
         for raw in (b'not a plist', plistlib.dumps({'encryptedData': b'x'}, fmt=plistlib.FMT_BINARY),
                     plistlib.dumps([b'x' * 12, b't' * 16, b'c'], fmt=plistlib.FMT_BINARY)):
@@ -138,6 +144,16 @@ class Artifacts(Base):
         self.assertEqual(data, [(when.replace(tzinfo=timezone.utc), '', 1.5, 2.5, 10.0, 3, 'Keys', 'OwnedBeacons', BEACON)])
         self.assertTrue(sources.endswith('e1.record'))
 
+    def test_unreadable_record_does_not_hide_the_others(self):
+        self.populate('a', BEACON, 'Keys', datetime(2026, 1, 2, 3, 4, 5))
+        ctx = self.context()
+        missing = os.path.join(self.tmp, 'a', 'mobile', 'Library', spd.STORE_DIR,
+                               'OwnedBeacons', 'gone.record')
+        ctx.get_files_found.return_value = [missing] + ctx.get_files_found.return_value
+        with self.keys([KEY]):
+            _headers, data, _sources = spd.findMyOwnedBeacons.__wrapped__(ctx)
+        self.assertEqual([row[10] for row in data], [BEACON])
+
     def test_names_join_only_within_one_store(self):
         when = datetime(2026, 1, 2, 3, 4, 5)
         self.populate('a', BEACON, 'Keys', when)
@@ -166,7 +182,7 @@ class Artifacts(Base):
             _headers, shared, _sources = spd.findMySharedBeacons.__wrapped__(self.context())
             _headers, located, _sources = spd.findMyBeaconEstimatedLocations.__wrapped__(self.context())
         utc = when.replace(tzinfo=timezone.utc)
-        self.assertEqual(shared, [(utc, utc, 'owner@example.com', 'm', '1', 1, True, -1, -1, 1,
+        self.assertEqual(shared, [(utc, utc, 'owner@example.com', 'm', '1', 1, -1, -1, 1,
                                    OTHER_BEACON, BEACON)])
         self.assertEqual([row[7] for row in located], ['SharedBeacons'])
 

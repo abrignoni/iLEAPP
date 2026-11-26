@@ -17,19 +17,23 @@ __artifacts_v2__ = {
                  "felix_ios17 and otto_ios17. The key was the item's data on dexter_ios18, felix_ios17, otto_ios17, "
                  "hill_iphone15pro_ios26 and wilkerson_iphone16_ios26, and its gena attribute on abe_ios16, "
                  "felix23_ios16, adams_iphone12mini and iphone11_ios17, where the item holds no data. The layout was "
-                 "published in denysvitali/searchparty-keys and joshuahickman1/Lost_Apples. Without a usable key a "
-                 "record is logged and gives no row, which is not evidence that nothing was recorded: records were "
-                 "present and not read on cookbook_ios1751, hexordia_ios1651, iphone12_ios18, iphone14plus_ios18, "
-                 "iphone14plus_ios18_mvs2025 and jess_ios15, where iLEAPP finds no keychain in the extraction, and on "
-                 "falken_ios26, fsfull002_ios17 and hc_ios17_2, whose keychain-backup.plist entries hold only "
-                 "encrypted data and a persistent reference. They carry no service, account or access group, so no "
-                 "BeaconStore item could be identified. Records are joined only within one searchpartyd folder. "
-                 "Timestamp and Scan Date are the record's timestamp and scanDate dates, in UTC; what each marks is "
-                 "not established. Over the 190 rows of the nine images read they were equal on 145, Timestamp was "
-                 "earlier on 30, and Scan Date held the text $null, shown as no value, on 15. locationSource (as "
-                 "stored) held seven distinct integers (1, 2, 3, 4, 7, 8 and 15) and Horizontal Accuracy is "
-                 "horizontalAccuracy as stored; the meaning of the first and the unit of the second are not "
-                 "established. Beacon Record names the record type whose identifier equals the record's "
+                 "published in denysvitali/searchparty-keys "
+                 "(https://github.com/denysvitali/searchparty-keys/blob/b1b4b13c09c46d61b3cf22e66a2fb54e20e3c8c6/decrypt.go#L12-L33)"
+                 " and joshuahickman1/Lost_Apples "
+                 "(https://github.com/joshuahickman1/Lost_Apples/blob/9ec8597a4164bd63fa757fe2463597a393934e03/src/owned_beacons_parser.py#L99-L117)."
+                 " A record file that cannot be opened is logged and skipped, and the others are still read. Without a"
+                 " usable key a record is logged and gives no row, which is not evidence that nothing was recorded: "
+                 "records were present and not read on cookbook_ios1751, hexordia_ios1651, iphone12_ios18, "
+                 "iphone14plus_ios18, iphone14plus_ios18_mvs2025 and jess_ios15, where iLEAPP finds no keychain in the"
+                 " extraction, and on falken_ios26, fsfull002_ios17 and hc_ios17_2, whose keychain-backup.plist "
+                 "entries hold only encrypted data and a persistent reference. They carry no service, account or "
+                 "access group, so no BeaconStore item could be identified. Records are joined only within one "
+                 "searchpartyd folder. Timestamp and Scan Date are the record's timestamp and scanDate dates, in UTC; "
+                 "what each marks is not established. Over the 190 rows of the nine images read they were equal on "
+                 "145, Timestamp was earlier on 30, and Scan Date held the text $null, shown as no value, on 15. "
+                 "locationSource (as stored) held seven distinct integers (1, 2, 3, 4, 7, 8 and 15) and Horizontal "
+                 "Accuracy is horizontalAccuracy as stored; the meaning of the first and the unit of the second are "
+                 "not established. Beacon Record names the record type whose identifier equals the record's "
                  "associatedBeacon: OwnedBeacons on 171 rows and SharedBeacons on 19, all 19 on iphone11_ios17. Beacon"
                  " Name is the name in the BeaconNamingRecord whose associatedBeacon matches, and is empty on those 19"
                  " rows, which have none. Where several naming records match, their distinct names are joined with a "
@@ -119,13 +123,13 @@ __artifacts_v2__ = {
                  "it marks is not established. Owner Handle is the destination string of the ownerHandle dictionary, "
                  "present on all 14 rows; the dictionary's type integer (0 on all 14) is not reported. Owner Beacon "
                  "Identifier is ownerBeaconIdentifier from the record's name dictionary, present on 7 rows; on the "
-                 "other 7 name held an empty string, and no record held a text name. accepted (as stored) held True on"
-                 " all 14 rows and shareType (as stored) 1 on 7 and 4 on 7; their meanings are not established. Model "
-                 "held an empty string on 4 rows. Latest Estimated Location Timestamp and Estimated Location Records "
-                 "come from the BeaconEstimatedLocation records whose associatedBeacon equals the identifier: 19 "
-                 "records for 3 of the 14 beacons. Not reported: role (-1 on all 14), groupIdentifier ($null on all "
-                 "14), correlationIdentifier, shareIdentifier, advertisedIndex, cloudKitMetadata and the name "
-                 "dictionary's version.",
+                 "other 7 name held an empty string, and no record held a text name. shareType (as stored) held 1 on 7"
+                 " rows and 4 on 7; its meaning is not established. Model held an empty string on 4 rows. Latest "
+                 "Estimated Location Timestamp and Estimated Location Records come from the BeaconEstimatedLocation "
+                 "records whose associatedBeacon equals the identifier: 19 records for 3 of the 14 beacons. Not "
+                 "reported: accepted (True on all 14), role (-1 on all 14), groupIdentifier ($null on all 14), "
+                 "correlationIdentifier, shareIdentifier, advertisedIndex, cloudKitMetadata and the name dictionary's "
+                 "version.",
         "paths": (
             '*/mobile/Library/com.apple.icloud.searchpartyd/SharedBeacons/*.record',
             '*/mobile/Library/com.apple.icloud.searchpartyd/BeaconEstimatedLocation/*.record',
@@ -222,8 +226,12 @@ def read_searchpartyd_record(file_found):
     tag and the AES-256-GCM ciphertext. The key is the BeaconStore / BeaconStoreKey keychain item.
     The plaintext is a binary plist dictionary.
     """
-    with open(file_found, 'rb') as record_file:
-        outer = _loads_plist(record_file.read())
+    try:
+        with open(file_found, 'rb') as record_file:
+            outer = _loads_plist(record_file.read())
+    except OSError as error:
+        logfunc(f'{file_found}: could not read record: {error}')
+        return None
     if (not isinstance(outer, list) or len(outer) != 3 or not all(isinstance(x, bytes) for x in outer)
             or len(outer[0]) != NONCE_LENGTH or len(outer[1]) != TAG_LENGTH):
         logfunc(f'{file_found} is not a nonce, tag and ciphertext list; not read')
@@ -382,7 +390,7 @@ def findMyOwnedBeacons(context):
 def findMySharedBeacons(context):
     data_headers = (('Share Date', 'datetime'), ('Latest Estimated Location Timestamp', 'datetime'), 'Owner Handle',
                     'Model', 'System Version', 'shareType (as stored)',
-                    'accepted (as stored)', 'productId (as stored)', 'vendorId (as stored)',
+                    'productId (as stored)', 'vendorId (as stored)',
                     'Estimated Location Records', 'Identifier', 'Owner Beacon Identifier')
     data_list = []
     sources = []
@@ -398,6 +406,6 @@ def findMySharedBeacons(context):
             data_list.append((_date(record.get('shareDate')), newest, _text(handle.get('destination')),
                               _text(record.get('model')),
                               _text(record.get('systemVersion')), _value(record.get('shareType')),
-                              _value(record.get('accepted')), _value(record.get('productId')),
+                              _value(record.get('productId')),
                               _value(record.get('vendorId')), count, identifier, owner_beacon))
     return data_headers, data_list, '\n'.join(sources)
