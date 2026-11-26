@@ -1,22 +1,24 @@
 """
-The Source screen: the extraction to parse, where the keychain and the report go.
+The Source screen: the extraction to parse, the secrets that open what some apps keep
+encrypted, and where the report goes.
 """
 
 import os
 import tkinter as tk
-from tkinter import filedialog, ttk
+from tkinter import filedialog, messagebox, ttk
 
 from leapp_functions import leapp
-from leapp_functions.app import history, input_type
+from leapp_functions.app import history, input_type, secret_fields
 from leapp_functions.app.disk import FILE, PENDING, SILENT, path_status
 from leapp_functions.app.gui import themes
-from leapp_functions.app.gui.app_state import SECRETS, WAITING
+from leapp_functions.app.gui.app_state import WAITING
 from leapp_functions.app.gui.custom_widgets import (GAP, Caption, Card, Field, FileField,
                                                     LabeledEntry, OutlineButton, Tooltip,
                                                     mark_line, open_menu, show_example,
                                                     two_columns)
 from leapp_functions.app.output import default_output_folder_name
 from leapp_functions.app.platform import sanitize_file_name
+from leapp_functions.app.secret_fields import SECRETS
 from scripts.raw_image import (RAW_IMAGE_FILE_PATTERNS, RAW_IMAGE_LABEL, confirm_found_members,
                                selection_text)
 
@@ -26,6 +28,11 @@ FILE_TYPES = (("All supported files", "*.tar *.zip *.gz *.xz " + RAW_IMAGE_FILE_
 DETECT_DELAY = 300
 WATCH_DELAY = 1000
 POLL_DELAY = 100
+HIDDEN = "•"
+SHOW_TEXTS = ("Show", "Hide")
+SHOW_WIDTH = max(len(text) for text in SHOW_TEXTS)
+# The most read from a file for a text secret: a key or a password, never a large file
+TEXT_READ_LIMIT = 4096
 
 
 class SourceScreen(tk.Frame):
@@ -233,7 +240,8 @@ class OutputCard(tk.Frame):
 
 
 class SecretsCard(tk.Frame):
-    """ The files that decrypt what some apps keep encrypted, as the configuration file lists them. """
+    """ The secrets that open what some apps keep encrypted, as the configuration file lists them:
+    files to choose, or texts to type, hidden unless shown (see secret_fields). """
 
     def __init__(self, parent, app, secrets):
         super().__init__(parent, bg=app.colors.main_bg)
@@ -242,27 +250,47 @@ class SecretsCard(tk.Frame):
         card.pack(fill="x")
         card.body.columnconfigure(0, weight=1)
         for row, field in enumerate(secrets.fields):
-            self.build_file_field(card.body, row, field)
+            line = tk.Frame(card.body, bg=app.colors.card_bg)
+            line.grid(row=row, column=0, sticky="ew", pady=(12 if row else 0, 0))
+            line.columnconfigure(0, weight=1)
+            variable = app.app_state.run.secrets[field["name"]]
+            if secret_fields.kind(field) == "text":
+                self.build_text_field(line, field, variable)
+            else:
+                FileField(line, app, Field(field["label"], variable,
+                                           pick=lambda field=field, variable=variable:
+                                           self.choose(field, variable))).grid(
+                    row=0, column=0, sticky="ew")
+                self.add_clear(line, 1, variable)
 
-    def build_file_field(self, body, row, field):
-        """ A file to choose. """
-        variable = self.app.app_state.run.secrets[field["name"]]
-        line = tk.Frame(body, bg=self.app.colors.card_bg)
-        line.grid(row=row, column=0, sticky="ew", pady=(12 if row else 0, 0))
-        line.columnconfigure(0, weight=1)
-        FileField(line, self.app, Field(field["label"], variable,
-                                        pick=lambda: self.choose(field, variable))).grid(
-            row=0, column=0, sticky="ew")
+    def build_text_field(self, line, field, variable):
+        """ A text to type, hidden unless shown, or to read from a file. Its help text takes the
+        whole width above, as three buttons leave the input too narrow for it. """
+        Caption(line, self.app, field["label"], self.app.colors.card_bg).grid(
+            row=0, column=0, columnspan=4, sticky="ew", pady=(0, 5))
+        labeled = LabeledEntry(line, self.app, Field("", variable))
+        labeled.entry.configure(show=HIDDEN)
+        labeled.grid(row=1, column=0, sticky="ew")
+        show = OutlineButton(line, self.app, text=SHOW_TEXTS[0], style="in_card", width=SHOW_WIDTH)
+        show.button.configure(command=lambda: self.toggle(labeled.entry, show))
+        show.grid(row=1, column=1, sticky="s", padx=(8, 0))
+        OutlineButton(line, self.app, text="Load from file…", style="in_card",
+                      command=lambda: self.load(field, variable)).grid(
+            row=1, column=2, sticky="s", padx=(8, 0))
+        self.add_clear(line, 3, variable, row=1)
+
+    def add_clear(self, line, column, variable, row=0):
+        """ The Clear button of a field, usable only when the field holds something. """
         clear = OutlineButton(line, self.app, text="Clear", command=lambda: variable.set(""),
                               style="in_card")
-        clear.grid(row=0, column=1, sticky="s", padx=(8, 0))
+        clear.grid(row=row, column=column, sticky="s", padx=(8, 0))
 
         def refresh(*_args):
-            """ Clear can be used only when a file is chosen. """
+            """ Clear can be used only when the field holds something. """
             clear.set_enabled(bool(variable.get()))
 
         def changed(*_args):
-            """ A file chosen or cleared. """
+            """ A secret given or cleared. """
             refresh()
             self.app.app_state.on_change()
 
@@ -270,13 +298,56 @@ class SecretsCard(tk.Frame):
         clear.bind("<Destroy>", lambda _event: variable.trace_remove("write", trace))
         refresh()
 
+    @staticmethod
+    def toggle(entry, button):
+        """ Show the text typed, or hide it again. """
+        hidden = entry.cget("show") == HIDDEN
+        entry.configure(show="" if hidden else HIDDEN)
+        button.set_text(SHOW_TEXTS[1] if hidden else SHOW_TEXTS[0])
+
     def choose(self, field, variable):
         """ Ask for the file. Cancelling leaves the field as it was. """
         path = filedialog.askopenfilename(
-            parent=self.winfo_toplevel(), title=f"Choose the {field['name']} file",
-            filetypes=[tuple(filetype) for filetype in field["filetypes"]])
+            parent=self.winfo_toplevel(), title=f"Choose the {secret_fields.name(field)} file",
+            filetypes=secret_fields.file_types(field))
         if path:
             variable.set(path)
+
+    def load(self, field, variable):
+        """ Read the text of a secret from a file. Cancelling leaves the field as it was. An error
+        names the file, never what it holds. """
+        path = filedialog.askopenfilename(
+            parent=self.winfo_toplevel(),
+            title=f"Choose a file holding the {secret_fields.name(field)}",
+            filetypes=secret_fields.file_types(field))
+        if not path:
+            return
+        try:
+            with open(path, "r", encoding="utf-8") as handle:
+                variable.set(handle.read(TEXT_READ_LIMIT).strip())
+        except (OSError, UnicodeDecodeError) as error:
+            messagebox.showerror("Could not read the file",
+                                 f"{os.path.basename(path)}: {type(error).__name__}",
+                                 parent=self.winfo_toplevel())
+
+
+def secret_line(field, value):
+    """ (status, text) of the BEFORE RUNNING card for a secret. A text is never shown. """
+    title = secret_fields.title(field)
+    text = secret_fields.kind(field) == "text"
+    if not value:
+        return "optional", f"{title}: optional, none {'given' if text else 'chosen'}."
+    if text:
+        problem = secret_fields.text_problem(field, value)
+        return ("problem", problem) if problem else ("ok", f"{title}: given.")
+    status = path_status(value)
+    if status == PENDING:
+        return "todo", f"{title}: waiting for its drive to answer."
+    if status == SILENT:
+        return "problem", f"{title}: the file does not answer."
+    if status != FILE:
+        return "problem", f"{title}: the file no longer exists."
+    return "ok", f"{title}: {os.path.basename(value)}"
 
 
 class ChecksCard(tk.Frame):
@@ -316,18 +387,8 @@ class ChecksCard(tk.Frame):
             lines = [("problem", "Extraction: cannot be read yet, see DETECTED.")]
         else:
             lines = [("ok", "Extraction: ready.")]
-        for name, variable in state.run.secrets.items():
-            path = variable.get()
-            if not path:
-                lines.append(("optional", f"{name.capitalize()}: optional, none chosen."))
-            elif path_status(path) == PENDING:
-                lines.append(("todo", f"{name.capitalize()}: waiting for its drive to answer."))
-            elif path_status(path) == SILENT:
-                lines.append(("problem", f"{name.capitalize()}: the file does not answer."))
-            elif path_status(path) != FILE:
-                lines.append(("problem", f"{name.capitalize()}: the file no longer exists."))
-            else:
-                lines.append(("ok", f"{name.capitalize()}: {os.path.basename(path)}"))
+        lines.extend(secret_line(field, state.run.secrets[field["name"]].get().strip())
+                     for field in secret_fields.FIELDS)
         output = state.missing_for_output()
         if not state.run.output.get().strip() or output == WAITING.format("output folder"):
             lines.append(("todo", f"Output: {output}"))

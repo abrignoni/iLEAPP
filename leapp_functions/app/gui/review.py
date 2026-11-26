@@ -6,9 +6,9 @@ import os
 import tkinter as tk
 from tkinter import ttk
 
-from leapp_functions.app import artifact_list
+from leapp_functions.app import artifact_list, secret_fields
 from leapp_functions.app.gui import themes
-from leapp_functions.app.gui.app_state import SECRETS, is_waiting
+from leapp_functions.app.gui.app_state import is_waiting
 from leapp_functions.app.gui.artifacts import unknown_text
 from leapp_functions.app.gui.custom_widgets import (GAP, Caption, Card, mark_line, two_columns,
                                                     wrap_to_width)
@@ -19,6 +19,7 @@ CHECK_DELAY = 1000
 KEY_WIDTH = 104
 ROW_GAP = 8
 NONE = "None"
+GIVEN = "Given"
 HASH_TEXT = "Hash staged files (SHA-256) and record the times the evidence gives them"
 HASH_HINT = ("Written to LAVA and to _TSV Exports. A folder or a single file gives the hashes "
              "only, no times.")
@@ -69,6 +70,14 @@ def extraction_text(state):
     return "\n".join(lines)
 
 
+def secret_text(run, field):
+    """ What the summary says of a secret: the file chosen, never the text typed. """
+    value = run.secrets[field["name"]].get().strip()
+    if not value:
+        return NONE
+    return GIVEN if secret_fields.kind(field) == "text" else value
+
+
 def summary_rows(state):
     """ The lines of the summary: (key, value). """
     run, case = state.run, state.case
@@ -76,7 +85,8 @@ def summary_rows(state):
     return (("Case", " · ".join(filled) or "No case data"),
             ("Extraction", extraction_text(state)),
             ("Read as", run.detected.label),
-            *((name.capitalize(), variable.get() or NONE) for name, variable in run.secrets.items()),
+            *((secret_fields.title(field), secret_text(run, field))
+              for field in secret_fields.FIELDS),
             ("Artifacts", artifacts_text(state.artifacts)),
             ("Profile", artifact_list.profile_for_report(state.artifacts) or NONE),
             ("Output folder", run.output.get().strip()),
@@ -115,7 +125,7 @@ def notices(state):
         lines.append(("ok", "Nothing needs your attention."))
     if state.case_is_empty():
         lines.append(("optional", "No case data: the report only gives the details of the run."))
-    for field in SECRETS.fields if SECRETS else ():
+    for field in secret_fields.FIELDS:
         if not run.secrets[field["name"]].get():
             lines.append(("optional", field["if_absent"]))
     return lines
