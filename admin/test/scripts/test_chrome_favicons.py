@@ -73,17 +73,19 @@ class TestChromeFavicons(unittest.TestCase):
         _, rows, source = self.run_module([fav, hist])
         self.assertEqual(len(rows), 2)
         first, second = rows
-        self.assertEqual(first[0].isoformat(), '2024-01-01T00:00:01+00:00')
-        self.assertEqual(first[1], '')
-        self.assertEqual(first[2:7], ('https://a.test/', 'Yes', 'https://a.test/favicon.ico',
+        self.assertEqual(first[0], first[1])
+        self.assertEqual(first[1].isoformat(), '2024-01-01T00:00:01+00:00')
+        self.assertEqual(first[2], '')
+        self.assertEqual(first[3:8], ('https://a.test/', 'Yes', 'https://a.test/favicon.ico',
                                       'kFavicon (1)', '16x16, 32x32'))
-        self.assertEqual(first[7], f'media-{len(PNG) + 1}')
-        self.assertEqual(first[8:], ('kRegular (0)', 'Chrome'))
-        self.assertEqual(second[0], '')
-        self.assertEqual(second[1].isoformat(), '2024-01-01T00:00:00+00:00')
-        self.assertEqual(second[3], 'No')
-        self.assertEqual(second[5], '16')
-        self.assertEqual(second[8], 'kRedirect (1)')
+        self.assertEqual(first[8], f'media-{len(PNG) + 1}')
+        self.assertEqual(first[9:], ('kRegular (0)', 'Chrome'))
+        self.assertEqual(second[0], second[2])
+        self.assertEqual(second[1], '')
+        self.assertEqual(second[2].isoformat(), '2024-01-01T00:00:00+00:00')
+        self.assertEqual(second[4], 'No')
+        self.assertEqual(second[6], '16')
+        self.assertEqual(second[9], 'kRedirect (1)')
         self.assertEqual(source.split('\n'), [fav, hist])
 
     def test_older_schema_and_no_history(self):
@@ -91,10 +93,14 @@ class TestChromeFavicons(unittest.TestCase):
         favicons_db(fav, page_url_type=False, last_requested=False)
         _, rows, source = self.run_module([fav])
         self.assertEqual(len(rows), 2)
-        self.assertEqual([r[3] for r in rows], ['', ''])
-        self.assertEqual([r[8] for r in rows], ['', ''])
-        self.assertEqual([r[1] for r in rows], ['', ''])
+        self.assertEqual([r[4] for r in rows], ['', ''])
+        self.assertEqual([r[9] for r in rows], ['', ''])
+        self.assertEqual([r[2] for r in rows], ['', ''])
         self.assertEqual(source, fav)
+
+    def test_time_too_large_is_blank(self):
+        self.assertEqual(module._webkit_to_utc(2 ** 62), '')  # pylint: disable=protected-access
+        self.assertEqual(module._webkit_to_utc(0), '')  # pylint: disable=protected-access
 
     def test_missing_table_gives_no_rows(self):
         fav = os.path.join(self.profile, 'Favicons')

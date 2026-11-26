@@ -1,16 +1,3 @@
-import datetime
-import os
-import sqlite3
-
-from scripts.artifacts.chrome import get_browser_name
-from scripts.ilapfuncs import artifact_processor, check_in_embedded_media, logfunc, \
-    open_sqlite_db_readonly
-
-# favicons.icon_type holds 1 << (IconType - 1) (see notes), so these are the IconType
-# names of the persisted values.
-_ICON_TYPES = {1: 'kFavicon', 2: 'kTouchIcon', 4: 'kTouchPrecomposedIcon', 8: 'kWebManifestIcon'}
-_PAGE_URL_TYPES = {0: 'kRegular', 1: 'kRedirect'}
-
 __artifacts_v2__ = {
     "chromeFavicons": {
         "name": "Chromium - Favicons",
@@ -61,14 +48,18 @@ __artifacts_v2__ = {
                   "demand, and last_requested as the time the bitmap was last requested, non-zero only for one "
                   "fetched on demand "
                   "(https://github.com/chromium/chromium/blob/33f34ef179f55596f6c2fc8a55878b7ccf6276e4/components/favicon/core/favicon_database.cc#L76-L90)."
-                  " On every row of the tested images exactly one of the two was set. In History is a string "
-                  "comparison of Page URL against the urls table of the History database in the same folder: "
-                  "Yes when it holds the URL, No when it does not, and blank when no readable History sits "
-                  "beside the Favicons database (the blank case did not occur on the tested images). No was the"
-                  " value on 78 of the 685 rows of the 10 tested images with rows. The visits table is not "
-                  "read, so Yes does not establish a visit, and No does not establish that the page was not "
-                  "visited. Why a mapped URL is absent from History was not established. Page URL Type is "
-                  "page_url_type named through PageUrlType, 0 kRegular and 1 kRedirect "
+                  " On every row of the tested images exactly one of the two was set. Time is Last Updated when"
+                  " it is set and Last Requested otherwise, so every row with either time has a date in the "
+                  "timeline. Time and Last Updated are identical on every row of abe_ios16, cookbook_ios1751, "
+                  "hc_ios18_7, hc_ios26 and otto_ios17, where Last Requested has no value on any row. A time "
+                  "too large to convert is shown blank (covered by the synthetic test; none on the tested "
+                  "images). In History is a string comparison of Page URL against the urls table of the History"
+                  " database in the same folder: Yes when it holds the URL, No when it does not, and blank when"
+                  " no readable History sits beside the Favicons database (the blank case did not occur on the "
+                  "tested images). No was the value on 78 of the 685 rows of the 10 tested images with rows. "
+                  "The visits table is not read, so Yes does not establish a visit, and No does not establish "
+                  "that the page was not visited. Why a mapped URL is absent from History was not established. "
+                  "Page URL Type is page_url_type named through PageUrlType, 0 kRegular and 1 kRedirect "
                   "(https://github.com/chromium/chromium/blob/33f34ef179f55596f6c2fc8a55878b7ccf6276e4/components/favicon/core/favicon_types.h#L26-L35)."
                   " Chromium adds this column in version 9 of the database "
                   "(https://github.com/chromium/chromium/blob/33f34ef179f55596f6c2fc8a55878b7ccf6276e4/components/favicon/core/favicon_database.cc#L1098-L1103,"
@@ -110,13 +101,29 @@ __artifacts_v2__ = {
     }
 }
 
+import datetime
+import os
+import sqlite3
+
+from scripts.artifacts.chrome import get_browser_name
+from scripts.ilapfuncs import artifact_processor, check_in_embedded_media, logfunc, \
+    open_sqlite_db_readonly
+
+# favicons.icon_type holds 1 << (IconType - 1) (see notes), so these are the IconType
+# names of the persisted values.
+_ICON_TYPES = {1: 'kFavicon', 2: 'kTouchIcon', 4: 'kTouchPrecomposedIcon', 8: 'kWebManifestIcon'}
+_PAGE_URL_TYPES = {0: 'kRegular', 1: 'kRedirect'}
+
 
 def _webkit_to_utc(value):
     '''Chromium time: microseconds since 1601-01-01 UTC. Zero or empty is blank.'''
     if value in (None, 0, ''):
         return ''
-    return datetime.datetime(1601, 1, 1, tzinfo=datetime.timezone.utc) + \
-        datetime.timedelta(microseconds=int(value))
+    try:
+        return datetime.datetime(1601, 1, 1, tzinfo=datetime.timezone.utc) + \
+            datetime.timedelta(microseconds=int(value))
+    except (OverflowError, ValueError, TypeError):
+        return ''
 
 
 def _enum_label(mapping, value):
@@ -187,7 +194,8 @@ def _read(path, reader):
 
 @artifact_processor
 def chromeFavicons(context):
-    data_headers = (('Last Updated', 'datetime'), ('Last Requested', 'datetime'), 'Page URL',
+    data_headers = (('Time', 'datetime'), ('Last Updated', 'datetime'), ('Last Requested', 'datetime'),
+                    'Page URL',
                     'In History', 'Icon URL', 'Icon Type', 'Sizes', ('Icon', 'media'),
                     'Page URL Type', 'Browser')
     files = sorted(str(f) for f in context.get_files_found())
@@ -226,7 +234,8 @@ def chromeFavicons(context):
             updated, requested, sizes, largest = icons.get(icon_id, (0, 0, [], None))
             media = check_in_embedded_media(file_found, largest[1]) if largest else ''
             in_history = '' if urls is None else ('Yes' if page_url in urls else 'No')
-            data_list.append((_webkit_to_utc(updated), _webkit_to_utc(requested), page_url,
+            last_updated, last_requested = _webkit_to_utc(updated), _webkit_to_utc(requested)
+            data_list.append((last_updated or last_requested, last_updated, last_requested, page_url,
                               in_history, icon_url or '', _enum_label(_ICON_TYPES, icon_type),
                               ', '.join(sizes), media or '',
                               _enum_label(_PAGE_URL_TYPES, page_url_type), browser))
