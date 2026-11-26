@@ -4,14 +4,49 @@ __artifacts_v2__ = {
         "description": "Parses DKEvent WiFi entries from biomes",
         "author": "@JohnHyla",
         "creation_date": "2024-10-17",
-        "last_update_date": "2026-11-24",
+        "last_update_date": "2026-11-26",
         "requirements": "none",
         "category": "Biome",
-        "notes": ("Field names come from CoreDuet's _DKPREvent class, read from CoreDuet.framework on macOS "
-                  "27.2.1 (26B131); no iOS copy of the class was read. Start Date is field 2 (startDate) "
-                  "and was reported before as Timestamp. End Date is field 3 (endDate) and was not reported before. Stream Name is field 1.1 and was reported before "
-                  "as Event. Network Name is field 4.3 (the value's stringValue) of the _DKEvent.Wifi.Connection stream. It was reported as Device in v2026.4.6 and as Wi-Fi Connection Value (as stored) after that. In one known-data test on an iPhone running iOS 27.2.1, in which Wi-Fi and Airplane Mode were switched at logged times about two minutes apart, each record closed by a logged change described the interval before that change: the value held the name of the network the phone was joined to for an interval spent connected and was empty for an interval spent with Wi-Fi switched off or with Airplane Mode switched on, and End Date was the time of the change that closed the interval with its seconds dropped, as Start Date was for the change that opened it. The reading was not checked against known data on any other iOS version. On the 21 iOS images tested (19 held written records of this stream), which include the sample_data keys, Network Name was empty on 580 of "
-                  "the 1,836 written rows. Identifier is field 5 and was reported before as GUID. Field 8 (creationDate) is not reported. Time Zone Offset (seconds) is field 10 (timeZone), which CoreDuet's own conversion of synthetic records reads as seconds from GMT; it was not reported before. On the 21 iOS images tested (19 held written records of this stream), which include the sample_data keys, it was set on each of the 1,836 written rows, with 7 distinct values, each a whole number of quarter hours within 14 hours of GMT. A Start Date or End Date whose stored value is not a number, is NaN or infinite, or is too large for a date is left empty, and the record keeps its row. The log names the file name and the record offset. The NSDate distantPast and distantFuture values, and a value within two days after distantPast, are also left empty, and the log does not name the file or offset for those. A synthetic test (admin/test/scripts/test_biome_dkevent_bad_dates.py) checks the first case with NaN, infinity and an out-of-range number in Start Date and with NaN in End Date. No record on the 4 corpus images run for this change (hill_iphone15pro_ios26, wilkerson_iphone16_ios26, dexter_ios18, iphone11_ios17) held such a value. A written record with no field 1, 1.1, 2, 4 or 5 is skipped. So is one whose field 1 or 4 is not a message, or whose field 5 or 4.3 is not bytes or is not valid UTF-8. The log names the file name and the record offset, and the other records are still reported. A record with no field 3, 4.3 or 10 keeps its row with those columns empty. A synthetic test (admin/test/scripts/test_biome_dkevent_missing_fields.py) checks the skip with fields 1, 2, 4 and 5 removed in turn and with an integer in place of fields 1, 4 and 5. No record on the 4 corpus images run for this change (hill_iphone15pro_ios26, wilkerson_iphone16_ios26, dexter_ios18, iphone11_ios17) was skipped this way."),
+        "notes": ("Field names come from CoreDuet's _DKPREvent class, read from CoreDuet.framework on macOS 27.2.1 "
+                  "(26B131); no iOS copy of the class was read. Start Date is field 2 (startDate) and was reported "
+                  "before as Timestamp. End Date is field 3 (endDate) and was not reported before. Stream Name is field"
+                  " 1.1 and was reported before as Event. Network Name is field 4.3 (the value's stringValue) of the "
+                  "_DKEvent.Wifi.Connection stream. It was reported as Device in v2026.4.6 and as Wi-Fi Connection "
+                  "Value (as stored) after that. In one known-data test on an iPhone running iOS 27.2.1, in which Wi-Fi"
+                  " and Airplane Mode were switched at logged times about two minutes apart, each record closed by a "
+                  "logged change described the interval before that change: the value held the name of the network the "
+                  "phone was joined to for an interval spent connected and was empty for an interval spent with Wi-Fi "
+                  "switched off or with Airplane Mode switched on, and End Date was the time of the change that closed "
+                  "the interval with its seconds dropped, as Start Date was for the change that opened it. The reading "
+                  "was not checked against known data on any other iOS version. On the 21 iOS images tested (19 held "
+                  "written records of this stream), which include the sample_data keys, Network Name was empty on 580 "
+                  "of the 1,836 written rows. Identifier is field 5 and was reported before as GUID. Field 8 "
+                  "(creationDate) is not reported. Time Zone Offset (seconds) is field 10 (timeZone), which CoreDuet's "
+                  "own conversion of synthetic records reads as seconds from GMT; it was not reported before. On the 21"
+                  " iOS images tested (19 held written records of this stream), which include the sample_data keys, it "
+                  "was set on each of the 1,836 written rows, with 7 distinct values, each a whole number of quarter "
+                  "hours within 14 hours of GMT. A Start Date or End Date whose stored value is not a number, is NaN or"
+                  " infinite, or is too large for a date is left empty, and the record keeps its row. The log names the"
+                  " file name and the record offset. The NSDate distantPast and distantFuture values, and a value "
+                  "within two days after distantPast, are also left empty, and the log does not name the file or offset"
+                  " for those. A synthetic test (admin/test/scripts/test_biome_dkevent_bad_dates.py) checks the first "
+                  "case with NaN, infinity and an out-of-range number in Start Date and with NaN in End Date. No record"
+                  " on the 4 corpus images run for this change (hill_iphone15pro_ios26, wilkerson_iphone16_ios26, "
+                  "dexter_ios18, iphone11_ios17) held such a value. A written record with no field 1, 1.1, 2, 4 or 5 is"
+                  " skipped. So is one whose field 1 or 4 is not a message, or whose field 5 or 4.3 is not bytes, and "
+                  "one the protobuf decoder cannot read. The log names the file name and the record offset, and the "
+                  "other records are still reported. A record with no field 3, 4.3 or 10 keeps its row with those "
+                  "columns empty. A synthetic test (admin/test/scripts/test_biome_dkevent_missing_fields.py) checks the"
+                  " skip with fields 1, 2, 4 and 5 removed in turn and with an integer in place of fields 1, 4 and 5. "
+                  "No record on the 4 corpus images run for this change (hill_iphone15pro_ios26, "
+                  "wilkerson_iphone16_ios26, dexter_ios18, iphone11_ios17) was skipped this way. A record whose "
+                  "Identifier or Network Name bytes are not valid UTF-8 keeps its row, and nothing is logged for it. "
+                  "Each byte that does not decode is shown as a backslash, x and two lowercase hex digits, and the "
+                  "bytes that decode are shown as text. A backslash already in the stored text is not changed, so this "
+                  "pattern in a value does not by itself show that the stored bytes were invalid. The same synthetic "
+                  "test checks this with one 0xFF byte after ASCII text in each of the two fields. No Identifier or "
+                  "Network Name on those 4 images contained a backslash, so the escape was not exercised on corpus "
+                  "data."),
         "paths": ('*/Biome/streams/restricted/_DKEvent.Wifi.Connection/local/*'),
         "output_types": "standard",
         "artifact_icon": "wifi",
@@ -119,10 +154,10 @@ def get_biomeWifi(context):
                     timeend = (cocoa_date(protostuff['3'], 'Biome WiFi DKEvent', filename, record.data_start_offset) or None) if '3' in protostuff else None
 
                     event = protostuff['1']['1']
-                    guid = protostuff['5'].decode()
+                    guid = protostuff['5'].decode('utf-8', 'backslashreplace')
                     device = protostuff['4'].get('3','')
                     if device != '':
-                        device = device.decode()
+                        device = device.decode('utf-8', 'backslashreplace')
 
                     tz_offset = protostuff.get('10') if type(protostuff.get('10')) is int else ''
 
