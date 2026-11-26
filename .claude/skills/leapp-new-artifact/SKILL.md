@@ -89,6 +89,13 @@ Get these right, because they are the ones most often wrong:
   after, then identifiers, then descriptive fields.
 - **Never write to evidence.** Use `open_sqlite_db_readonly()`, and
   `attach_sqlite_db_readonly()` if you attach. See the `leapp-evidence-readonly` rule.
+- **Use the helpers that already exist.** `admin/docs/generated/helper_functions_index.md`
+  lists every helper artifact modules import in the repo you are in: the signature, the first
+  line of the docstring and how many modules use it. The documentation workflow rebuilds it
+  after a merge that changes `scripts/`, and the five cores' lists differ, so read the one in
+  the repo you are working in.
+  `admin/docs/helper_functions.md` explains where the cores differ. Look there before writing
+  your own reader, timestamp conversion, path shortener or storage-view collapse.
 - **Prefer a reader to a scan.** When a library that reads the store's format is already
   available, vendored in the core under `scripts/` (the `ccl` readers, `ccl_leveldb`,
   `blackboxprotobuf`) or used by another module, parse the store with it. Do not run a

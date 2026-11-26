@@ -5,7 +5,8 @@ on:
     branches:
       - main
     paths:
-      - 'scripts/artifacts/**'
+      - 'scripts/**'
+      - 'admin/scripts/helper_index.py'
   workflow_dispatch:
 
 permissions:
@@ -30,6 +31,7 @@ jobs:
       run: |
         python admin/scripts/device_info_values.py
         python admin/scripts/module_info.py
+        python admin/scripts/helper_index.py
         python admin/scripts/modules_parsing_sqlite_db.py
 
     - name: Check for changes
