@@ -328,8 +328,8 @@ class SecretsCard(tk.Frame):
 def eye_button(parent, app, entry, side):
     """ A square button of side pixels that shows the text typed in entry, or hides it again. Its
     icon tells which: an eye struck through while the text is hidden, an eye while it shows. """
-    pictures = {hidden: images.load_icon(EYE_ICONS[hidden], EYE_SIZE, app.colors.text_primary)
-                for hidden in EYE_ICONS}
+    pictures = {hidden: images.load_icon(icon, EYE_SIZE, app.colors.text_primary)
+                for hidden, icon in EYE_ICONS.items()}
     button = OutlineButton(parent, app, image=pictures[True], style="in_card", padding=0)
     button.pictures = pictures
     button.configure(width=side, height=side)

@@ -234,10 +234,10 @@ class ScrollArea(tk.Frame):
         self.content.columnconfigure(0, weight=1)
         self.content.place(x=0, y=0, relwidth=1)
 
-        self.bar = ttk.Scrollbar(self, orient="vertical", style="Card.Vertical.TScrollbar",
-                                 command=self.scroll)
-        self.bar.grid(row=0, column=1, sticky="ns")
-        self.bar.grid_remove()
+        self.scrollbar = ttk.Scrollbar(self, orient="vertical", style="Card.Vertical.TScrollbar",
+                                       command=self.scroll)
+        self.scrollbar.grid(row=0, column=1, sticky="ns")
+        self.scrollbar.grid_remove()
 
         self.view.bind("<Configure>", self.view_changed)
         self.content.bind("<Configure>", lambda _event: self.content_changed())
@@ -273,10 +273,10 @@ class ScrollArea(tk.Frame):
         self.offset = max(0, min(self.offset, height - shown))
         self.content.place_configure(y=-self.offset)
         if height > shown:
-            self.bar.grid()
-            self.bar.set(self.offset / height, (self.offset + shown) / height)
+            self.scrollbar.grid()
+            self.scrollbar.set(self.offset / height, (self.offset + shown) / height)
         else:
-            self.bar.grid_remove()
+            self.scrollbar.grid_remove()
 
     def scroll(self, action, value, unit=None):
         """ What the scroll bar asks. """
