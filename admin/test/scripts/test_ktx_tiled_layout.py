@@ -127,6 +127,13 @@ class FlagTests(unittest.TestCase):
             with self.assertRaises(ValueError):
                 _reader(1170, 2532, words).untile_astc_4x4(_tile(1170, 2532))
 
+    def test_flagged_tiled_data_cut_to_the_linear_length_is_refused(self):
+        # 1170x2532 is not whole tiles, so the linear length is shorter than the tiled one.
+        exact = -(-1170 // 4) * -(-2532 // 4)
+        cut = _tile(1170, 2532)[:exact * ASTC_BLOCK_BYTES]
+        with self.assertRaises(ValueError):
+            _reader(1170, 2532).untile_astc_4x4(cut)
+
     def test_linear_length_needs_word_12_clear(self):
         with self.assertRaises(ValueError):
             _reader(1170, 2532, (0,) * 12 + (2,) + (0,) * 8).untile_astc_4x4(_raster(1170, 2532))
