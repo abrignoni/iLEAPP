@@ -249,18 +249,17 @@ class KTX_reader:
         32x32 blocks, Morton (Z) ordered inside each tile with x in the even bits
         and y in the odd bits, on a surface padded to whole tiles, followed by one
         more block. Linear files hold exactly one block per 4x4 pixels in raster
-        order and are returned unchanged. The block count decides. HEAD word 12 is
-        read when the count equals the padded surface. It was 1 in every tiled file
-        and 0 in every linear file observed. It is not documented by Apple.
+        order and are returned unchanged. The block count and HEAD word 12 decide
+        together: word 12 was 1 in every tiled file and 0 in every linear file
+        observed. It is not documented by Apple.
 
         Only those lengths are accepted, each with its HEAD word 12: linear at
         exactly one block per 4x4 pixels with word 12 = 0 (or no word 12), tiled at
         exactly the padded surface plus one block, or exactly the padded surface,
         with word 12 = 1. Every AAPL file measured (10,628 in 24 images, iOS 15 to
         27) had one of the first two with that word 12; the third was not seen in
-        any file. Anything else, such as a cut-short file,
-        raises ValueError, because the decoder would turn it into a full-size
-        picture with no error.
+        any file. Anything else, such as a cut-short file, raises ValueError,
+        because the decoder would turn it into a full-size picture with no error.
 
         When image_scale is 2, the x and y bits are swapped inside each tile (y in
         the even bits). That order was measured on one 2x device on iOS 26.2.1;
