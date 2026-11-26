@@ -39,6 +39,7 @@ from scripts.artifacts.powerlog import powerlogApplicationRuntime, powerlogAppSt
     powerlogDevicePowerState, powerlogDisplayState, powerTelemetryBatteryDataDaily, \
     powerTelemetrySmartCharging
 from scripts.artifacts.safariCache import safariCache
+from scripts.artifacts import findMySearchpartyd
 from scripts.artifacts.storeSystem import storeSystemAppInstalls, storeSystemAppPackages, \
     storeSystemAppUpdates
 from scripts.artifacts.threeBars import threeBarsAccessPoints, threeBarsNetworks, \
@@ -857,6 +858,116 @@ class WireLocalTest(LocalCorpusTestCase):
         for row in rows:
             for column in ('Activation Date', 'Discovery Date', 'Last Active Date'):
                 self.assert_plausible_timestamp(row[column])
+
+
+@unittest.skipUnless(LOCAL_IMAGE, 'set ILEAPP_LOCAL_IMAGE to run local corpus tests')
+class FindMySearchpartydLocalTest(LocalCorpusTestCase):
+    """The searchpartyd records open with the extraction's own keychain, and every one becomes a row.
+
+    The records are encrypted with a key from the keychain, so the check that matters is that no
+    record of a reported type is dropped: a regression in the key lookup shows up as fewer rows
+    than files, without any value from the image being compared.
+    """
+
+    ANCHOR = 'mobile/Library/com.apple.icloud.searchpartyd/'
+    TYPES = ('BeaconEstimatedLocation', 'OwnedBeacons', 'SharedBeacons', 'BeaconNamingRecord',
+             'LeashRecords')
+    KEYCHAIN = 'extra/KeychainDump/backup_keychain_v2.plist'
+    UUID = r'^[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{12}$'
+
+    def setUp(self):
+        super().setUp()
+        self.keychain = self.fetch(self.KEYCHAIN)
+        if not self.keychain:
+            self.skipTest(f'{self.KEYCHAIN} not present in {LOCAL_IMAGE}')
+        self.paths = self.fetch_records()
+        if not self.paths:
+            self.skipTest(f'no searchpartyd records in {LOCAL_IMAGE}')
+        findMySearchpartyd._key_cache.clear()  # pylint: disable=protected-access
+        for patcher in (mock.patch.object(findMySearchpartyd, 'active_keychain_path',
+                                          return_value=str(self.keychain)),
+                        mock.patch.object(findMySearchpartyd, 'logfunc')):
+            patcher.start()
+            self.addCleanup(patcher.stop)
+
+    def fetch_records(self):
+        """Copy the record files out of the image, keeping the folder below the store."""
+        found = []
+        source = Path(LOCAL_IMAGE)
+
+        def wanted(name):
+            name = name.replace(os.sep, '/')
+            if self.ANCHOR not in name or not name.endswith('.record'):
+                return None
+            tail = name[name.rindex(self.ANCHOR):]
+            if '..' in tail.split('/'):
+                return None
+            return tail if tail[len(self.ANCHOR):].split('/')[0] in self.TYPES else None
+
+        def copy(tail, reader):
+            root = Path(self.temp_dir.name).resolve()
+            destination = (root / tail).resolve()
+            if root not in destination.parents:
+                return
+            destination.parent.mkdir(parents=True, exist_ok=True)
+            with reader() as member, open(destination, 'wb') as out:
+                shutil.copyfileobj(member, out)
+            found.append(str(destination))
+
+        if source.is_dir():
+            for candidate in source.rglob('*.record'):
+                tail = wanted(str(candidate))
+                if tail and candidate.is_file():
+                    copy(tail, lambda c=candidate: open(c, 'rb'))
+        else:
+            with zipfile.ZipFile(source) as archive:
+                for name in archive.namelist():
+                    tail = wanted(name)
+                    if tail:
+                        copy(tail, lambda n=name: archive.open(n))
+        return found
+
+    def count(self, record_type):
+        return sum(f'/{record_type}/' in path.replace(os.sep, '/') for path in self.paths)
+
+    def run_artifact(self, func):
+        context = mock.Mock()
+        context.get_files_found.return_value = list(self.paths)
+        headers, rows, _ = func.__wrapped__(context)
+        self.assert_row_shape(headers, rows)
+        names = [header[0] if isinstance(header, tuple) else header for header in headers]
+        return [dict(zip(names, row)) for row in rows]
+
+    def test_every_record_becomes_a_row(self):
+        for func, record_type in ((findMySearchpartyd.findMyBeaconEstimatedLocations,
+                                   'BeaconEstimatedLocation'),
+                                  (findMySearchpartyd.findMyOwnedBeacons, 'OwnedBeacons'),
+                                  (findMySearchpartyd.findMySharedBeacons, 'SharedBeacons')):
+            rows = self.run_artifact(func)
+            self.assertEqual(len(rows), self.count(record_type),
+                             f'{record_type}: fewer rows than record files')
+
+    def test_estimated_location_structure(self):
+        for row in self.run_artifact(findMySearchpartyd.findMyBeaconEstimatedLocations):
+            self.assert_plausible_timestamp(row['Timestamp'])
+            self.assert_plausible_timestamp(row['Scan Date'])
+            self.assertTrue(isinstance(row['Latitude'], float), 'Latitude is not a float')
+            self.assertTrue(isinstance(row['Longitude'], float), 'Longitude is not a float')
+            self.assertTrue(-90 <= row['Latitude'] <= 90 and -180 <= row['Longitude'] <= 180,
+                            'coordinate out of range')
+            self.assertIn(row['Beacon Record'], ('OwnedBeacons', 'SharedBeacons', ''))
+            self.assert_matches(row['Beacon Identifier'], self.UUID, 'Beacon Identifier')
+
+    def test_owned_and_shared_structure(self):
+        for row in self.run_artifact(findMySearchpartyd.findMyOwnedBeacons):
+            self.assert_plausible_timestamp(row['Pairing Date'])
+            self.assert_plausible_timestamp(row['Latest Estimated Location Timestamp'])
+            self.assert_matches(row['Identifier'], self.UUID, 'Identifier')
+            self.assertTrue(isinstance(row['Estimated Location Records'], int),
+                            'Estimated Location Records is not an integer')
+        for row in self.run_artifact(findMySearchpartyd.findMySharedBeacons):
+            self.assert_plausible_timestamp(row['Share Date'])
+            self.assert_matches(row['Identifier'], self.UUID, 'Identifier')
 
 
 if __name__ == '__main__':
