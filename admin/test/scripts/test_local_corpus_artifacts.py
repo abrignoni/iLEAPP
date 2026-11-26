@@ -873,7 +873,7 @@ class FindMySearchpartydLocalTest(LocalCorpusTestCase):
     ANCHOR = 'mobile/Library/com.apple.icloud.searchpartyd/'
     TYPES = ('BeaconEstimatedLocation', 'OwnedBeacons', 'SharedBeacons', 'BeaconNamingRecord',
              'LeashRecords', 'WildModeAssociationRecord')
-    STORES = ('Observations.db', 'Observations.db-wal')
+    STORES = ('Observations.db', 'Observations.db-wal', 'ItemSharingKeys.db', 'ItemSharingKeys.db-wal')
     KEYCHAIN = 'extra/KeychainDump/backup_keychain_v2.plist'
     UUID = r'^[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{12}$'
 
@@ -992,6 +992,23 @@ class FindMySearchpartydLocalTest(LocalCorpusTestCase):
                             'coordinate out of range')
 
 
+    def test_shared_beacon_names(self):
+        """Every shared beacon with a BeaconAttributes row in ItemSharingKeys.db gets a Name."""
+        if not any(path.replace(os.sep, '/').endswith('/ItemSharingKeys.db') for path in self.paths):
+            self.skipTest(f'no searchpartyd ItemSharingKeys.db in {LOCAL_IMAGE}')
+        rows = self.run_artifact(findMySearchpartyd.findMySharedBeacons)
+        attributed = set()
+        for copy in Path(self.temp_dir.name, 'report').rglob('ItemSharingKeys.db'):
+            connection = sqlite3.connect(f'file:{copy}?mode=ro', uri=True)
+            try:
+                attributed |= {row[0].upper() for row in connection.execute(
+                    "SELECT beaconIdentifier FROM BeaconAttributes WHERE name != ''")}
+            finally:
+                connection.close()
+        expected = sum(row['Identifier'].upper() in attributed for row in rows)
+        named = sum(bool(row['Name']) for row in rows)
+        self.assertTrue(named == expected, f'{named} named shared beacon rows, {expected} expected')
+
     def test_observed_advertisements(self):
         """Observations.db opens with the extraction's keychain, every advertisement of the current
         state becomes a Live row, and no Recovered row repeats one."""
@@ -1010,8 +1027,10 @@ class FindMySearchpartydLocalTest(LocalCorpusTestCase):
                 connection.close()
         live = [row['Advertisement ID'] for row in rows if row['Record Origin'] == 'Live']
         recovered = [row['Advertisement ID'] for row in rows if row['Record Origin'] == 'Recovered']
-        self.assertEqual(sorted(live), sorted(current), 'Live rows differ from the current state')
-        self.assertFalse(set(recovered) & set(live), 'a Recovered row repeats a Live one')
+        # Compared without assertEqual, so a failure prints counts and no advId from the image.
+        self.assertTrue(sorted(live) == sorted(current),
+                        f'Live rows differ from the current state ({len(live)} rows, {len(current)} advertisements)')
+        self.assertFalse(bool(set(recovered) & set(live)), 'a Recovered row repeats a Live one')
         self.assertEqual(len(recovered), len(set(recovered)), 'a Recovered row is repeated')
         for row in rows:
             self.assert_plausible_timestamp(row['Scan Date'])
