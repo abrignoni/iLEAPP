@@ -225,6 +225,23 @@ class KTX_reader:
                              f'a {self.pixelWidth}x{self.pixelHeight} image needs')
         return data
 
+    def to_image(self, data):
+        '''Decode ASTC 4x4 data to an RGBA image of the texture's size.
+
+        The decoder is given the size padded to whole 4x4 blocks and the result is
+        cropped. Measured with astc_decomp_faster 1.1.5 and Pillow 12.3.0 on
+        solid-colour blocks: given a width that is not a multiple of 4, the pixels
+        of each pixel row's last block land in the first columns of the next pixel
+        row, so a direct decode at the true size can have wrong pixels in its first
+        (4 - width mod 4) columns.
+        '''
+        width = -(-self.pixelWidth // 4) * 4
+        height = -(-self.pixelHeight // 4) * 4
+        image = Image.frombytes('RGBA', (width, height), data, 'astc', (4, 4, False))
+        if (width, height) == (self.pixelWidth, self.pixelHeight):
+            return image
+        return image.crop((0, 0, self.pixelWidth, self.pixelHeight))
+
     def untile_astc_4x4(self, data):
         '''Return ASTC 4x4 blocks in the raster order the decoder expects.
 
@@ -309,7 +326,7 @@ class KTX_reader:
         '''
         if self.validate_header(f):
             data = self.get_uncompressed_texture_data(f)
-            dec_img = Image.frombytes('RGBA', (self.pixelWidth, self.pixelHeight), data, 'astc', (4, 4, False))
+            dec_img = self.to_image(data)
             dec_img.save(save_to_path, "PNG")
             return True
         return False

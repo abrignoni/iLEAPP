@@ -32,7 +32,7 @@ __artifacts_v2__ = {
                        "recorded when a contact card or location was shared",
         "author": "@charpy4n6, Claude",
         "creation_date": "2026-09-09",
-        "last_update_date": "2026-09-10",
+        "last_update_date": "2026-11-25",
         "requirements": "astc_decomp_faster, liblzfse",
         "category": "Messaging",
         "notes": "Reads the .ktx, .jpeg and .png files Messages caches under "
@@ -180,8 +180,7 @@ def _decode_ktx(file_found, container):
         return None, '', '', '', reader.error_message or 'KTX header not valid'
 
     data = reader.get_uncompressed_texture_data(handle)
-    image = Image.frombytes('RGBA', (reader.pixelWidth, reader.pixelHeight),
-                            data, 'astc', (4, 4, False))
+    image = reader.to_image(data)
     return image, reader.pixelWidth, reader.pixelHeight, reader.numberOfMipmapLevels, ''
 
 
