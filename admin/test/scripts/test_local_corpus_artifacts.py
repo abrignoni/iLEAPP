@@ -900,10 +900,15 @@ class FindMySearchpartydLocalTest(LocalCorpusTestCase):
             if self.ANCHOR not in name or not name.endswith('.record'):
                 return None
             tail = name[name.rindex(self.ANCHOR):]
+            if '..' in tail.split('/'):
+                return None
             return tail if tail[len(self.ANCHOR):].split('/')[0] in self.TYPES else None
 
         def copy(tail, reader):
-            destination = Path(self.temp_dir.name) / tail
+            root = Path(self.temp_dir.name).resolve()
+            destination = (root / tail).resolve()
+            if root not in destination.parents:
+                return
             destination.parent.mkdir(parents=True, exist_ok=True)
             with reader() as member, open(destination, 'wb') as out:
                 shutil.copyfileobj(member, out)
@@ -946,8 +951,8 @@ class FindMySearchpartydLocalTest(LocalCorpusTestCase):
         for row in self.run_artifact(findMySearchpartyd.findMyBeaconEstimatedLocations):
             self.assert_plausible_timestamp(row['Timestamp'])
             self.assert_plausible_timestamp(row['Scan Date'])
-            self.assertIsInstance(row['Latitude'], float)
-            self.assertIsInstance(row['Longitude'], float)
+            self.assertTrue(isinstance(row['Latitude'], float), 'Latitude is not a float')
+            self.assertTrue(isinstance(row['Longitude'], float), 'Longitude is not a float')
             self.assertTrue(-90 <= row['Latitude'] <= 90 and -180 <= row['Longitude'] <= 180,
                             'coordinate out of range')
             self.assertIn(row['Beacon Record'], ('OwnedBeacons', 'SharedBeacons', ''))
@@ -958,7 +963,8 @@ class FindMySearchpartydLocalTest(LocalCorpusTestCase):
             self.assert_plausible_timestamp(row['Pairing Date'])
             self.assert_plausible_timestamp(row['Latest Estimated Location Timestamp'])
             self.assert_matches(row['Identifier'], self.UUID, 'Identifier')
-            self.assertIsInstance(row['Estimated Location Records'], int)
+            self.assertTrue(isinstance(row['Estimated Location Records'], int),
+                            'Estimated Location Records is not an integer')
         for row in self.run_artifact(findMySearchpartyd.findMySharedBeacons):
             self.assert_plausible_timestamp(row['Share Date'])
             self.assert_matches(row['Identifier'], self.UUID, 'Identifier')
