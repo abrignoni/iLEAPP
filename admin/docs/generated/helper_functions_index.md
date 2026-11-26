@@ -21,7 +21,7 @@ for the rest. `admin/docs/helper_functions.md` explains where the five cores' he
 | ---: | --- | --- | --- |
 | 560 | `artifact_processor` | `artifact_processor(func)` | (no docstring) |
 | 393 | `logfunc` | `logfunc(message='')` | (no docstring) |
-| 232 | `get_sqlite_db_records` | `get_sqlite_db_records(path, query, attach_query=None)` | Run a query and return its rows as a SqliteRecords, or [] when it fails. |
+| 233 | `get_sqlite_db_records` | `get_sqlite_db_records(path, query, attach_query=None)` | Run a query and return its rows as a SqliteRecords, or [] when it fails. |
 | 126 | `get_file_path` | `get_file_path(files_found, filename, skip=False)` | Returns the path of the searched filename if exists or returns None |
 | 95 | `does_table_exist_in_db` | `does_table_exist_in_db(path, table_name)` | Checks if a table with specified name exists in an sqlite db |
 | 94 | `convert_cocoa_core_data_ts_to_utc` | `convert_cocoa_core_data_ts_to_utc(cocoa_core_data_ts)` | (no docstring) |
@@ -156,6 +156,23 @@ for the rest. `admin/docs/helper_functions.md` explains where the five cores' he
 | 0 | class `VFS` | | (no docstring) |
 | 0 | class `VFSNode` | | (no docstring) |
 
+## `scripts.sqlite_wal`
+
+`scripts/sqlite_wal.py`
+
+| Used by | Name | Signature | First docstring line |
+| ---: | --- | --- | --- |
+| 6 | `rows_not_in_current` | `rows_not_in_current(db_path, query, params=(), key_columns=None, max_states=DEFAULT_MAX_STATES, include=(KIND_COMMITTED,))` | Rows the query returns in another state but not in the current one. |
+| 2 | class `WalStates` | `WalStates(db_path, max_states=DEFAULT_MAX_STATES, include=(KIND_COMMITTED,))` | Open each readable state of a WAL-mode database read-only. |
+| | `WalStates.summary` | `summary(self)` | One line describing what was read and what was not, for the log. |
+| | `WalStates.close` | `close(self)` | (no docstring) |
+| | `WalStates.states` | `states(self)` | Yield a State for each readable state, current first, as the class says. |
+| 0 | class `EarlierRow` | `EarlierRow(values, status, first_state, last_state, first_frame, last_frame, earlier_generation=None, uncommitted=False)` | A row read from another state that the current state does not hold. |
+| 0 | class `EarlierRun` | `EarlierRun()` | The contiguous frames the previous log generation left after the current one. |
+| 0 | class `WalLog` | `WalLog(wal_path, fallback_page_size=0)` | The frame layout of one write-ahead log, as SQLite would validate it. |
+| | `WalLog.image` | `image(self, offset)` | (no docstring) |
+| | `WalLog.frame_header` | `frame_header(self, index)` | (no docstring) |
+
 ## `scripts.context`
 
 `scripts/context.py`
@@ -196,23 +213,6 @@ for the rest. `admin/docs/helper_functions.md` explains where the five cores' he
 | | `Context.get_apple_os_version` | `get_apple_os_version(build, device_family='')` | Returns the Apple operating system version corresponding to a given |
 | | `Context.get_installed_os_version` | `get_installed_os_version()` | Retrieves the OS version of the installed device. |
 | | `Context.clear` | `clear()` | Resets all context-related class variables to None, effectively |
-
-## `scripts.sqlite_wal`
-
-`scripts/sqlite_wal.py`
-
-| Used by | Name | Signature | First docstring line |
-| ---: | --- | --- | --- |
-| 5 | `rows_not_in_current` | `rows_not_in_current(db_path, query, params=(), key_columns=None, max_states=DEFAULT_MAX_STATES, include=(KIND_COMMITTED,))` | Rows the query returns in another state but not in the current one. |
-| 2 | class `WalStates` | `WalStates(db_path, max_states=DEFAULT_MAX_STATES, include=(KIND_COMMITTED,))` | Open each readable state of a WAL-mode database read-only. |
-| | `WalStates.summary` | `summary(self)` | One line describing what was read and what was not, for the log. |
-| | `WalStates.close` | `close(self)` | (no docstring) |
-| | `WalStates.states` | `states(self)` | Yield a State for each readable state, current first, as the class says. |
-| 0 | class `EarlierRow` | `EarlierRow(values, status, first_state, last_state, first_frame, last_frame, earlier_generation=None, uncommitted=False)` | A row read from another state that the current state does not hold. |
-| 0 | class `EarlierRun` | `EarlierRun()` | The contiguous frames the previous log generation left after the current one. |
-| 0 | class `WalLog` | `WalLog(wal_path, fallback_page_size=0)` | The frame layout of one write-ahead log, as SQLite would validate it. |
-| | `WalLog.image` | `image(self, offset)` | (no docstring) |
-| | `WalLog.frame_header` | `frame_header(self, index)` | (no docstring) |
 
 ## `scripts.sms_deep`
 
