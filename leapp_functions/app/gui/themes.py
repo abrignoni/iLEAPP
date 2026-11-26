@@ -7,6 +7,7 @@ for each LEAPP, so that this module can stay the same in all of them.
 import re
 import sys
 import tkinter as tk
+from tkinter import font as tkfont
 
 from PIL import ImageTk
 
@@ -19,6 +20,7 @@ CHECK_BOX_GAP = 8
 CHECK_BOX_PICTURES = {}
 RADIO_PICTURES = {}
 LIST_ROW = 22
+LIST_ROW_PADDING = 6  # above and below the text of a list row, together
 ROLES = frozenset((
     "action",  # Buttons (outline, filled, chosen), the border of an accent card, the progress bar
     "border",  # A card's border, an input's border with the focus, the line above the status bar
@@ -152,12 +154,25 @@ def apply_styles(style, colors):
                     thickness=8)
 
 
+def list_row_height(linespace, platform=sys.platform):
+    """ The height of a list row, in pixels, for a font whose lines are linespace pixels high.
+    On Linux, Xft draws fonts at Xft.dpi (192 for a GNOME scale of 200 %) while Tk lays out
+    pixels at 96 dpi, so a font given in pixels comes out twice as high as its row and the
+    rows overlap: the row grows with the font there. Windows and macOS scale the whole window
+    alike, and keep LIST_ROW. """
+    if not platform.startswith("linux"):
+        return LIST_ROW
+    return max(LIST_ROW, linespace + LIST_ROW_PADDING)
+
+
 def style_lists(style, colors):
     """ A list in a card, and its scroll bar. """
+    font = sans(13)
+    linespace = tkfont.Font(root=style.master, font=font).metrics("linespace")
     style.layout("Card.Treeview", [("Treeview.treearea", {"sticky": "nswe"})])
     style.configure("Card.Treeview", background=colors.card_bg, fieldbackground=colors.card_bg,
-                    foreground=colors.text_primary, font=sans(13), rowheight=LIST_ROW,
-                    borderwidth=0)
+                    foreground=colors.text_primary, font=font,
+                    rowheight=list_row_height(linespace), borderwidth=0)
     style.map("Card.Treeview", background=[("selected", colors.line)],
               foreground=[("selected", colors.text_primary)])
     style.layout("Card.Treeview.Item", [("Treeitem.padding", {"sticky": "nswe", "children": [
