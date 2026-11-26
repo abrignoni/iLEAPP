@@ -1013,16 +1013,14 @@ class FindMySearchpartydLocalTest(LocalCorpusTestCase):
         self.assertTrue(named == expected, f'{named} named shared beacon rows, {expected} expected')
 
     def test_daily_addresses(self):
-        """Daily addresses have the advertised address shape, and every one marked recorded is an address
-        this phone stored for that beacon."""
+        """Daily addresses have the advertised address shape, and each MAC Address is the start of its
+        advertisement key."""
         rows = self.run_artifact(findMySearchpartyd.findMyBeaconDailyAddresses)
         for row in rows:
             self.assert_matches(row['MAC Address'], r'^[c-f][0-9a-f](:[0-9a-f]{2}){5}$', 'MAC Address')
             self.assert_matches(row['Advertisement Key (hex)'], r'^[0-9a-f]{56}$', 'Advertisement Key (hex)')
             self.assertTrue(row['Advertisement Key (hex)'][2:12] == row['MAC Address'].replace(':', '')[2:],
                             'MAC Address is not the start of the advertisement key')
-        recorded = sum(bool(row['Recorded First']) for row in rows)
-        self.assertTrue(recorded <= len(rows), f'{recorded} recorded of {len(rows)} rows')
 
     def test_observed_advertisements(self):
         """Observations.db opens with the extraction's keychain, every advertisement of the current

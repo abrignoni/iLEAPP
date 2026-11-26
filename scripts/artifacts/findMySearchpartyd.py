@@ -263,7 +263,7 @@ __artifacts_v2__ = {
     "findMyBeaconDailyAddresses": {
         "name": "Find My Beacon Daily Addresses",
         "description": "The daily MAC addresses and advertisement keys derived from the encrypted OwnedBeacons "
-                       "records of searchpartyd, with the times this phone recorded each one",
+                       "records of searchpartyd, with the times this phone stored that address, where it did",
         "author": "@AlexisBrignoni, Claude",
         "creation_date": "2026-11-26",
         "last_update_date": "2026-11-26",
@@ -273,7 +273,7 @@ __artifacts_v2__ = {
                  "a secondarySharedSecret, decrypted as described in Find My Beacon Estimated Locations. The "
                  "derivation is the separated-state key chain of Apple's Find My Network Accessory Specification "
                  "(sections 6.3.4 and 5.1.3) as summarized in joshuahickman1/Lost_Apples "
-                 "(https://github.com/joshuahickman1/Lost_Apples/blob/9ec8597a4164bd63fa757fe2463597a393934e03/src/key_schedule_generator.py#L19-L27): "
+                 "(https://github.com/joshuahickman1/Lost_Apples/blob/9ec8597a4164bd63fa757fe2463597a393934e03/src/key_schedule_generator.py#L1-L36): "
                  "each key's secret is the ANSI X9.63 KDF (SHA-256) of the one before it with \"update\", the KDF of "
                  "that with \"diversify\" gives two P-224 scalars u and v, and the key is the point u*P + v*G, computed "
                  "here as (d*u + v)*G from the record's private scalar d. Before any key is derived, the private "
@@ -281,26 +281,35 @@ __artifacts_v2__ = {
                  "is logged and gives no rows. Advertisement Key (hex) is the key's 28 byte x coordinate, and MAC "
                  "Address is its first 6 bytes with the top two bits of the first byte set. Both are derived values: "
                  "the record's private key and shared secrets are not reported. The derivation was checked against the "
-                 "advertisements the same phone stored for its own beacons in Observations.db: on dexter_ios18, 3 of "
-                 "the beacon's stored addresses equal a derived daily MAC Address exactly and their 28 byte "
-                 "advertisementData equals the derived Advertisement Key exactly. On dexter_ios18, all 59 distinct "
-                 "addresses the phone stored for its 2 beacons equaled a derived address of that beacon, 56 of them "
-                 "from the 15 minute key chain this artifact does not list. Key Index counts days from the record's "
-                 "secret. Estimated Date (UTC) is the pairing date plus Key Index days, in UTC; it is an estimate, "
-                 "since Lost_Apples notes the secret can be replaced after pairing, and the specification starts each "
-                 "key at 4 AM local time, which this artifact does not apply. Recorded First and Recorded Last are the "
-                 "earliest and latest scanDate (UTC) at which this phone stored that MAC Address for the same beacon "
-                 "in the current state of Observations.db, empty where it did not; a recorded row gives the key's real "
-                 "time. Rows run from Key Index 1 to the number of whole days from pairing to the latest time the "
-                 "store holds (the latest scanDate or BeaconEstimatedLocation timestamp), plus 2. The list is for "
-                 "searching other data, such as another phone's Find My Observed Advertisements or Find My Unwanted "
-                 "Tracker Alerts, or a Bluetooth detector export, for the MAC Address or Advertisement Key; matching "
-                 "is left to the examiner, and a match or no match alone does not establish that the beacon was there. "
-                 "The 15 minute keys a beacon uses near its owner are not listed, and neither are keys for beacons "
-                 "with no secondarySharedSecret (31 of the 37 OwnedBeacons records on the nine images, counted in the "
-                 "log); Lost_Apples derives both. Over the nine images, 6 records gave 1,203 rows: abe_ios16 23, "
-                 "adams_iphone12mini 39 (2 beacons), dexter_ios18 217 (3 recorded) and iphone11_ios17 924 (2 beacons). "
-                 "Beacon Name is the BeaconNamingRecord name, present on every row.",
+                 "advertisements the same phone stored for its own beacons in Observations.db: on dexter_ios18, 3 "
+                 "stored addresses of its one beacon with a secondarySharedSecret (7 advertisements) equal a derived "
+                 "daily MAC Address exactly, and their 28 byte advertisementData equals the derived Advertisement Key "
+                 "exactly. On dexter_ios18, the 59 distinct addresses stored for 2 of its 4 owned beacons, over every "
+                 "readable state of the log (58 in the current state), each equaled a derived address of that beacon: "
+                 "3 from the daily chain and 56 from the 15 minute chain, which this artifact does not list. Key Index "
+                 "is the number of update steps from the record's secondarySharedSecret, one per day in the chain. "
+                 "Estimated Date (UTC) is the pairing date plus Key Index days, in UTC; it is an estimate. Lost_Apples "
+                 "notes that the secret can be replaced after pairing, and describes each key as starting at 4 AM "
+                 "local time, which this artifact does not apply. On the 3 recorded rows of dexter_ios18, the recorded "
+                 "date was 2 days before Estimated Date. Recorded First and Recorded Last are the earliest and latest "
+                 "scanDate at which this phone stored that MAC Address for the same beacon in the current state of "
+                 "Observations.db, a time stored with no zone and read as UTC (see Find My Observed Advertisements); "
+                 "they are empty where it did not, or where the store could not be read. A recorded row shows a time "
+                 "at which this phone stored that address; it does not give the start or end of the key's use. Rows "
+                 "run from Key Index 1 to the number of whole days from pairing to the latest time read from the "
+                 "store, plus 7. That time is the latest scanDate of an advertisement that names a beacon, or the "
+                 "latest BeaconEstimatedLocation timestamp of any beacon in the folder; with no such time, or one "
+                 "before pairing, 7 rows are given. The margin is there because recorded keys ran ahead of Estimated "
+                 "Date; a key in use after the last row is still possible. The list is for searching other data, such "
+                 "as another phone's Find My Observed Advertisements or Find My Unwanted Tracker Alerts, or a "
+                 "Bluetooth detector export, for the MAC Address or Advertisement Key; matching is left to the "
+                 "examiner, and a match or no match alone does not establish that the beacon was there. The 15 minute "
+                 "keys, which Lost_Apples describes as used near the owner device (lines 629 to 637), are not listed, "
+                 "and beacons with no secondarySharedSecret get no rows (31 of the 37 OwnedBeacons records on the nine "
+                 "images, counted in the log). Lost_Apples also derives the 15 minute keys, from sharedSecret. Over "
+                 "the nine images, 6 records gave 1,233 rows: abe_ios16 28, adams_iphone12mini 49 (2 beacons), "
+                 "dexter_ios18 222 (3 recorded) and iphone11_ios17 934 (2 beacons). Beacon Name is the "
+                 "BeaconNamingRecord name, present on all of the rows.",
         "paths": (
             '*/mobile/Library/com.apple.icloud.searchpartyd/OwnedBeacons/*.record',
             '*/mobile/Library/com.apple.icloud.searchpartyd/BeaconNamingRecord/*.record',
@@ -310,13 +319,13 @@ __artifacts_v2__ = {
         "output_types": "standard",
         "artifact_icon": "radio",
         "sample_data": {
-            "abe_ios16": "iOS 16.5 | 23 rows",
+            "abe_ios16": "iOS 16.5 | 28 rows",
             "felix23_ios16": "iOS 16.5 | 0 rows",
-            "adams_iphone12mini": "iOS 17.1.1 | 39 rows",
-            "iphone11_ios17": "iOS 17.3 | 924 rows",
+            "adams_iphone12mini": "iOS 17.1.1 | 49 rows",
+            "iphone11_ios17": "iOS 17.3 | 934 rows",
             "otto_ios17": "iOS 17.5.1 | 0 rows",
             "felix_ios17": "iOS 17.6.1 | 0 rows",
-            "dexter_ios18": "iOS 18.3.2 | 217 rows",
+            "dexter_ios18": "iOS 18.3.2 | 222 rows",
             "hill_iphone15pro_ios26": "iOS 26.3.1 | 0 rows",
             "wilkerson_iphone16_ios26": "iOS 26.5.2 | 0 rows",
         },
@@ -1340,7 +1349,7 @@ def findMyObservedAdvertisementDays(context):
 
 # Daily advertisement keys of an owned beacon. Apple's Find My Network Accessory Specification
 # (sections 6.3.4 and 5.1.3) derives them from the beacon's secondary shared secret, as summarized in
-# joshuahickman1/Lost_Apples (src/key_schedule_generator.py lines 19 to 27 at 9ec8597a): each day's
+# joshuahickman1/Lost_Apples (src/key_schedule_generator.py lines 1 to 36 at 9ec8597a): each day's
 # secret is the ANSI X9.63 KDF (SHA-256) of the day before's with "update"; the KDF of that with
 # "diversify" gives two 36 byte values u and v, each reduced to a P-224 scalar; the day's key is the
 # point u*P + v*G, which equals (d*u + v)*G for the beacon's private scalar d. The 28 byte
@@ -1349,7 +1358,7 @@ def findMyObservedAdvertisementDays(context):
 P224_ORDER = 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFF16A2E0B8F03E13DD29455C5C2A3D
 PRIVATE_KEY_LENGTH = 85  # 0x04, x (28 bytes), y (28 bytes), d (28 bytes)
 PUBLIC_KEY_LENGTH = 57   # 0x04, x, y
-DAY_MARGIN = 2
+DAY_MARGIN = 7  # recorded keys ran up to 3 days ahead of the pairing-based estimate
 
 
 def _x963_kdf(secret, info, length):
@@ -1394,7 +1403,7 @@ def _private_scalar(record):
 
 def _recorded_macs(context, files_found):
     """(first, last) scanDate of each (beacon, MAC address) in the current state of each store's
-    Observations.db, keyed by store folder, and the latest scanDate in each store."""
+    Observations.db, keyed by store folder, and the latest scanDate among them in each store."""
     found, latest = {}, {}
     for db_path in sorted(path for path in files_found
                           if os.path.basename(path) == 'Observations.db' and _store_root(path) is not None):
@@ -1421,7 +1430,8 @@ def _recorded_macs(context, files_found):
 @artifact_processor
 def findMyBeaconDailyAddresses(context):
     data_headers = ('Estimated Date (UTC)', ('Recorded First', 'datetime'), ('Recorded Last', 'datetime'),
-                    'Beacon Name', 'Beacon Identifier', 'Key Index', 'MAC Address', 'Advertisement Key (hex)')
+                    'Beacon Name', 'Beacon Identifier', ('Key Index', 'number'), 'MAC Address',
+                    'Advertisement Key (hex)')
     data_list = []
     sources = []
     files_found = [str(path) for path in context.get_files_found()]

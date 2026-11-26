@@ -1,8 +1,8 @@
 """Daily Find My addresses derived from an OwnedBeacons record, on synthetic records and stores.
 
-The oracle derives each key the other way the specification allows, u*P + v*G from the public key
-alone, with plain P-224 arithmetic written here, while the module computes (d*u + v)*G from the
-private scalar. The two agree only if both follow the same chain.
+The oracle derives each key in the form Lost_Apples gives, u*P + v*G from the public key alone, with
+plain P-224 arithmetic written here, while the module computes (d*u + v)*G from the private scalar.
+The two agree only if both follow the same chain.
 """
 # pylint: disable=no-member,protected-access
 import hashlib
@@ -135,11 +135,12 @@ class DailyAddresses(unittest.TestCase):
         self.observations(mac_of(expected[2]), '2026-01-04T10:00:00.000')
         _headers, rows, _sources = self.run_artifact()
         # Observations reach 2026-01-04 10:00, 2 days and 22 hours after pairing: 2 whole days plus the margin.
-        self.assertEqual([row[5] for row in rows], [1, 2, 3, 4])
-        self.assertEqual([row[7] for row in rows], [key.hex() for key in expected[:4]])
-        self.assertEqual([row[6] for row in rows], [mac_of(key).hex(':') for key in expected[:4]])
+        days = 2 + spd.DAY_MARGIN
+        self.assertEqual([row[5] for row in rows], list(range(1, days + 1)))
+        self.assertEqual([row[7] for row in rows], [key.hex() for key in oracle_keys(self.public, SECONDARY, days)])
+        self.assertEqual([row[6] for row in rows], [mac_of(key).hex(':') for key in oracle_keys(self.public, SECONDARY, days)])
         self.assertEqual(rows[2][1].isoformat(), '2026-01-04T10:00:00+00:00')
-        self.assertEqual([bool(row[1]) for row in rows], [False, False, True, False])
+        self.assertEqual([index for index, row in enumerate(rows, 1) if row[1]], [3])
         self.assertEqual(rows[0][0], (PAIRED + timedelta(days=1)).date().isoformat())
 
     def test_no_secondary_secret_gives_no_rows(self):
