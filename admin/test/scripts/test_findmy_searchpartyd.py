@@ -66,7 +66,7 @@ class ReadRecord(Base):
         path = self.write('a', 'OwnedBeacons/x.record', record_bytes({'identifier': BEACON}))
         with self.keys([KEY], group='com.example.app'):
             self.assertIsNone(spd.read_searchpartyd_record(path))
-        self.assertIn('holds no BeaconStore key', self.log.call_args[0][0])
+        self.assertIn('no readable BeaconStore key', self.log.call_args[0][0])
 
     def test_second_candidate_key_is_tried(self):
         path = self.write('a', 'OwnedBeacons/x.record', record_bytes({'identifier': BEACON}))
@@ -77,7 +77,7 @@ class ReadRecord(Base):
         path = self.write('a', 'OwnedBeacons/x.record', record_bytes({'identifier': BEACON}))
         with self.keys([KEY + b'x']):
             self.assertIsNone(spd.read_searchpartyd_record(path))
-        self.assertIn('holds no BeaconStore key', self.log.call_args[0][0])
+        self.assertIn('no readable BeaconStore key', self.log.call_args[0][0])
 
     def test_wrong_key_gives_nothing_and_logs(self):
         path = self.write('a', 'OwnedBeacons/x.record', record_bytes({'identifier': BEACON}))

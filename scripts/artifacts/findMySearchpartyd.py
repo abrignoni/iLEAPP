@@ -13,15 +13,17 @@ __artifacts_v2__ = {
                  "with the BeaconStore / BeaconStoreKey keychain item from the keychain carried by the extraction or "
                  "supplied with --keychain, and read only when the GCM tag verifies. The item's access group was "
                  "com.apple.icloud.searchpartyd on dexter_ios18, hill_iphone15pro_ios26 and wilkerson_iphone16_ios26 "
-                 "and searchpartyd-baa-fmna-group on the iOS 16 and 17 images run. The key was the item's data on "
-                 "dexter_ios18, felix_ios17, otto_ios17, hill_iphone15pro_ios26 and wilkerson_iphone16_ios26, and its "
-                 "gena attribute on abe_ios16, felix23_ios16, adams_iphone12mini and iphone11_ios17, where the item "
-                 "holds no data. The layout was published in denysvitali/searchparty-keys and "
-                 "joshuahickman1/Lost_Apples. Without a usable key a record is logged and gives no row, which is not "
-                 "evidence that nothing was recorded: records were present and not read on cookbook_ios1751, "
-                 "hexordia_ios1651, iphone12_ios18, iphone14plus_ios18, iphone14plus_ios18_mvs2025 and jess_ios15, "
-                 "where iLEAPP finds no keychain in the extraction, and on falken_ios26, fsfull002_ios17 and hc_ios17_2, whose keychain-"
-                 "backup.plist holds no BeaconStore item. Records are joined only within one searchpartyd folder. "
+                 "and searchpartyd-baa-fmna-group on abe_ios16, felix23_ios16, adams_iphone12mini, iphone11_ios17, "
+                 "felix_ios17 and otto_ios17. The key was the item's data on dexter_ios18, felix_ios17, otto_ios17, "
+                 "hill_iphone15pro_ios26 and wilkerson_iphone16_ios26, and its gena attribute on abe_ios16, "
+                 "felix23_ios16, adams_iphone12mini and iphone11_ios17, where the item holds no data. The layout was "
+                 "published in denysvitali/searchparty-keys and joshuahickman1/Lost_Apples. Without a usable key a "
+                 "record is logged and gives no row, which is not evidence that nothing was recorded: records were "
+                 "present and not read on cookbook_ios1751, hexordia_ios1651, iphone12_ios18, iphone14plus_ios18, "
+                 "iphone14plus_ios18_mvs2025 and jess_ios15, where iLEAPP finds no keychain in the extraction, and on "
+                 "falken_ios26, fsfull002_ios17 and hc_ios17_2, whose keychain-backup.plist entries hold only "
+                 "encrypted data and a persistent reference. They carry no service, account or access group, so no "
+                 "BeaconStore item could be identified. Records are joined only within one searchpartyd folder. "
                  "Timestamp and Scan Date are the record's timestamp and scanDate dates, in UTC; what each marks is "
                  "not established. Over the 190 rows of the nine images read they were equal on 145, Timestamp was "
                  "earlier on 30, and Scan Date held the text $null, shown as no value, on 15. locationSource (as "
@@ -30,12 +32,12 @@ __artifacts_v2__ = {
                  "established. Beacon Record names the record type whose identifier equals the record's "
                  "associatedBeacon: OwnedBeacons on 171 rows and SharedBeacons on 19, all 19 on iphone11_ios17. Beacon"
                  " Name is the name in the BeaconNamingRecord whose associatedBeacon matches, and is empty on those 19"
-                 " rows, which have none. The record identifier and cloudKitMetadata are not reported. SafeLocations "
-                 "records (coordinates and a radius) are not read: on hill_iphone15pro_ios26 and "
-                 "wilkerson_iphone16_ios26 each of them also appears in SafeLocations.data, which Find My Safe "
-                 "Locations Cache reads. The other record types in the folder (among them WildModeAssociationRecord, "
-                 "KeySyncRecord, KeyAlignmentRecords, OwnedDeviceKeyRecord and the SecureLocation records), its "
-                 "databases and CachedUnifiedBeacons.data are not read.",
+                 " rows, which have none. Where several naming records match, their distinct names are joined with a "
+                 "comma; no image read had more than one. The record identifier and cloudKitMetadata are not reported."
+                 " SafeLocations records are not read; Find My Safe Locations Cache reads the SafeLocations.data cache"
+                 " file. The other record types in the folder (among them WildModeAssociationRecord, KeySyncRecord, "
+                 "KeyAlignmentRecords, OwnedDeviceKeyRecord and the SecureLocation records), its databases and "
+                 "CachedUnifiedBeacons.data are not read.",
         "paths": (
             '*/mobile/Library/com.apple.icloud.searchpartyd/BeaconEstimatedLocation/*.record',
             '*/mobile/Library/com.apple.icloud.searchpartyd/BeaconNamingRecord/*.record',
@@ -66,20 +68,22 @@ __artifacts_v2__ = {
         "requirements": "none",
         "category": "Locations & Maps",
         "notes": "One row per OwnedBeacons record in com.apple.icloud.searchpartyd, decrypted as described in Find My "
-                 "Beacon Estimated Locations, where the images whose records could not be read are listed. The records"
-                 " are not limited to accessories: Model held a hardware model identifier string on 31 of the 37 rows "
-                 "read, iPhone identifiers among them, and an empty string on 6. Pairing Date is pairingDate in UTC; "
-                 "what it marks is not established. Name is the name in the BeaconNamingRecord whose associatedBeacon "
-                 "equals the identifier, empty on the 6 of 37 rows with none. BeaconNamingRecord files for 6 beacons "
-                 "that match neither an OwnedBeacons nor a SharedBeacons identifier (2 on abe_ios16, 4 on "
-                 "iphone11_ios17) are not reported. Newest Estimated Location is the latest Timestamp among the "
-                 "beacon's BeaconEstimatedLocation records and Estimated Location Records is their count; 20 of 37 "
-                 "rows had none. Leash Records counts the LeashRecords whose associatedBeacons list the identifier (1 "
-                 "on 23 rows, 0 on 14); what a leash record represents is not established. batteryLevel (as stored) "
-                 "held 0 on 33 rows and 1 on 4, productId (as stored) -1 on 31 and vendorId (as stored) -1 on 31; "
-                 "their meanings are not established. Not reported: isZeus (False on all 37 records), "
-                 "cloudKitMetadata, and the key material the record carries (privateKey, publicKey, sharedSecret and "
-                 "secureLocationsSharedSecret).",
+                 "Beacon Estimated Locations, where the images whose records could not be read are listed. Model "
+                 "(model as stored) held a string shaped like a device model identifier on 31 of the 37 rows read "
+                 "(iPhone, iPad, Mac and Watch forms among them) and an empty string on 6. What the field identifies "
+                 "is not established. Pairing Date is pairingDate in UTC; what it marks is not established. Name is "
+                 "the name in the BeaconNamingRecord whose associatedBeacon equals the identifier, empty on the 6 of "
+                 "37 rows with none. BeaconNamingRecord files for 6 beacons that match neither an OwnedBeacons nor a "
+                 "SharedBeacons identifier (2 on abe_ios16, 4 on iphone11_ios17) are not reported. Latest Estimated "
+                 "Location Timestamp is the latest Timestamp among the beacon's BeaconEstimatedLocation records and "
+                 "Estimated Location Records is their count; 20 of 37 rows had none. Leash Records counts the "
+                 "LeashRecords whose associatedBeacons list the identifier (1 on 23 rows, 0 on 14); what a leash "
+                 "record represents is not established. batteryLevel (as stored) held 0 on 33 rows and 1 on 4, "
+                 "productId (as stored) -1 on 31 and vendorId (as stored) -1 on 31; their meanings are not "
+                 "established. Not reported: isZeus (False on all 37 records), cloudKitMetadata, groupIdentifier "
+                 "(present on 2 records), the naming record's emoji (on 6 of 37) and roleId, and the key material "
+                 "(privateKey, publicKey and sharedSecret on all 37, secureLocationsSharedSecret on 29, "
+                 "secondarySharedSecret on 6).",
         "paths": (
             '*/mobile/Library/com.apple.icloud.searchpartyd/OwnedBeacons/*.record',
             '*/mobile/Library/com.apple.icloud.searchpartyd/BeaconNamingRecord/*.record',
@@ -117,10 +121,11 @@ __artifacts_v2__ = {
                  "Identifier is ownerBeaconIdentifier from the record's name dictionary, present on 7 rows; on the "
                  "other 7 name held an empty string, and no record held a text name. accepted (as stored) held True on"
                  " all 14 rows and shareType (as stored) 1 on 7 and 4 on 7; their meanings are not established. Model "
-                 "held an empty string on 4 rows. Newest Estimated Location and Estimated Location Records come from "
-                 "the BeaconEstimatedLocation records whose associatedBeacon equals the identifier: 19 records for 3 "
-                 "of the 14 beacons. Not reported: role (-1 on all 14), groupIdentifier ($null on all 14), "
-                 "correlationIdentifier, shareIdentifier, advertisedIndex and cloudKitMetadata.",
+                 "held an empty string on 4 rows. Latest Estimated Location Timestamp and Estimated Location Records "
+                 "come from the BeaconEstimatedLocation records whose associatedBeacon equals the identifier: 19 "
+                 "records for 3 of the 14 beacons. Not reported: role (-1 on all 14), groupIdentifier ($null on all "
+                 "14), correlationIdentifier, shareIdentifier, advertisedIndex, cloudKitMetadata and the name "
+                 "dictionary's version.",
         "paths": (
             '*/mobile/Library/com.apple.icloud.searchpartyd/SharedBeacons/*.record',
             '*/mobile/Library/com.apple.icloud.searchpartyd/BeaconEstimatedLocation/*.record',
@@ -152,15 +157,16 @@ from scripts.ilapfuncs import artifact_processor, logfunc
 from scripts.ios_keychain import active_keychain_path, load_keychain_entries
 
 STORE_DIR = 'com.apple.icloud.searchpartyd'
-# The item's access group was com.apple.icloud.searchpartyd on the iOS 18 and 26 images run and
-# searchpartyd-baa-fmna-group on the iOS 16 and 17 ones; the lookup matches a substring of both.
+# The item's access group was com.apple.icloud.searchpartyd on the three iOS 18 and 26 images read
+# and searchpartyd-baa-fmna-group on the six iOS 16 and 17 images read; the lookup matches a
+# substring of both.
 ACCESS_GROUP = 'searchpartyd'
 KEY_SERVICE = 'BeaconStore'
 KEY_ACCOUNT = 'BeaconStoreKey'
 KEY_LENGTH = 32
 NONCE_LENGTH = 16
 TAG_LENGTH = 16
-# searchpartyd writes this text where a value is absent, as the Find My caches do.
+# Some keys hold this text in place of a value. It is read as no value.
 NULL_TEXT = '$null'
 
 _PLIST_ERRORS = (plistlib.InvalidFileException, ValueError, TypeError, IndexError, KeyError,
@@ -228,7 +234,7 @@ def read_searchpartyd_record(file_found):
                 'Supply the extraction\'s keychain with --keychain.')
         return None
     if not keys:
-        logfunc(f'{file_found} is encrypted and the keychain in use holds no BeaconStore key; not read')
+        logfunc(f'{file_found} is encrypted and no readable BeaconStore key was found in the keychain in use; not read')
         return None
     nonce, tag, ciphertext = outer
     for key in keys:
@@ -343,7 +349,7 @@ def findMyBeaconEstimatedLocations(context):
 
 @artifact_processor
 def findMyOwnedBeacons(context):
-    data_headers = (('Pairing Date', 'datetime'), ('Newest Estimated Location', 'datetime'), 'Name',
+    data_headers = (('Pairing Date', 'datetime'), ('Latest Estimated Location Timestamp', 'datetime'), 'Name',
                     'Model', 'System Version', 'batteryLevel (as stored)', 'productId (as stored)',
                     'vendorId (as stored)', 'Estimated Location Records', 'Leash Records', 'Identifier',
                     'Stable Identifier')
@@ -374,7 +380,7 @@ def findMyOwnedBeacons(context):
 
 @artifact_processor
 def findMySharedBeacons(context):
-    data_headers = (('Share Date', 'datetime'), ('Newest Estimated Location', 'datetime'), 'Owner Handle',
+    data_headers = (('Share Date', 'datetime'), ('Latest Estimated Location Timestamp', 'datetime'), 'Owner Handle',
                     'Model', 'System Version', 'shareType (as stored)',
                     'accepted (as stored)', 'productId (as stored)', 'vendorId (as stored)',
                     'Estimated Location Records', 'Identifier', 'Owner Beacon Identifier')
