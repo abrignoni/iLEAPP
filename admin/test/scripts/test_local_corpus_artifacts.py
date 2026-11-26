@@ -1022,17 +1022,26 @@ class FindMySearchpartydLocalTest(LocalCorpusTestCase):
         copies = list(Path(self.temp_dir.name, 'report').rglob('Observations.db'))
         self.assertEqual(len(copies), len(store), 'a store was not decrypted')
         current = set()
+        unlocated = 0
         for copy in copies:
             connection = sqlite3.connect(f'{copy.as_uri()}?mode=ro', uri=True)
             try:
-                current |= {row[0] for row in connection.execute('SELECT advId FROM ObservedAdvertisement')}
+                current |= {row[0] for row in connection.execute('SELECT advId FROM ObservedAdvertisementLocation')}
+                unlocated += connection.execute(
+                    'SELECT count(*) FROM ObservedAdvertisement WHERE advId NOT IN '
+                    '(SELECT advId FROM ObservedAdvertisementLocation)').fetchone()[0]
             finally:
                 connection.close()
         live = [row['Advertisement ID'] for row in rows if row['Record Origin'] == 'Live']
         recovered = [row['Advertisement ID'] for row in rows if row['Record Origin'] == 'Recovered']
         # Compared without assertEqual, so a failure prints counts and no advId from the image.
         self.assertTrue(sorted(live) == sorted(current),
-                        f'Live rows differ from the current state ({len(live)} rows, {len(current)} advertisements)')
+                        f'Live rows differ from the current located advertisements ({len(live)} rows, '
+                        f'{len(current)} advertisements)')
+        days = self.run_artifact(findMySearchpartyd.findMyObservedAdvertisementDays)
+        counted = sum(row['Advertisements'] - row['Recovered Advertisements'] for row in days)
+        self.assertTrue(counted == unlocated,
+                        f'{counted} current advertisements counted per day, {unlocated} without a location')
         self.assertFalse(bool(set(recovered) & set(live)), 'a Recovered row repeats a Live one')
         self.assertEqual(len(recovered), len(set(recovered)), 'a Recovered row is repeated')
         for row in rows:
