@@ -128,6 +128,17 @@ class Network(unittest.TestCase):
         sources, proposed, missing = check.pr_sources("t", "o/r", 1)
         self.assertEqual((sources, proposed, missing), ({}, None, ["scripts/artifacts/a.py"]))
 
+    def test_a_category_list_that_cannot_be_fetched_is_reported_missing(self):
+        files = [{"filename": "admin/data/artifact_categories.json", "status": "modified",
+                  "contents_url": "u"}]
+
+        def fake(_token, url, **_kw):
+            return files if "/files" in url else None
+        check.api_request = fake
+        sources, proposed, missing = check.pr_sources("t", "o/r", 1)
+        self.assertEqual((sources, proposed, missing),
+                         ({}, None, ["admin/data/artifact_categories.json"]))
+
     def test_a_label_created_by_another_run_is_used(self):
         calls = []
 

@@ -190,6 +190,10 @@ def pr_sources(token, repo, pr_number):
             continue
         if path == list_path:
             text = api_request(token, f["contents_url"], accept="application/vnd.github.raw+json")
+            if text is None:
+                # An unread list is an incomplete scan, not an empty list.
+                missing.append(path)
+                continue
             proposed = categories_from_list(text)
             continue
         if not path.startswith(ARTIFACTS) or not path.endswith(".py"):
