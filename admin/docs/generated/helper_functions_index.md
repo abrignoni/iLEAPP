@@ -19,8 +19,8 @@ for the rest. `admin/docs/helper_functions.md` explains where the five cores' he
 
 | Used by | Name | Signature | First docstring line |
 | ---: | --- | --- | --- |
-| 559 | `artifact_processor` | `artifact_processor(func)` | (no docstring) |
-| 392 | `logfunc` | `logfunc(message='')` | (no docstring) |
+| 560 | `artifact_processor` | `artifact_processor(func)` | (no docstring) |
+| 393 | `logfunc` | `logfunc(message='')` | (no docstring) |
 | 232 | `get_sqlite_db_records` | `get_sqlite_db_records(path, query, attach_query=None)` | Run a query and return its rows as a SqliteRecords, or [] when it fails. |
 | 126 | `get_file_path` | `get_file_path(files_found, filename, skip=False)` | Returns the path of the searched filename if exists or returns None |
 | 95 | `does_table_exist_in_db` | `does_table_exist_in_db(path, table_name)` | Checks if a table with specified name exists in an sqlite db |
@@ -128,6 +128,18 @@ for the rest. `admin/docs/helper_functions.md` explains where the five cores' he
 | 1 | `safe_local_path` | `safe_local_path(path)` | Percent-encode a report-relative path for use in an ``href``/``src`` attribute. |
 | 0 | `safe_local_link` | `safe_local_link(path, text=None)` | Build an ``<a href>`` to a file inside the report folder. |
 
+## `scripts.ios_keychain`
+
+`scripts/ios_keychain.py`
+
+| Used by | Name | Signature | First docstring line |
+| ---: | --- | --- | --- |
+| 7 | `active_keychain_path` | `active_keychain_path()` | The keychain to read: the supplied one, else one found in the extraction. |
+| 4 | `get_app_secret` | `get_app_secret(access_group, account=None, service=None, expected_length=None)` | Return one secret for an app from the examiner-supplied keychain, or None. |
+| 2 | `find_keychain_secrets` | `find_keychain_secrets(keychain_path, access_group=None, account=None, service=None)` | Return the raw secrets matching the given access group, account and service. |
+| 1 | `load_keychain_entries` | `load_keychain_entries(keychain_path)` | Return the generic-password entries of a keychain plist, cached per path. |
+| 0 | `report_supplied_keychain` | `report_supplied_keychain()` | Record the examiner-supplied keychain in the log at the start of a run. |
+
 ## `scripts.realm_parser`
 
 `scripts/realm_parser.py`
@@ -184,18 +196,6 @@ for the rest. `admin/docs/helper_functions.md` explains where the five cores' he
 | | `Context.get_apple_os_version` | `get_apple_os_version(build, device_family='')` | Returns the Apple operating system version corresponding to a given |
 | | `Context.get_installed_os_version` | `get_installed_os_version()` | Retrieves the OS version of the installed device. |
 | | `Context.clear` | `clear()` | Resets all context-related class variables to None, effectively |
-
-## `scripts.ios_keychain`
-
-`scripts/ios_keychain.py`
-
-| Used by | Name | Signature | First docstring line |
-| ---: | --- | --- | --- |
-| 6 | `active_keychain_path` | `active_keychain_path()` | The keychain to read: the supplied one, else one found in the extraction. |
-| 4 | `get_app_secret` | `get_app_secret(access_group, account=None, service=None, expected_length=None)` | Return one secret for an app from the examiner-supplied keychain, or None. |
-| 2 | `find_keychain_secrets` | `find_keychain_secrets(keychain_path, access_group=None, account=None, service=None)` | Return the raw secrets matching the given access group, account and service. |
-| 0 | `load_keychain_entries` | `load_keychain_entries(keychain_path)` | Return the generic-password entries of a keychain plist, cached per path. |
-| 0 | `report_supplied_keychain` | `report_supplied_keychain()` | Record the examiner-supplied keychain in the log at the start of a run. |
 
 ## `scripts.sqlite_wal`
 
