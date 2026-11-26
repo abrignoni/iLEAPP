@@ -10,7 +10,7 @@ from tkinter import filedialog, messagebox, ttk
 from leapp_functions import leapp
 from leapp_functions.app import history, input_type, secret_fields
 from leapp_functions.app.disk import FILE, PENDING, SILENT, path_status
-from leapp_functions.app.gui import themes
+from leapp_functions.app.gui import images, themes
 from leapp_functions.app.gui.app_state import WAITING
 from leapp_functions.app.gui.custom_widgets import (GAP, Caption, Card, Field, FileField,
                                                     LabeledEntry, OutlineButton, Tooltip,
@@ -29,8 +29,9 @@ DETECT_DELAY = 300
 WATCH_DELAY = 1000
 POLL_DELAY = 100
 HIDDEN = "•"
-SHOW_TEXTS = ("Show", "Hide")
-SHOW_WIDTH = max(len(text) for text in SHOW_TEXTS)
+# The icon of the square button that shows a password: an eye struck through while it is hidden
+EYE_ICONS = {True: "eye-off", False: "eye"}
+EYE_SIZE = 20
 # The most read from a file for a text secret: a key or a password, never a large file
 TEXT_READ_LIMIT = 4096
 
@@ -271,9 +272,9 @@ class SecretsCard(tk.Frame):
         labeled = LabeledEntry(line, self.app, Field("", variable))
         labeled.entry.configure(show=HIDDEN)
         labeled.grid(row=1, column=0, sticky="ew")
-        show = OutlineButton(line, self.app, text=SHOW_TEXTS[0], style="in_card", width=SHOW_WIDTH)
-        show.button.configure(command=lambda: self.toggle(labeled.entry, show))
-        show.grid(row=1, column=1, sticky="s", padx=(8, 0))
+        labeled.box.update_idletasks()
+        eye_button(line, self.app, labeled.entry, labeled.box.winfo_reqheight()).grid(
+            row=1, column=1, sticky="s", padx=(8, 0))
         OutlineButton(line, self.app, text="Load from file…", style="in_card",
                       command=lambda: self.load(field, variable)).grid(
             row=1, column=2, sticky="s", padx=(8, 0))
@@ -297,13 +298,6 @@ class SecretsCard(tk.Frame):
         trace = variable.trace_add("write", changed)
         clear.bind("<Destroy>", lambda _event: variable.trace_remove("write", trace))
         refresh()
-
-    @staticmethod
-    def toggle(entry, button):
-        """ Show the text typed, or hide it again. """
-        hidden = entry.cget("show") == HIDDEN
-        entry.configure(show="" if hidden else HIDDEN)
-        button.set_text(SHOW_TEXTS[1] if hidden else SHOW_TEXTS[0])
 
     def choose(self, field, variable):
         """ Ask for the file. Cancelling leaves the field as it was. """
@@ -329,6 +323,26 @@ class SecretsCard(tk.Frame):
             messagebox.showerror("Could not read the file",
                                  f"{os.path.basename(path)}: {type(error).__name__}",
                                  parent=self.winfo_toplevel())
+
+
+def eye_button(parent, app, entry, side):
+    """ A square button of side pixels that shows the text typed in entry, or hides it again. Its
+    icon tells which: an eye struck through while the text is hidden, an eye while it shows. """
+    pictures = {hidden: images.load_icon(EYE_ICONS[hidden], EYE_SIZE, app.colors.text_primary)
+                for hidden in EYE_ICONS}
+    button = OutlineButton(parent, app, image=pictures[True], style="in_card", padding=0)
+    button.pictures = pictures
+    button.configure(width=side, height=side)
+    button.pack_propagate(False)
+
+    def toggle():
+        """ Show the text typed, or hide it again. """
+        hidden = entry.cget("show") != HIDDEN
+        entry.configure(show=HIDDEN if hidden else "")
+        button.button.configure(image=pictures[hidden])
+
+    button.button.configure(command=toggle)
+    return button
 
 
 def secret_line(field, value):
@@ -552,13 +566,19 @@ class UnlockPanel(tk.Frame):
             self.buttons(("Try again", self.try_again))
 
     def build_secret(self, unlock, question):
-        """ A password to type, hidden, with the question above it. """
+        """ A password to type, hidden unless shown, with the question above it. """
         self.text(question.text, self.app.colors.text_primary)
-        field = LabeledEntry(self, self.app, Field(question.title, self.secret),
+        line = tk.Frame(self, bg=self.background)
+        line.columnconfigure(0, weight=1)
+        line.pack(fill="x", pady=(8, 0))
+        field = LabeledEntry(line, self.app, Field(question.title, self.secret),
                              background=self.background)
-        field.entry.configure(show="•")
+        field.entry.configure(show=HIDDEN)
         field.entry.bind("<Return>", lambda _event: self.send_secret(unlock))
-        field.pack(fill="x", pady=(8, 0))
+        field.grid(row=0, column=0, sticky="ew")
+        field.box.update_idletasks()
+        eye_button(line, self.app, field.entry, field.box.winfo_reqheight()).grid(
+            row=0, column=1, sticky="s", padx=(8, 0))
         self.buttons(("Unlock", lambda: self.send_secret(unlock)),
                      ("Cancel", lambda: unlock.answer(None)))
 
