@@ -265,6 +265,7 @@ This document outlines LEAPP modules parsing SQLite databases using the new `get
 | callHistoryGroupCall |
 | chrome |
 | chromeCreditCards |
+| chromeFavicons |
 | chromePaymentsCustomerData |
 | chromeShortcuts |
 | citizen |
