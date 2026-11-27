@@ -285,8 +285,10 @@ SQLite table the artifact reads, the columns no statement read. It gives counts 
 where the column is set, distinct values, and any read column it equals on every row. Sort every
 listed column yourself:
 
-- Skip it, with the reason, when it equals a column you already show. The same value twice adds
-  nothing.
+- Skip it, with the reason, when it is the same field as a column you already show: the code or
+  the schema shows one is a copy or an alias of the other. Equal values on every corpus row do not
+  show that on their own, because two times can agree on untouched records and differ once one is
+  edited.
 - Otherwise report it as stored when it is clear evidence: a name, a time, a path, user text, a
   file name. A constant value is not a reason to drop it: a column that is clear evidence is
   reported even when it holds one value on every corpus row.
