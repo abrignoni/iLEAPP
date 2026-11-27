@@ -317,11 +317,6 @@ sentence in its notes, you give the prompt it writes to a second auditor run, an
 the kit's local ledger. It costs about one more auditor run. It never changes your module or PR, and
 nothing about it goes in the PR body.
 
-#### Read open schema-watch issues
-
-If an `audit-queue` issue from the kit's schema watch is open for this module, read it before
-changing the module.
-
 ## 6. Before opening the PR
 
 - **Re-derive every number in `description`, `notes` and `sample_data` from the finished
