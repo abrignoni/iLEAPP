@@ -261,6 +261,39 @@ clears an empty Name column, "a name not applied" does not. An empty column on a
 artifact is frequently a forensic negative worth stating (no group chats, no disappearing
 timers, coarse location denied), not a column to delete.
 
+### List the columns the artifact leaves unread
+
+If you have the LEAPP quality kit (`leapps-org/leapp-quality-kit`) installed and configured as its
+README says, run its unread-column list on the same corpus keys:
+
+    python3 <kit>/unread-columns/unread_columns.py --core <core> --modules <module> --keys <key> [<key> ...] --tree <this checkout>
+
+`--modules` takes the module file name in `scripts/artifacts/` without `.py`, not the artifact
+function name. It takes the input type from the key's file name: zip, tar and gz files and
+folders run, and a raw image or E01 key comes back as could not check. A key that needs another
+input type, such as an iTunes backup, would run as a plain zip or folder, so do not use one.
+
+It runs the tool with SQLite reporting every column each statement reads, and lists, for each
+SQLite table the artifact reads, the columns no statement read. It gives counts only: rows, rows
+where the column is set, distinct values, and any read column it equals on every row. Sort every
+listed column yourself:
+
+- Skip it, with the reason, when it equals a column you show, holds one value or NULL on every
+  corpus row, or is plain bookkeeping (row ids, sync flags, version or retry counters).
+- Report it as stored when it is clear evidence: a name, a time, a path, user text, a file name.
+- Ask the maintainer only about a column that varies and has no sourced meaning, one that needs a
+  new artifact, or one that touches credentials or keys.
+
+Put one line per decision in the PR body; columns that share a decision can share the line. The
+list is a warning, not a gate.
+
+An empty list does not mean nothing was left out. A column used only in a JOIN or WHERE counts as
+read, and a `SELECT *` is flagged rather than resolved. Only SQLite opened through Python's
+`sqlite3` is traced: a plist, protobuf, JSON, LevelDB or sqlcipher store is not covered, so an
+artifact that also reads one gets no list for it, and an artifact that reads only such stores shows
+as "no SQLite read traced". Read what "Could not measure" lists before saying nothing was left
+unread.
+
 ## 6. Before opening the PR
 
 - **Re-derive every number in `description`, `notes` and `sample_data` from the finished
