@@ -261,10 +261,17 @@ clears an empty Name column, "a name not applied" does not. An empty column on a
 artifact is frequently a forensic negative worth stating (no group chats, no disappearing
 timers, coarse location denied), not a column to delete.
 
-### List the columns the artifact leaves unread
+### Optional: the LEAPP quality kit
 
-If you have the LEAPP quality kit (`leapps-org/leapp-quality-kit`) installed and configured as its
-README says, run its unread-column list on the same corpus keys:
+The LEAPP quality kit (`leapps-org/leapp-quality-kit`) adds checks to an artifact's corpus run. Not
+everyone has it. Use this section only when the kit is installed and its config file exists
+(`$LEAPP_QUALITY_CONFIG`, or else `~/.config/leapp-quality-kit/config.json`). Otherwise skip the
+whole section and do not mention it. Nothing here blocks a PR: a step that is missing, fails or finds
+nothing leaves the PR as it was, apart from what the step itself says to add.
+
+#### List the columns the artifact leaves unread
+
+Run the kit's unread-column list on the same corpus keys:
 
     python3 <kit>/unread-columns/unread_columns.py --core <core> --modules <module> --keys <key> [<key> ...] --tree <this checkout>
 
@@ -278,9 +285,11 @@ SQLite table the artifact reads, the columns no statement read. It gives counts 
 where the column is set, distinct values, and any read column it equals on every row. Sort every
 listed column yourself:
 
-- Skip it, with the reason, when it equals a column you show, holds one value or NULL on every
-  corpus row, or is plain bookkeeping (row ids, sync flags, version or retry counters).
 - Report it as stored when it is clear evidence: a name, a time, a path, user text, a file name.
+  This rule comes first. A column that is clear evidence is reported even when it holds one value
+  on every corpus row.
+- Otherwise skip it, with the reason, when it equals a column you show, holds one value or NULL on
+  every corpus row, or is plain bookkeeping (row ids, sync flags, version or retry counters).
 - Ask the maintainer only about a column that varies and has no sourced meaning, one that needs a
   new artifact, or one that touches credentials or keys.
 
@@ -293,6 +302,25 @@ read, and a `SELECT *` is flagged rather than resolved. Only SQLite opened throu
 artifact that also reads one gets no list for it, and an artifact that reads only such stores shows
 as "no SQLite read traced". Read what "Could not measure" lists before saying nothing was left
 unread.
+
+#### Spot-check the notes auditor
+
+If you ran the kit's `leapp-notes-auditor` agent on the artifact, ask whether this run gets a
+spot-check:
+
+    python3 <kit>/auditor-spot-check/spotcheck.py should <core> <module> <commit>
+
+`<module>` is the module file name without `.py` and `<commit>` is this checkout's HEAD. About one
+run in ten answers yes, and the same module at the same commit always gets the same answer. On yes,
+follow the kit's `auditor-spot-check/README.md`: it makes a copy of the module with one false
+sentence in its notes, you give the prompt it writes to a second auditor run, and the result goes to
+the kit's local ledger. It costs about one more auditor run. It never changes your module or PR, and
+nothing about it goes in the PR body.
+
+#### Read open schema-watch issues
+
+If an `audit-queue` issue from the kit's schema watch is open for this module, read it before
+changing the module.
 
 ## 6. Before opening the PR
 
