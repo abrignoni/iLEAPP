@@ -6,14 +6,17 @@ __artifacts_v2__ = {
                        "and the media file.",
         "author": "@AlexisBrignoni, Codex",
         "creation_date": "2026-06-24",
-        "last_update_date": "2026-11-07",
+        "last_update_date": "2026-11-28",
         "requirements": "none",
         "category": "Photos & Media",
         "notes": "Rows are limited to ZKIND = 0 where the column exists (labelled '0-Photo-0' in "
                  "Scott Koenig's query, "
                  "https://github.com/ScottKjr3347/iOS_Local_PL_Photos.sqlite_Queries/blob/860ea4c4ebf80a827bee5c4b639d848bf1350d7b/iOS15/Previous_Queries/iOS15_LPL_Phsql_Locations.txt#L257-L260) "
                  "and to file names ending in HEIC, HEIF, JPG, JPEG or PNG. Only assets with a "
-                 "matching on-disk image file and at least one EXIF tag in the main image IFD are output. The number of assets "
+                 "matching on-disk image file and at least one EXIF tag in the main image IFD are output. "
+                 "The EXIF reader is chosen by the file's content, not its name: a file whose bytes at offsets 4 to 7 are "
+                 "ftyp is read with heicreader, and any other file with Pillow. On iphone11_ios17, 2 files "
+                 "named .HEIC held JPEG content and are read with Pillow. The number of assets "
                  "skipped for each reason is written to the run log, not to the table. Search "
                  "patterns cover files in DCIM and PhotoCloudSharingData whose names end in .HEIC, "
                  ".HEIF, .JPG, .JPEG or .PNG in any ASCII letter case. Original contribution "
@@ -316,13 +319,22 @@ def _gps_from_ifd(gps_ifd):
         return '', ''
 
 
+def _is_iso_media(path):
+    """True when the file starts with an ISO base media file box of type ftyp."""
+    with open(path, 'rb') as handle:
+        return handle.read(8)[4:8] == b'ftyp'
+
+
 def _read_file_exif(path):
     """Read EXIF once: timestamps, GPS, and a formatted tag dump of the main image IFD.
 
-    A HEIC or HEIF file's Exif block is read with heicreader, as stored: its Orientation is
-    the value in the file. DateTimeOriginal lives in the Exif sub-IFD, not the main one.
+    The reader is chosen by content, not by the file name: a file whose bytes at offsets 4 to 7 are
+    ``ftyp`` (an ISO base media file, which HEIC and HEIF are) has its Exif block read with
+    heicreader, as stored: its Orientation is the value in the file. Any other file is opened
+    with Pillow, so JPEG content under a .HEIC name is still read. DateTimeOriginal lives in
+    the Exif sub-IFD, not the main one.
     """
-    if str(path).upper().endswith(('.HEIC', '.HEIF')):
+    if _is_iso_media(path):
         exif = Image.Exif()
         raw = heicreader.raw_exif(path)
         if raw:
