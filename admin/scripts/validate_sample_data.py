@@ -70,6 +70,7 @@ import shutil
 import subprocess
 import sys
 import tempfile
+import zipfile
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
@@ -290,7 +291,7 @@ def check_registry(artifacts, registry, registry_path, verify_hashes, report):
                 f"artifacts cite {len(cited)}")
 
 
-RUNNABLE_TYPES = ("fs", "tar", "zip", "gz", "file", "raw")
+RUNNABLE_TYPES = ("fs", "tar", "zip", "gz", "file", "raw", "itunes")
 
 # Extensions of disk images and evidence containers that name nothing else, which --emit
 # reads as raw without being told. .bin, .img, .dd and .raw are left out: a .bin can be a
@@ -360,7 +361,53 @@ def lava_output_predicate(report):
         return None
 
 
+def stage_itunes_backup(source, into):
+    """Unpack a zipped iTunes backup into a new folder and return the backup folder inside it.
+
+    -t itunes reads a folder that holds Manifest.db (or Manifest.mbdb) directly, so a backup
+    kept as a zip is unpacked first. A member whose name is absolute or climbs out with '..'
+    is refused rather than written. The shallowest folder holding a manifest is returned.
+    """
+    root = Path(into).resolve()
+    with zipfile.ZipFile(source) as archive:
+        for member in archive.infolist():
+            name = member.filename.replace("\\", "/")
+            parts = Path(name).parts
+            if name.startswith("/") or ".." in parts or (parts and ":" in parts[0]):
+                raise ValueError(f"refused member name {member.filename!r}")
+            target = (root / name).resolve()
+            if root not in target.parents and target != root:
+                raise ValueError(f"refused member name {member.filename!r}")
+        archive.extractall(root)
+    found = sorted((p.parent for p in root.rglob("Manifest.*")
+                    if p.name in ("Manifest.db", "Manifest.mbdb")),
+                   key=lambda folder: (len(folder.parts), str(folder)))
+    if not found:
+        raise ValueError("no Manifest.db or Manifest.mbdb inside the zip")
+    return found[0]
+
+
 def execute_tool(source, label, log_name, report, keep=False, declared_type=None):
+    """Parse one evidence source, unpacking a zipped iTunes backup first when its type is itunes.
+
+    The unpacked copy is always deleted after the run, whatever keep says, because it is a
+    copy of the evidence and not output.
+    """
+    if input_type_for(source, declared_type) == "itunes" and source.is_file():
+        staged = tempfile.mkdtemp(prefix=f"{RUN_PREFIX}itunes-")
+        try:
+            try:
+                backup = stage_itunes_backup(source, staged)
+            except (ValueError, OSError, zipfile.BadZipFile) as ex:
+                report.error(f"{label}: could not unpack the iTunes backup {source.name}: {ex}")
+                return None, None, None
+            return _execute_tool(backup, label, log_name, report, keep=keep, declared_type="itunes")
+        finally:
+            shutil.rmtree(staged, ignore_errors=True)
+    return _execute_tool(source, label, log_name, report, keep=keep, declared_type=declared_type)
+
+
+def _execute_tool(source, label, log_name, report, keep=False, declared_type=None):
     """Parse one evidence source and return its per-artifact LAVA row counts.
 
     Returns (produced, output_root, log_path); produced is None when the run
