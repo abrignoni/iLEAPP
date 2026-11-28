@@ -121,16 +121,21 @@ __artifacts_v2__ = {
         "description": "Parses BSS (Basic Service Set) information for known WiFi networks",
         "author": "@JamesHabben, @Hexordia",
         "creation_date": "2023-05-25",
-        "last_update_date": "2026-10-30",
+        "last_update_date": "2026-11-28",
         "requirements": "none",
         "category": "Network & Connectivity",
-        "notes": "Extracts BSS entries from the com.apple.wifi.known-networks.plist file, and from the 'List of known networks' entries of a com.apple.wifi.plist read inside a sysdiagnose archive. "
+        "notes": "Extracts BSS entries from the com.apple.wifi.known-networks.plist file, and from the 'List of known networks' entries of a com.apple.wifi.plist, whether found in the extraction or inside a sysdiagnose archive. "
+                 "A plist found more than once, in the extraction or inside a sysdiagnose archive, gives rows from each copy that holds BSS entries, and each row names its own Source File. "
+                 "On hickman_ios13 the com.apple.wifi.plist in the extraction and the one in its sysdiagnose archive give 7 rows each for the same 7 SSID and BSSID pairs: 2 pairs are identical apart from Source File, and the other 5 differ in Last Associated/Roamed At, 2 of them also in Channel. "
+                 "On jess_ios15 the 44 rows come from two copies of com.apple.wifi.known-networks.plist, 22 each, identical apart from Source File. "
                  "Latitude, Longitude, Location Accuracy and Location Timestamp are the "
                  "LocationLatitude, LocationLongitude, LocationAccuracy and LocationTimestamp "
-                 "values stored in each BSS entry; what they locate and how they were obtained is "
-                 "not established here. "
+                 "values of a com.apple.wifi.known-networks.plist BSS entry, where the entry stores them; "
+                 "rows from com.apple.wifi.plist leave these four columns blank. What they locate and how "
+                 "they were obtained is not established here. "
                  "Also reads these plists inside a sysdiagnose archive (sysdiagnose_*.tar.gz or *_sysdiagnose.tar.gz), matched by file name anywhere in the archive; Source File then names the archive and the member. BSSID is shown with every octet as two hexadecimal digits (an octet can be stored without its leading zero), in the case stored.",
         "paths": ('*/com.apple.wifi.known-networks.plist',
+                  '*/com.apple.wifi.plist',
                   '*/sysdiagnose_*.tar.gz', '*/*_sysdiagnose.tar.gz'),
         "output_types": "all",
         "artifact_icon": "wifi",
@@ -148,10 +153,12 @@ __artifacts_v2__ = {
             "iphone14plus_ios18": "iOS 18.0 | 6 rows",
             "otto_ios17": "iOS 17.5.1 | 194 rows",
             "abe_ios16": "iOS 16.5 | 271 rows",
-            "felix23_ios16": "iOS 16.5 | 10 rows",
+            "felix23_ios16": "iOS 16.5 | 15 rows",
             "hickman_ios14": "iOS 14.3 | 0 rows",
             "jess_ios15": "iOS 15.0.2 | 44 rows",
             "magnet_ios16": "iOS 16.1.1 | 37 rows",
+            "ctf2020_ios12": "iOS 12.4 | 52 rows",
+            "hickman_ios13": "iOS 13.3.1 | 14 rows",
         }
     }
 }
