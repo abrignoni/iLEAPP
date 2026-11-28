@@ -140,7 +140,7 @@ __artifacts_v2__ = {
                            "fsfull002_ios17": "iOS 17.1 | 0 rows (no Snapchat arroyo.db found)",
                            "hc_ios26": "iOS 26.5.2 | 0 rows (no Snapchat arroyo.db found)",
                            "cookbook_ios1751": "iOS 17.5.1 | 0 rows (no Snapchat arroyo.db found)",
-                           "belkactf6": "no Snapchat files found",
+                           "belkactf6_tar": "iOS 16.3 | 0 rows (no file matched the search patterns)",
                        },
         "data_views": {
             "conversation": {
