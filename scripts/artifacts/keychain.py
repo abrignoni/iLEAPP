@@ -4,7 +4,7 @@ __artifacts_v2__ = {
         "description": "Wi-Fi network names and passwords from keychain records with access group "
                        "apple and service AirPort. Records are read only from an exported "
                        "keychain (an iTunes backup keychain with its decryption keys, a "
-                       "KeychainDump backup_keychain_v2.plist, or a <UDID>_keychain.plist beside a zip input); keychain-2.db by itself is not decrypted, so no "
+                       "KeychainDump backup_keychain_v2.plist, or a UDID_keychain.plist (named with the device UDID) beside a zip input); keychain-2.db by itself is not decrypted, so no "
                        "rows does not mean the keychain holds none. Tombstoned records are "
                        "included and marked.",
         "author": "@kobo220",
@@ -12,7 +12,7 @@ __artifacts_v2__ = {
         "last_update_date": "2026-11-28",
         "requirements": "none",
         "category": "Accounts & Credentials",
-        "notes": "The <UDID>_keychain.plist used with a zip input is found by the UDID in the zip's name, beside the zip, or else by the UDID in the name of the folder two levels above the zip, in that folder or beside it. The file name is compared without regard to case. It is read only when no KeychainDump or iTunes backup keychain is found. From an iTunes backup keychain, items whose class key has a WRAP value other than 2 are skipped without a log line.",
+        "notes": "The UDID_keychain.plist used with a zip input is found by the UDID in the zip's name, beside the zip, or else by the UDID in the name of the folder two levels above the zip, in that folder or beside it. The file name is compared without regard to case. It is read only when no KeychainDump or iTunes backup keychain is found. From an iTunes backup keychain, items whose class key has a WRAP value other than 2 are skipped without a log line.",
         "paths": (
             '*/keychain-backup.plist',
             '*/extra/KeychainDump/backup_keychain_v2.plist',
@@ -44,14 +44,14 @@ __artifacts_v2__ = {
         "description": "Web form passwords from keychain records with access group "
                        "com.apple.cfnetwork and authentication type form. Records are read only "
                        "from an exported keychain (an iTunes backup keychain with its decryption "
-                       "keys, a KeychainDump backup_keychain_v2.plist, or a <UDID>_keychain.plist beside a zip input); keychain-2.db by itself is not decrypted, "
+                       "keys, a KeychainDump backup_keychain_v2.plist, or a UDID_keychain.plist (named with the device UDID) beside a zip input); keychain-2.db by itself is not decrypted, "
                        "so no rows does not mean the keychain holds none.",
         "author": "@kobo220",
         "creation_date": "2026-06-18",
         "last_update_date": "2026-11-28",
         "requirements": "none",
         "category": "Accounts & Credentials",
-        "notes": "The <UDID>_keychain.plist used with a zip input is found by the UDID in the zip's name, beside the zip, or else by the UDID in the name of the folder two levels above the zip, in that folder or beside it. The file name is compared without regard to case. It is read only when no KeychainDump or iTunes backup keychain is found. From an iTunes backup keychain, items whose class key has a WRAP value other than 2 are skipped without a log line.",
+        "notes": "The UDID_keychain.plist used with a zip input is found by the UDID in the zip's name, beside the zip, or else by the UDID in the name of the folder two levels above the zip, in that folder or beside it. The file name is compared without regard to case. It is read only when no KeychainDump or iTunes backup keychain is found. From an iTunes backup keychain, items whose class key has a WRAP value other than 2 are skipped without a log line.",
         "paths": (
             '*/keychain-backup.plist',
             '*/extra/KeychainDump/backup_keychain_v2.plist',
@@ -84,14 +84,14 @@ __artifacts_v2__ = {
                        "records with access group com.apple.bluetooth, written to Device Info. "
                        "Records are read only from an exported keychain (an iTunes backup keychain "
                        "with its decryption keys, a KeychainDump backup_keychain_v2.plist, or a "
-                       "<UDID>_keychain.plist beside a zip input); keychain-2.db by itself is "
+                       "UDID_keychain.plist (named with the device UDID) beside a zip input); keychain-2.db by itself is "
                        "not decrypted, so no value does not mean the keychain holds none.",
         "author": "@kobo220",
         "creation_date": "2026-06-18",
         "last_update_date": "2026-11-28",
         "requirements": "none",
         "category": "Accounts & Credentials",
-        "notes": "The <UDID>_keychain.plist used with a zip input is found by the UDID in the zip's name, beside the zip, or else by the UDID in the name of the folder two levels above the zip, in that folder or beside it. The file name is compared without regard to case. It is read only when no KeychainDump or iTunes backup keychain is found. From an iTunes backup keychain, items whose class key has a WRAP value other than 2 are skipped without a log line.",
+        "notes": "The UDID_keychain.plist used with a zip input is found by the UDID in the zip's name, beside the zip, or else by the UDID in the name of the folder two levels above the zip, in that folder or beside it. The file name is compared without regard to case. It is read only when no KeychainDump or iTunes backup keychain is found. From an iTunes backup keychain, items whose class key has a WRAP value other than 2 are skipped without a log line.",
         "paths": (
             '*/keychain-backup.plist',
             '*/extra/KeychainDump/backup_keychain_v2.plist',
@@ -128,14 +128,14 @@ __artifacts_v2__ = {
                        "com.apple.MobileBluetooth.devices.plist is found, and take their name "
                        "from it. Records are read only from an exported keychain (an iTunes "
                        "backup keychain with its decryption keys, a KeychainDump "
-                       "backup_keychain_v2.plist, or a <UDID>_keychain.plist beside a zip input); keychain-2.db by itself is not decrypted, so no rows does not mean "
+                       "backup_keychain_v2.plist, or a UDID_keychain.plist (named with the device UDID) beside a zip input); keychain-2.db by itself is not decrypted, so no rows does not mean "
                        "the keychain holds none. Tombstoned records are included and marked.",
         "author": "@kobo220",
         "creation_date": "2026-06-18",
         "last_update_date": "2026-11-28",
         "requirements": "none",
         "category": "Accounts & Credentials",
-        "notes": "The <UDID>_keychain.plist used with a zip input is found by the UDID in the zip's name, beside the zip, or else by the UDID in the name of the folder two levels above the zip, in that folder or beside it. The file name is compared without regard to case. It is read only when no KeychainDump or iTunes backup keychain is found. From an iTunes backup keychain, items whose class key has a WRAP value other than 2 are skipped without a log line.",
+        "notes": "The UDID_keychain.plist used with a zip input is found by the UDID in the zip's name, beside the zip, or else by the UDID in the name of the folder two levels above the zip, in that folder or beside it. The file name is compared without regard to case. It is read only when no KeychainDump or iTunes backup keychain is found. From an iTunes backup keychain, items whose class key has a WRAP value other than 2 are skipped without a log line.",
         "paths": (
             '*/keychain-backup.plist',
             '*/extra/KeychainDump/backup_keychain_v2.plist',
@@ -170,14 +170,14 @@ __artifacts_v2__ = {
                        "with access group apple and a com.apple.account SMTP, IMAP, CardDAV or "
                        "CalDAV password service. Records are read only from an exported keychain "
                        "(an iTunes backup keychain with its decryption keys, a KeychainDump "
-                       "backup_keychain_v2.plist, or a <UDID>_keychain.plist beside a zip input); keychain-2.db by itself is not decrypted, so no rows does not mean "
+                       "backup_keychain_v2.plist, or a UDID_keychain.plist (named with the device UDID) beside a zip input); keychain-2.db by itself is not decrypted, so no rows does not mean "
                        "the keychain holds none.",
         "author": "@kobo220",
         "creation_date": "2026-06-18",
         "last_update_date": "2026-11-28",
         "requirements": "none",
         "category": "Accounts & Credentials",
-        "notes": "The <UDID>_keychain.plist used with a zip input is found by the UDID in the zip's name, beside the zip, or else by the UDID in the name of the folder two levels above the zip, in that folder or beside it. The file name is compared without regard to case. It is read only when no KeychainDump or iTunes backup keychain is found. From an iTunes backup keychain, items whose class key has a WRAP value other than 2 are skipped without a log line. Records whose account holds no @ are not reported.",
+        "notes": "The UDID_keychain.plist used with a zip input is found by the UDID in the zip's name, beside the zip, or else by the UDID in the name of the folder two levels above the zip, in that folder or beside it. The file name is compared without regard to case. It is read only when no KeychainDump or iTunes backup keychain is found. From an iTunes backup keychain, items whose class key has a WRAP value other than 2 are skipped without a log line. Records whose account holds no @ are not reported.",
         "paths": (
             '*/keychain-backup.plist',
             '*/extra/KeychainDump/backup_keychain_v2.plist',
