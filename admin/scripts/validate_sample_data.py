@@ -71,6 +71,7 @@ import subprocess
 import sys
 import tempfile
 import zipfile
+import zlib
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
@@ -398,7 +399,7 @@ def execute_tool(source, label, log_name, report, keep=False, declared_type=None
         try:
             try:
                 backup = stage_itunes_backup(source, staged)
-            except (ValueError, OSError, zipfile.BadZipFile) as ex:
+            except (ValueError, OSError, zipfile.BadZipFile, zlib.error, RuntimeError) as ex:
                 report.error(f"{label}: could not unpack the iTunes backup {source.name}: {ex}")
                 return None, None, None
             return _execute_tool(backup, label, log_name, report, keep=keep, declared_type="itunes")
