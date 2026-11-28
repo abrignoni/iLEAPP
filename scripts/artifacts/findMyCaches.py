@@ -52,7 +52,7 @@ __artifacts_v2__ = {
             "dexter_ios18": "iOS 18.3.2 | 3 rows",
             "felix_ios17": "iOS 17.6.1 | 7 rows",
             "otto_ios17": "iOS 17.5.1 | 2 rows",
-            "falken_ios26": "iOS 26.2.1 | 2 rows",
+            "falken_ios26": "iOS 26.2.1 | 2 rows (run with --keychain)",
             "hill_iphone15pro_ios26": "iOS 26.3.1 | 1 row",
             "wilkerson_iphone16_ios26": "iOS 26.5.2 | 4 rows",
         },
