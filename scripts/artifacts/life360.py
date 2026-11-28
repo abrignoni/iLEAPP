@@ -37,7 +37,7 @@ __artifacts_v2__ = {
         "sample_data": {
             "abe_ios16": "iOS 16.5 | Life360: Find Friends & Family 23.19.0 | 728 rows",
             "adams_iphone12mini": "iOS 17.1.1 | 0 rows",
-            "belkactf6": "0 rows",
+            "belkactf6_tar": "0 rows",
             "cookbook_ios1751": "iOS 17.5.1 | 0 rows",
             "ctf2020_ios12": "iOS 12.4 | 0 rows",
             "dexter_ios18": "iOS 18.3.2 | Life360: Stay Connected & Safe 25.37.0 | 628 rows",
@@ -77,7 +77,7 @@ __artifacts_v2__ = {
         "sample_data": {
             "abe_ios16": "iOS 16.5 | Life360: Find Friends & Family 23.19.0 | 728 rows",
             "adams_iphone12mini": "iOS 17.1.1 | 0 rows",
-            "belkactf6": "0 rows",
+            "belkactf6_tar": "0 rows",
             "cookbook_ios1751": "iOS 17.5.1 | 0 rows",
             "ctf2020_ios12": "iOS 12.4 | 0 rows",
             "dexter_ios18": "iOS 18.3.2 | Life360: Stay Connected & Safe 25.37.0 | 628 rows",
@@ -146,7 +146,7 @@ __artifacts_v2__ = {
         "sample_data": {
             "abe_ios16": "iOS 16.5 | 20421 rows",
             "adams_iphone12mini": "iOS 17.1.1 | 0 rows",
-            "belkactf6": "0 rows",
+            "belkactf6_tar": "0 rows",
             "cookbook_ios1751": "iOS 17.5.1 | 0 rows",
             "ctf2020_ios12": "iOS 12.4 | 0 rows",
             "dexter_ios18": "iOS 18.3.2 | 0 rows",
@@ -203,7 +203,7 @@ __artifacts_v2__ = {
         "sample_data": {
             "abe_ios16": "iOS 16.5 | 4024 rows",
             "adams_iphone12mini": "iOS 17.1.1 | 0 rows",
-            "belkactf6": "0 rows",
+            "belkactf6_tar": "0 rows",
             "cookbook_ios1751": "iOS 17.5.1 | 0 rows",
             "ctf2020_ios12": "iOS 12.4 | 0 rows",
             "dexter_ios18": "iOS 18.3.2 | 0 rows",

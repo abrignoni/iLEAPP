@@ -14,7 +14,7 @@ __artifacts_v2__ = {
         "sample_data": {
             "abe_ios16": "iOS 16.5 | 45 rows",
             "adams_iphone12mini": "iOS 17.1.1 | 0 rows (no Sync Data folder matched)",
-            "belkactf6": "iOS 16.3 | 0 rows (no Sync Data folder matched)",
+            "belkactf6_tar": "iOS 16.3 | 0 rows (no Sync Data folder matched)",
             "cookbook_ios1751": "iOS 17.5.1 | 0 rows (no live tab record in the Sync Data folders)",
             "ctf2020_ios12": "iOS 12.4 | 0 rows (no Sync Data folder matched)",
             "dexter_ios18": "iOS 18.3.2 | 68 rows",
@@ -53,7 +53,7 @@ __artifacts_v2__ = {
         "sample_data": {
             "abe_ios16": "iOS 16.5 | 1 row",
             "adams_iphone12mini": "iOS 17.1.1 | 0 rows (no Sync Data folder matched)",
-            "belkactf6": "iOS 16.3 | 0 rows (no Sync Data folder matched)",
+            "belkactf6_tar": "iOS 16.3 | 0 rows (no Sync Data folder matched)",
             "cookbook_ios1751": "iOS 17.5.1 | 0 rows (no live session header record in the Sync Data folders)",
             "ctf2020_ios12": "iOS 12.4 | 0 rows (no Sync Data folder matched)",
             "dexter_ios18": "iOS 18.3.2 | 1 row",
@@ -92,7 +92,7 @@ __artifacts_v2__ = {
         "sample_data": {
             "abe_ios16": "iOS 16.5 | 3 rows",
             "adams_iphone12mini": "iOS 17.1.1 | 0 rows (no Sync Data folder matched)",
-            "belkactf6": "iOS 16.3 | 0 rows (no Sync Data folder matched)",
+            "belkactf6_tar": "iOS 16.3 | 0 rows (no Sync Data folder matched)",
             "cookbook_ios1751": "iOS 17.5.1 | 0 rows (no live device_info record in the Sync Data folders)",
             "ctf2020_ios12": "iOS 12.4 | 0 rows (no Sync Data folder matched)",
             "dexter_ios18": "iOS 18.3.2 | 6 rows",
