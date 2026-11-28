@@ -31,7 +31,7 @@ __artifacts_v2__ = {
             "abe_ios16": "iOS 16.5 | 1 row",
             "felix23_ios16": "iOS 16.5 | 0 rows",
             "hickman_ios14": "iOS 14.3 | 0 rows",
-            "falken_ios26": "iOS 26.2.1 | 2 rows",
+            "falken_ios26": "iOS 26.2.1 | 2 rows (run with --keychain)",
             "hill_iphone15pro_ios26": "iOS 26.3.1 | 0 rows",
             "wilkerson_iphone16_ios26": "iOS 26.5.2 | 0 rows",
         },
@@ -71,7 +71,7 @@ __artifacts_v2__ = {
             "abe_ios16": "iOS 16.5 | 1 row",
             "felix23_ios16": "iOS 16.5 | 0 rows",
             "hickman_ios14": "iOS 14.3 | 0 rows",
-            "falken_ios26": "iOS 26.2.1 | 2 rows",
+            "falken_ios26": "iOS 26.2.1 | 2 rows (run with --keychain)",
             "hill_iphone15pro_ios26": "iOS 26.3.1 | 0 rows",
             "wilkerson_iphone16_ios26": "iOS 26.5.2 | 0 rows",
         }
@@ -112,7 +112,7 @@ __artifacts_v2__ = {
             "abe_ios16": "iOS 16.5 | 1 row",
             "felix23_ios16": "iOS 16.5 | 0 rows",
             "hickman_ios14": "iOS 14.3 | 0 rows",
-            "falken_ios26": "iOS 26.2.1 | 1 row",
+            "falken_ios26": "iOS 26.2.1 | 1 row (run with --keychain)",
             "hill_iphone15pro_ios26": "iOS 26.3.1 | 0 rows",
             "wilkerson_iphone16_ios26": "iOS 26.5.2 | 0 rows",
         }
@@ -154,7 +154,7 @@ __artifacts_v2__ = {
             "abe_ios16": "iOS 16.5 | 1 row",
             "felix23_ios16": "iOS 16.5 | 0 rows",
             "hickman_ios14": "iOS 14.3 | 0 rows",
-            "falken_ios26": "iOS 26.2.1 | 2 rows",
+            "falken_ios26": "iOS 26.2.1 | 2 rows (run with --keychain)",
             "hill_iphone15pro_ios26": "iOS 26.3.1 | 0 rows",
             "wilkerson_iphone16_ios26": "iOS 26.5.2 | 0 rows",
         }
