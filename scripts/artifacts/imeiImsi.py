@@ -1,15 +1,16 @@
 __artifacts_v2__ = {
     "imeiImsi": {
         "name": "IMEI - IMSI",
-        "description": "Lists the top-level keys of each com.apple.commcenter.plist found, as stored. Under PersonalWallet the lastGoodImsi, kEntitlementsSelfRegistrationUpdateImsi and kEntitlementsSelfRegistrationUpdateImei values of each entry's CarrierEntitlements are reported; when a file holds more than one entry, each of those labels carries the entry's key in parentheses.",
+        "description": "Lists the top-level keys of each com.apple.commcenter.plist found, with the values plistlib decodes shown as text. PhoneNumber and LastKnownICCI are labelled Phone Number and Last Known ICCI. A PersonalWallet dictionary is not listed as a key: the lastGoodImsi, kEntitlementsSelfRegistrationUpdateImsi and kEntitlementsSelfRegistrationUpdateImei values of each entry's CarrierEntitlements are reported instead, and a field an entry does not hold is reported as an empty value. When a file holds more than one entry, each of those labels carries the entry's key in parentheses.",
         "author": "@AlexisBrignoni - @stark4n6",
         "version": "0.3",
         "creation_date": "2023-10-03",
-        "last_update_date": "2026-10-26",
+        "last_update_date": "2026-11-28",
         "requirements": "none",
         "category": "Device Information",
-        "notes": "Reading more than one PersonalWallet entry was exercised on magnet_ios16, whose "
-                 "plist holds two entries. Reading more than one matched plist was not exercised on "
+        "notes": "Reading more than one PersonalWallet entry was exercised on felix_ios17, whose "
+                 "plist holds four entries, and on dexter_ios18, iphone14plus_ios18 and magnet_ios16, "
+                 "which hold two each. Reading more than one matched plist was not exercised on "
                  "a tested image. A PersonalWallet entry with no CarrierEntitlements dictionary is "
                  "logged and not reported.",
         "paths": ('*/wireless/Library/Preferences/com.apple.commcenter.plist'),
@@ -17,13 +18,13 @@ __artifacts_v2__ = {
         "artifact_icon": "hash",
         "sample_data": {
             "ctf2020_ios12": "iOS 12.4 | 20 rows",
-            "dexter_ios18": "iOS 18.3.2 | 23 rows",
-            "felix_ios17": "iOS 17.6.1 | 23 rows",
+            "dexter_ios18": "iOS 18.3.2 | 26 rows",
+            "felix_ios17": "iOS 17.6.1 | 32 rows",
             "fsfull002_ios17": "iOS 17.1 | 21 rows",
             "hc_ios18_7": "iOS 18.7.8 | 18 rows",
             "iphone11_ios17": "iOS 17.3 | 21 rows",
             "iphone12_ios18": "iOS 18.7 | 18 rows",
-            "iphone14plus_ios18": "iOS 18.0 | 22 rows",
+            "iphone14plus_ios18": "iOS 18.0 | 25 rows",
             "otto_ios17": "iOS 17.5.1 | 21 rows",
             "abe_ios16": "iOS 16.5 | 20 rows",
             "felix23_ios16": "iOS 16.5 | 21 rows",
