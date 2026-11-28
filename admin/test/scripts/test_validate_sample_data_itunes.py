@@ -101,6 +101,40 @@ class ItunesInputTest(unittest.TestCase):
         self.assertEqual(result, (None, None, None))
         self.assertEqual(len(report.errors), 1)
 
+    def test_a_zip_that_fails_while_extracting_is_reported_not_run(self):
+        def corrupt_data(raw, info):
+            start = info.header_offset + 30 + len(info.filename)
+            raw[start] = 0xFF  # deflate block type 3 is invalid: zlib.error
+
+        def set_encrypted(raw, info):
+            raw[info.header_offset + 6] |= 1
+            central = raw.rindex(b'PK\x01\x02')
+            raw[central + 8] |= 1  # needs a password: RuntimeError
+
+        for name, damage in (('zlib', corrupt_data), ('encrypted', set_encrypted)):
+            with self.subTest(name), tempfile.TemporaryDirectory() as folder:
+                source = pathlib.Path(folder) / 'b.zip'
+                with zipfile.ZipFile(source, 'w', zipfile.ZIP_DEFLATED) as archive:
+                    archive.writestr('udid/Manifest.db', b'x')
+                    archive.writestr('udid/ab/abcdef', b'x' * 100)
+                with zipfile.ZipFile(source) as archive:
+                    info = archive.infolist()[-1]
+                raw = bytearray(source.read_bytes())
+                damage(raw, info)
+                source.write_bytes(bytes(raw))
+                report = _Report()
+                made = []
+                real_mkdtemp = tempfile.mkdtemp
+                with patch.object(self.vsd, '_execute_tool') as inner, \
+                        patch.object(self.vsd.tempfile, 'mkdtemp',
+                                     side_effect=lambda **kw: made.append(real_mkdtemp(**kw)) or made[-1]):
+                    result = self.vsd.execute_tool(source, 'label', 'log', report, declared_type='itunes')
+                inner.assert_not_called()
+                self.assertEqual(result, (None, None, None))
+                self.assertEqual(len(report.errors), 1)
+                self.assertIn('b.zip', report.errors[0])
+                self.assertFalse(pathlib.Path(made[0]).exists())
+
     def test_other_types_are_passed_through_unchanged(self):
         with patch.object(self.vsd, '_execute_tool', return_value=('p', 'o', 'l')) as inner:
             result = self.vsd.execute_tool(pathlib.Path('/nowhere/a.zip'), 'label', 'log', _Report())
