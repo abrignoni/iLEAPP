@@ -56,5 +56,32 @@ class DateTimeOriginalTests(unittest.TestCase):
         self.assertIn('Orientation: 6', tags)
 
 
+class ReaderByContentTests(unittest.TestCase):
+    """The reader is picked by the file's bytes, not its name."""
+
+    def test_jpeg_content_under_a_heic_name_is_read_with_pillow(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            path = pathlib.Path(tmp) / 'IMG_0001.HEIC'
+            exif = Image.Exif()
+            exif[306] = '2024:01:02 03:04:05'
+            Image.new('RGB', (8, 8), 'gray').save(path, format='JPEG', exif=exif)
+
+            dt, _dto, _lat, _lon, tags = photosDbexif._read_file_exif(path)  # pylint: disable=protected-access
+
+        self.assertEqual(dt, '2024:01:02 03:04:05')
+        self.assertIn('DateTime: 2024:01:02 03:04:05', tags)
+
+    @unittest.skipUnless(heicreader.available(), 'heicreader has no helper for this platform')
+    def test_heic_content_under_a_jpg_name_is_read_with_heicreader(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            path = pathlib.Path(tmp) / 'IMG_0002.JPG'
+            path.write_bytes((HEIC_FIXTURES / 'orientation.heic').read_bytes())
+
+            dt, _dto, _lat, _lon, tags = photosDbexif._read_file_exif(path)  # pylint: disable=protected-access
+
+        self.assertEqual(dt, '2026:11:07 10:00:00')
+        self.assertIn('Orientation: 6', tags)
+
+
 if __name__ == '__main__':
     unittest.main()
