@@ -159,7 +159,7 @@ __artifacts_v2__ = {
         "sample_data": {
             "abe_ios16": "iOS 16.5 | 3 rows",
             "adams_iphone12mini": "iOS 17.1.1 | 2 rows",
-            "belkactf6": "iOS 16.3 | 1 row",
+            "belkactf6_tar": "iOS 16.3 | 1 row",
             "ctf2020_ios12": "iOS 12.4 | 6 rows",
             "dexter_ios18": "iOS 18.3.2 | 7 rows",
             "hexordia_ios1651": "iOS 16.5.1 | 1 row",
@@ -202,7 +202,7 @@ __artifacts_v2__ = {
         "sample_data": {
             "abe_ios16": "iOS 16.5 | 5 rows",
             "adams_iphone12mini": "iOS 17.1.1 | 1 row",
-            "belkactf6": "iOS 16.3 | 1 row",
+            "belkactf6_tar": "iOS 16.3 | 1 row",
             "ctf2020_ios12": "iOS 12.4 | 5 rows",
             "dexter_ios18": "iOS 18.3.2 | 3 rows",
             "hexordia_ios1651": "iOS 16.5.1 | 4 rows",

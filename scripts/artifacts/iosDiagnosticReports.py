@@ -42,7 +42,7 @@ __artifacts_v2__ = {
         "sample_data": {
             "abe_ios16": "iOS 16.5 | 161 rows",
             "adams_iphone12mini": "iOS 17.1.1 | 0 rows",
-            "belkactf6": "iOS 16.3 | 26 rows",
+            "belkactf6_tar": "iOS 16.3 | 26 rows",
             "cookbook_ios1751": "iOS 17.5.1 | 31 rows",
             "ctf2020_ios12": "iOS 12.4 | 169 rows",
             "dexter_ios18": "iOS 18.3.2 | 0 rows",
@@ -111,7 +111,7 @@ __artifacts_v2__ = {
         "sample_data": {
             "abe_ios16": "iOS 16.5 | 2 rows",
             "adams_iphone12mini": "iOS 17.1.1 | 0 rows",
-            "belkactf6": "iOS 16.3 | 2 rows",
+            "belkactf6_tar": "iOS 16.3 | 2 rows",
             "cookbook_ios1751": "iOS 17.5.1 | 0 rows",
             "ctf2020_ios12": "iOS 12.4 | 60 rows",
             "dexter_ios18": "iOS 18.3.2 | 0 rows",
@@ -167,7 +167,7 @@ __artifacts_v2__ = {
         "sample_data": {
             "abe_ios16": "iOS 16.5 | 776 rows",
             "adams_iphone12mini": "iOS 17.1.1 | 0 rows",
-            "belkactf6": "iOS 16.3 | 0 rows",
+            "belkactf6_tar": "iOS 16.3 | 0 rows",
             "cookbook_ios1751": "iOS 17.5.1 | 0 rows",
             "ctf2020_ios12": "iOS 12.4 | 0 rows",
             "dexter_ios18": "iOS 18.3.2 | 0 rows",
@@ -217,7 +217,7 @@ __artifacts_v2__ = {
         "sample_data": {
             "abe_ios16": "iOS 16.5 | 14 rows",
             "adams_iphone12mini": "iOS 17.1.1 | 0 rows",
-            "belkactf6": "iOS 16.3 | 0 rows",
+            "belkactf6_tar": "iOS 16.3 | 0 rows",
             "cookbook_ios1751": "iOS 17.5.1 | 0 rows",
             "ctf2020_ios12": "iOS 12.4 | 9 rows",
             "dexter_ios18": "iOS 18.3.2 | 0 rows",
@@ -280,7 +280,7 @@ __artifacts_v2__ = {
         "sample_data": {
             "abe_ios16": "iOS 16.5 | 60 rows",
             "adams_iphone12mini": "iOS 17.1.1 | 0 rows",
-            "belkactf6": "iOS 16.3 | 7 rows",
+            "belkactf6_tar": "iOS 16.3 | 7 rows",
             "cookbook_ios1751": "iOS 17.5.1 | 6 rows",
             "ctf2020_ios12": "iOS 12.4 | 99 rows",
             "dexter_ios18": "iOS 18.3.2 | 0 rows",
@@ -335,7 +335,7 @@ __artifacts_v2__ = {
         "sample_data": {
             "abe_ios16": "iOS 16.5 | 5527 rows",
             "adams_iphone12mini": "iOS 17.1.1 | 0 rows",
-            "belkactf6": "iOS 16.3 | 186 rows",
+            "belkactf6_tar": "iOS 16.3 | 186 rows",
             "cookbook_ios1751": "iOS 17.5.1 | 83 rows",
             "ctf2020_ios12": "iOS 12.4 | 650 rows",
             "dexter_ios18": "iOS 18.3.2 | 0 rows",
