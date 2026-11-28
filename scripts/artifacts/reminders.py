@@ -65,7 +65,7 @@ __artifacts_v2__ = {
             "jess_ios15": "iOS 15.0.2 | 0 rows",
             "hickman_ios15": "iOS 15.3.1 | 0 rows",
             "magnet_ios16": "iOS 16.1.1 | 0 rows",
-            "belkactf6": "iOS 16.3 | 14 rows (run against the decrypted filesystem copy)",
+            "belkactf6_tar": "iOS 16.3 | 14 rows",
             "abe_ios16": "iOS 16.5 | 2 rows",
             "felix23_ios16": "iOS 16.5 | 0 rows",
             "hexordia_ios1651": "iOS 16.5.1 | 0 rows",
